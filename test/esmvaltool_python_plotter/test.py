@@ -9,10 +9,28 @@ def test():
             "settings_file_path": "./dist/cases/case1/settings.yml",
             "force": "false",
             "ignore_existing": "false",
-            "log_level": "debug"
+            "log_level": "debug",
+            "diag_script": {
+                "group": "base",
+                "name": "examples/diagnostic.py",
+            }
         },
         work_dir="./dist/cases/case1/run",
-        config={},
+        config={
+            "esmvaltool_python_plotter": {
+            },
+            "esmvaltool": {
+                "executables": {
+                    "py": "/home/hujk/.pyenv/versions/anaconda3-2019.10/envs/esmvaltool/bin/python3"
+                },
+                "recipes": {
+                    "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/recipes",
+                },
+                "diag_scripts": {
+                    "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/diag_scripts",
+                },
+            }
+        },
     )
 
 

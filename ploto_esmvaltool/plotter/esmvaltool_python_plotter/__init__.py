@@ -1,7 +1,5 @@
 import os
-from pathlib import Path
 import subprocess
-import json
 
 from loguru import logger
 
@@ -20,7 +18,11 @@ def run_plotter(task: dict, work_dir: str, config: dict):
             "settings_file_path": "some/path/to/settings.yml",
             "force": "false",
             "ignore_existing": "false",
-            "log_level": "debug"
+            "log_level": "debug",
+            "diag_script": {
+                "group": "base",
+                "name": "examples/diagnostic.py",
+            }
         }
     work_dir: str
 
@@ -36,9 +38,16 @@ def run_plotter(task: dict, work_dir: str, config: dict):
 
     logger.info("run esmvaltool_python_plotter program...")
 
+    diag_script_config = task["diag_script"]
+    diag_script_path = (
+        f"{config['esmvaltool']['diag_scripts'][diag_script_config['group']]}/"
+        f"{diag_script_config['name']}"
+    )
+    executable = config["esmvaltool"]["executables"]["py"]
+
     cmd = [
-        "/home/hujk/.pyenv/versions/anaconda3-2019.10/envs/esmvaltool/bin/python3",
-        "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/diag_scripts/examples/diagnostic.py",
+        executable,
+        diag_script_path,
         "-f",
         "-i",
         task["settings_file_path"],
