@@ -2,6 +2,7 @@ from ploto_esmvaltool.processor.esmvaltool_pre_processor import run_processor
 
 
 def test_esmvaltool_pre_processor():
+    output_dir = "/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/recipe_20200227_024352"
     variables = [
         {
             'preprocessor': 'preprocessor1',
@@ -29,8 +30,7 @@ def test_esmvaltool_pre_processor():
             'alias': 'CanESM2',
 
             'filename': (
-                '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/'
-                'recipe_20200227_024352/preproc/diagnostic1/ta/CMIP5_CanESM2_Amon_historical_r1i1p1_ta_1996-1998.nc'
+                f'{output_dir}/preproc/diagnostic1/ta/CMIP5_CanESM2_Amon_historical_r1i1p1_ta_1996-1998.nc'
             )
         },
         {
@@ -59,8 +59,7 @@ def test_esmvaltool_pre_processor():
             'alias': 'FGOALS-g2',
 
             'filename': (
-                '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/'
-                'recipe_20200227_024352/preproc/diagnostic1/ta/CMIP5_FGOALS-g2_Amon_historical_r1i1p1_ta_1996-1998.nc'
+                f'{output_dir}/preproc/diagnostic1/ta/CMIP5_FGOALS-g2_Amon_historical_r1i1p1_ta_1996-1998.nc'
             )
         }
     ]
@@ -81,28 +80,29 @@ def test_esmvaltool_pre_processor():
         },
         "default": {},
     }
-    config_user = {
+
+    config = {
         'rootpath': {
             'CMIP5': [
                 '/home/hujk/ploto/esmvaltool/data/cmip5',
                 '/data/brick/b3/cmip5/disk1/CanESM2/CanESM2_Amon_historical_r1i1p1_output1',
                 '/data/brick/b4/cmip5/disk6/historical/mon/atmos/ta/r1i1p1',
-                '/data/brick/b4/cmip5/disk6/historical/mon/atmos/pr/r1i1p1'],
-            'CMIP6': ['/home/hujk/ploto/esmvaltool/data/cmip6'],
-            'OBS': ['/home/hujk/ploto/esmvaltool/data/obs'],
-            'RAWOBS': ['/home/hujk/ploto/esmvaltool/data/rawobs'],
-            'default': ['/home/hujk/ploto/esmvaltool/data/default']
+                '/data/brick/b4/cmip5/disk6/historical/mon/atmos/pr/r1i1p1'
+            ],
+            'CMIP6': [
+                '/home/hujk/ploto/esmvaltool/data/cmip6'
+            ],
+            'OBS': '/home/hujk/ploto/esmvaltool/data/obs',
+            'RAWOBS': '/home/hujk/ploto/esmvaltool/data/rawobs',
+            'default': '/home/hujk/ploto/esmvaltool/data/default'
         },
-        'drs': {'CMIP5': 'default', 'CMIP6': 'default'},
-
-        'preproc_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/recipe_20200227_024352/preproc',
-        'work_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/recipe_20200227_024352/work',
-        'plot_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/recipe_20200227_024352/plots',
-        'run_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/recipe_20200227_024352/run',
-        'output_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output/recipe_20200227_024352',
-        'auxiliary_data_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/auxiliary_data',
-
+        'drs': {
+            'CMIP5': 'default',
+            'CMIP6': 'default'
+        },
         'max_parallel_tasks': 1,
+        'output_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/esmvaltool_output',
+        'auxiliary_data_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/auxiliary_data',
         'write_plots': True,
         'write_netcdf': True,
         'log_level': 'info',
@@ -112,14 +112,10 @@ def test_esmvaltool_pre_processor():
         'save_intermediary_cubes': True,
         'remove_preproc_dir': False,
         'profile_diagnostic': False,
-        'max_data_filesize': 100,
-        'run_diagnostic': True,
-        'config_developer_file': None,
-        'skip-nonexistent': False,
-        'diagnostics': set(),
-        'synda_download': False,
-        'write_ncl_interface': False
+
+        'write_ncl_interface': False,
     }
+
     recipe_documentation = {
         'description': 'Example recipe that plots the mean precipitation and temperature.\n',
         'authors': ['andela_bouwe', 'righi_mattia'],
@@ -135,7 +131,7 @@ def test_esmvaltool_pre_processor():
             "task_name": "diagnostics/ta",
             "variables": variables,
             "profiles": profiles,
-            "config_user": config_user,
+            "config": config,
             "recipe_name": "recipe.yml",
             "recipe_documentation": recipe_documentation,
         },
