@@ -6,7 +6,7 @@ from loguru import logger
 
 def run_plotter(task: dict, work_dir: str, config: dict):
     """
-    run esmvaltool python plotter
+    run esmvaltool python diagnostics script.
 
     Parameters
     ----------
@@ -28,6 +28,17 @@ def run_plotter(task: dict, work_dir: str, config: dict):
 
     config: dict
         {
+            "esmvaltool": {
+                "executables": {
+                    "py": "/some/path/to/python3"
+                },
+                "recipes": {
+                    "base": "/some/path/to/ESMValTool/esmvaltool/recipes",
+                },
+                "diag_scripts": {
+                    "base": "/some/path/to/ESMValTool/esmvaltool/diag_scripts",
+                },
+            }
         }
 
     """
