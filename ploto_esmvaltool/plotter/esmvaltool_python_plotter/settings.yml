@@ -1,0 +1,35 @@
+# an example for setting.xml
+# SECTION: input
+auxiliary_data_dir: /some/path/auxiliary_data
+input_files:
+- /some/path/preproc/diagnostic1/ta/metadata.yml
+- /some/path/preproc/diagnostic1/pr/metadata.yml
+
+max_data_filesize: 100
+
+realms:
+- atmos
+themes:
+- phys
+
+# SECTION: diag settings
+recipe: recipe.yml
+script: script1
+
+profile_diagnostic: false
+  write_netcdf: true
+  write_plots: true
+
+# SECTION: output
+output_file_type: png
+quickplot:
+  plot_type: pcolormesh
+
+# SECTION: working dir
+run_dir: /some/path/run/diagnostic1/script1
+work_dir: /hsome/path/work/diagnostic1/script1
+plot_dir: /some/path/plots/diagnostic1/script1
+
+# SECTION: esmvaltool settings
+log_level: info
+version: 2.0.0b5
