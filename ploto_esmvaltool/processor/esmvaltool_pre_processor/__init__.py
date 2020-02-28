@@ -59,13 +59,7 @@ def run_processor(
         yaml.safe_dump(task["config"], f)
 
     config_user = read_config_user_file(config_file_path, task["recipe_name"])
-
-    # modify run directories generate by config_user.
-    config_user['output_dir'] = work_dir
-    config_user['preproc_dir'] = str(Path(work_dir, 'preproc'))
-    config_user['work_dir'] = str(Path(work_dir, 'work'))
-    config_user['plot_dir'] = str(Path(work_dir, 'plots'))
-    config_user['run_dir'] = str(Path(work_dir, 'run'))
+    config_user = replace_config_directories(config_user, work_dir)
 
     config_user['skip-nonexistent'] = False
     config_user['diagnostics'] = {}
@@ -86,3 +80,13 @@ def run_processor(
 
     logger.info(f"output files: {output_files}")
     logger.info("running processor done: esmvaltool_pre_processor")
+
+
+def replace_config_directories(config_user: dict, work_dir: str):
+    # modify run directories generate by config_user.
+    config_user['output_dir'] = work_dir
+    config_user['preproc_dir'] = str(Path(work_dir, 'preproc'))
+    config_user['work_dir'] = str(Path(work_dir, 'work'))
+    config_user['plot_dir'] = str(Path(work_dir, 'plots'))
+    config_user['run_dir'] = str(Path(work_dir, 'run'))
+    return config_user
