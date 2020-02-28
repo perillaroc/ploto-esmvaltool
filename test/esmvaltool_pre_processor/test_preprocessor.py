@@ -54,16 +54,16 @@ def test_esmvaltool_pre_processor():
         raw_recipe = yaml.safe_load(f)
 
     raw_variable = {
-        # from recipe["diagnostics"]["diagnostic1"]["variables"]["ta"] +
+        # from recipe["diagnostics"]["diagnostic1"]["variables"]["ta"]
         'preprocessor': 'preprocessor1',
 
-        # added by esmvaltool
+        # added by esmvalcore.Recipe, values are all from recipe
         "variable_group": "ta",
         "short_name": "ta",
         "diagnostic": "diagnostic1",
     }
 
-    # from recipe["datasets"] + additional datasets
+    # load from recipe["datasets"] + diagnostic's additional datasets from recipe
     raw_datasets = [
         {
             'dataset': 'CanESM2',
@@ -94,7 +94,7 @@ def test_esmvaltool_pre_processor():
         raw_datasets=raw_datasets,
     )
 
-    # from recipe.yml["documentation"]
+    # from recipe["documentation"]
     recipe_documentation = {
         'description': 'Example recipe that plots the mean precipitation and temperature.\n',
         'authors': ['andela_bouwe', 'righi_mattia'],
@@ -103,7 +103,7 @@ def test_esmvaltool_pre_processor():
         'projects': ['esmval', 'c3s-magic']
     }
 
-    # from recipe.yml["preprocessors"]
+    # from recipe["preprocessors"] + default
     profiles = {
         "preprocessor1": {
             "extract_levels": {
