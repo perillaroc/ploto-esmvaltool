@@ -52,7 +52,7 @@ def run_processor(
 
 
 def get_preprocessor_task(task: dict, work_dir: str, config: dict):
-    config_user = get_config_user(task, work_dir)
+    config_user = get_config_user(task["config"], task["recipe_name"], work_dir)
 
     profiles = task["profiles"]
     variables = task["variables"]
@@ -71,11 +71,11 @@ def get_preprocessor_task(task: dict, work_dir: str, config: dict):
     return preprocessor_task
 
 
-def get_config_user(task: dict, work_dir: str) -> dict:
+def get_config_user(esmvaltool_config: dict, recipe_name: str, work_dir: str) -> dict:
     config_file_path = Path(work_dir, "config.yaml")
     with open(config_file_path, "w") as f:
-        yaml.safe_dump(task["config"], f)
-    config_user = read_config_user_file(config_file_path, task["recipe_name"])
+        yaml.safe_dump(esmvaltool_config, f)
+    config_user = read_config_user_file(config_file_path, recipe_name)
     config_user = replace_config_directories(config_user, work_dir)
 
     config_user['skip-nonexistent'] = False
