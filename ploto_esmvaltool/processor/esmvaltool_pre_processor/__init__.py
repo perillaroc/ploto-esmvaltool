@@ -41,7 +41,7 @@ def run_processor(
 
     """
     logger.info("running processor: esmvaltool_pre_processor")
-    _ = configure_logging(console_log_level="INFO")
+    _ = configure_logging(console_log_level="DEBUG")
 
     # get from recipe.yml
     recipe_documentation = task["recipe_documentation"]
@@ -60,12 +60,18 @@ def run_processor(
 
     config_user = read_config_user_file(config_file_path, task["recipe_name"])
 
+    # modify run directories generate by config_user.
+    config_user['output_dir'] = work_dir
+    config_user['preproc_dir'] = str(Path(work_dir, 'preproc'))
+    config_user['work_dir'] = str(Path(work_dir, 'work'))
+    config_user['plot_dir'] = str(Path(work_dir, 'plots'))
+    config_user['run_dir'] = str(Path(work_dir, 'run'))
+
     config_user['skip-nonexistent'] = False
     config_user['diagnostics'] = {}
     config_user['synda_download'] = False
 
     profiles = task["profiles"]
-
     variables = task["variables"]
 
     task = _get_preprocessor_task(
