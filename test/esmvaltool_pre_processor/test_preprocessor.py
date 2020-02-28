@@ -99,6 +99,7 @@ def test_esmvaltool_pre_processor():
 
     # from config.yml
     config = {
+        # data dirs
         'rootpath': {
             'CMIP5': [
                 '/home/hujk/ploto/esmvaltool/data/cmip5',
@@ -117,9 +118,13 @@ def test_esmvaltool_pre_processor():
             'CMIP5': 'default',
             'CMIP6': 'default'
         },
-        'max_parallel_tasks': 1,
-        'output_dir': work_dir,
         'auxiliary_data_dir': '/home/hujk/ploto/esmvaltool/cases/case5/case5.1/auxiliary_data',
+
+        # output dir
+        'output_dir': work_dir,  # 会被esmvalcore替换掉，需要在processor中手动修改
+
+        # settings
+        'max_parallel_tasks': 1,
         'write_plots': True,
         'write_netcdf': True,
         'log_level': 'info',
