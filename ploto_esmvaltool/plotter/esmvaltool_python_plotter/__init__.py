@@ -1,7 +1,9 @@
 import os
 import subprocess
+from pathlib import Path
 
 from loguru import logger
+import yaml
 
 
 def run_plotter(task: dict, work_dir: str, config: dict):
@@ -15,14 +17,18 @@ def run_plotter(task: dict, work_dir: str, config: dict):
         {
             "step_type": "plotter",
             "type": "ploto_esmvaltool.plotter.esmvaltool_python_plotter",
-            "settings_file_path": "some/path/to/settings.yml",
             "force": "false",
             "ignore_existing": "false",
             "log_level": "debug",
             "diag_script": {
                 "group": "base",
                 "name": "examples/diagnostic.py",
-            }
+            },
+            "settings": {
+            },
+            "input_files": [
+
+            ]
         }
     work_dir: str
 
@@ -49,6 +55,15 @@ def run_plotter(task: dict, work_dir: str, config: dict):
 
     logger.info("run esmvaltool_python_plotter program...")
 
+    settings = task["settings"]
+    input_files = task["input_files"]
+    settings = add_input_files(settings, input_files)
+    settings = replace_settings_directories(settings, work_dir)
+
+    settings_file_path = Path(work_dir, "settings.yml")
+    with open(settings_file_path, "w") as f:
+        yaml.safe_dump(settings, f)
+
     diag_script_config = task["diag_script"]
     diag_script_path = (
         f"{config['esmvaltool']['diag_scripts'][diag_script_config['group']]}/"
@@ -61,7 +76,7 @@ def run_plotter(task: dict, work_dir: str, config: dict):
         diag_script_path,
         "-f",
         "-i",
-        task["settings_file_path"],
+        settings_file_path,
     ]
 
     logger.info(f"command: {cmd}")
@@ -73,3 +88,18 @@ def run_plotter(task: dict, work_dir: str, config: dict):
     )
 
     logger.info('running esmvaltool_python_plotter...done')
+
+
+def add_input_files(settings: dict, input_files: list) -> dict:
+    settings['input_files'] = [
+        f for f in input_files
+        if f.endswith('.yml') or os.path.isdir(f)
+    ]
+    return settings
+
+
+def replace_settings_directories(settings: dict, work_dir: str) -> dict:
+    settings['work_dir'] = str(Path(work_dir, 'work'))
+    settings['plot_dir'] = str(Path(work_dir, 'plots'))
+    settings['run_dir'] = str(Path(work_dir, 'run'))
+    return settings
