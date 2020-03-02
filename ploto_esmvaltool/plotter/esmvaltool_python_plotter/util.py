@@ -12,6 +12,22 @@ def generate_script_settings(
         script_name: str,
 ) -> dict:
     """
+    Generate diagnostic script settings using esmvalcore.Recipe
+
+    Parameters
+    ----------
+    raw_recipe: dict
+    config_file: str
+        config_file_path
+    recipe_file: str
+        recipe file path.
+    diagnostic_name: str
+    script_name: str
+
+    Returns
+    -------
+    dict:
+        script settings
     """
     config_user = read_config_user_file(config_file=config_file, recipe_name="recipe")
 

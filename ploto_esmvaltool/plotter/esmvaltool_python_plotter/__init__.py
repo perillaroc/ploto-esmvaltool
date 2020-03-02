@@ -91,6 +91,21 @@ def run_plotter(task: dict, work_dir: str, config: dict):
 
 
 def add_input_files(settings: dict, input_files: list) -> dict:
+    """
+    Add input files, only yaml files are supported.
+
+    Parameters
+    ----------
+    settings: dict
+        settings from plotter's task
+    input_files: list
+        input file list
+
+    Returns
+    -------
+    dict:
+        settings with input files
+    """
     settings['input_files'] = [
         f for f in input_files
         if f.endswith('.yml') or os.path.isdir(f)
@@ -99,6 +114,20 @@ def add_input_files(settings: dict, input_files: list) -> dict:
 
 
 def replace_settings_directories(settings: dict, work_dir: str) -> dict:
+    """
+    Replace directories using work dir.
+
+    Parameters
+    ----------
+    settings: dict
+        settings from plotter's task
+    work_dir: str
+        task work dir
+    Returns
+    -------
+    dict:
+        settings with work dir
+    """
     settings['work_dir'] = str(Path(work_dir, 'work'))
     settings['plot_dir'] = str(Path(work_dir, 'plots'))
     settings['run_dir'] = str(Path(work_dir, 'run'))
