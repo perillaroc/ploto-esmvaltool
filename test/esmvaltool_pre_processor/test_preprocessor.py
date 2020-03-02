@@ -53,6 +53,7 @@ def test_esmvaltool_pre_processor():
     with open(recipe_file_path, "r") as f:
         raw_recipe = yaml.safe_load(f)
 
+    # see esmvalcore._recipe.Recipe._initialize_preprocessor_output method.
     raw_variable = {
         # from recipe["diagnostics"]["diagnostic1"]["variables"]["ta"]
         'preprocessor': 'preprocessor1',
@@ -64,6 +65,7 @@ def test_esmvaltool_pre_processor():
     }
 
     # load from recipe["datasets"] + diagnostic's additional datasets from recipe
+    # see esmvalcore._recipe.Recipe._initialize_diagnostics
     raw_datasets = [
         {
             'dataset': 'CanESM2',
@@ -119,6 +121,9 @@ def test_esmvaltool_pre_processor():
                 "statistics": ["mean", "median"],
             }
         },
+
+        # added by Recipe
+        # see esmvalcore._recipe.Recipe.__init__
         "default": {},
     }
 
