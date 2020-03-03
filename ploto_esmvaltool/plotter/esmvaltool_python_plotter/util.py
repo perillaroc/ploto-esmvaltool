@@ -28,6 +28,34 @@ def generate_script_settings(
     -------
     dict:
         script settings
+        {
+            # from diagnostic setting
+            'quickplot': {
+                'plot_type': 'pcolormesh'
+            },
+
+            # added by Recipe
+            'recipe': 'recipe.yml',
+            'version': '2.0.0b5',
+            'script': 'script1',
+
+            # from config_user
+            'run_dir': '/some/path/recipe_20200303_022547/run/diagnostic1/script1',
+            'plot_dir': '/some/path/recipe_20200303_022547/plots/diagnostic1/script1',
+            'work_dir': '/some/path/recipe_20200303_022547/work/diagnostic1/script1',
+
+            'max_data_filesize': 100,
+            'output_file_type': 'png',
+            'log_level': 'info',
+            'write_plots': True,
+            'write_netcdf': True,
+            'profile_diagnostic': False,
+            'auxiliary_data_dir': '/some/path/auxiliary_data',
+
+            # from diagnostic setting
+            'themes': ['phys'],
+            'realms': ['atmos']
+        }
     """
     config_user = read_config_user_file(config_file=config_file, recipe_name="recipe")
 
