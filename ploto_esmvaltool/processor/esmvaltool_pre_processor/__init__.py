@@ -53,7 +53,7 @@ def run_processor(
 
     """
     logger.info("running processor: esmvaltool_pre_processor")
-    _ = configure_logging(console_log_level="DEBUG")
+    _ = configure_logging(console_log_level="INFO")
 
     preprocessor_task = get_preprocessor_task(task, work_dir, config)
 
