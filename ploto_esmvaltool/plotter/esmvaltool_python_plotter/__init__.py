@@ -12,7 +12,7 @@ def run_plotter(task: dict, work_dir: str, config: dict):
 
     Parameters
     ----------
-    task:
+    task: dict
         a dict config of plotter task.
         {
             "step_type": "plotter",
