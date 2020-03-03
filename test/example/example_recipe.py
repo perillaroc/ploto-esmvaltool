@@ -2,17 +2,17 @@ import yaml
 
 from ploto_esmvaltool.processor.esmvaltool_pre_processor.util import generate_variables
 from ploto_esmvaltool.plotter.esmvaltool_python_plotter.util import generate_script_settings
-from ploto.step import run_steps
+from ploto.run import run_ploto
 
 
-def get_processor_tasks(work_dir: str, esmvaltool_config_file: str, raw_recipe: dict):
+def get_processor_tasks(esmvaltool_config_file: str, raw_recipe: dict):
     # load from config.yml
 
     config_file = esmvaltool_config_file
     with open(config_file, "r") as f:
         config = yaml.safe_load(f)
     config["write_ncl_interface"] = False
-    config["output"] = work_dir
+    # config["output"] = work_dir
 
     # from recipe["documentation"]
     recipe_documentation = raw_recipe["documentation"]
@@ -83,7 +83,7 @@ def get_processor_tasks(work_dir: str, esmvaltool_config_file: str, raw_recipe: 
     return tasks
 
 
-def get_plotter_task(work_dir: str, esmvaltool_config_file: str, raw_recipe: dict):
+def get_plotter_task(esmvaltool_config_file: str, raw_recipe: dict):
     settings = generate_script_settings(
         raw_recipe=raw_recipe,
         config_file=esmvaltool_config_file,
@@ -103,8 +103,8 @@ def get_plotter_task(work_dir: str, esmvaltool_config_file: str, raw_recipe: dic
             "name": "examples/diagnostic.py",
         },
         "input_files": [
-            f"{work_dir}/preproc/diagnostic1/ta/metadata.yml",
-            f"{work_dir}/preproc/diagnostic1/pr/metadata.yml",
+            "{work_dir}/preproc/diagnostic1/ta/metadata.yml",
+            "{work_dir}/preproc/diagnostic1/pr/metadata.yml",
         ],
         "settings": settings,
     }
@@ -121,8 +121,8 @@ def run_example():
         raw_recipe = yaml.safe_load(f)
 
     steps = []
-    steps.extend(get_processor_tasks(work_dir, esmvaltool_config_file, raw_recipe))
-    steps.extend(get_plotter_task(work_dir, esmvaltool_config_file, raw_recipe))
+    steps.extend(get_processor_tasks(esmvaltool_config_file, raw_recipe))
+    steps.extend(get_plotter_task(esmvaltool_config_file, raw_recipe))
 
     config = {
         "esmvaltool_python_plotter": {
@@ -137,10 +137,17 @@ def run_example():
             "diag_scripts": {
                 "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/diag_scripts",
             },
+        },
+        "base": {
+            "run_base_dir": "/home/hujk/ploto/ploto-esmvaltool/dist/cases/case1/run"
         }
     }
 
-    run_steps(steps, work_dir, config)
+    run_ploto({
+        "data": {
+            "steps": steps
+        }
+    }, config)
 
 
 if __name__ == "__main__":
