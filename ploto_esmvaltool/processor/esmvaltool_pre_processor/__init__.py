@@ -5,8 +5,10 @@ from loguru import logger
 import yaml
 
 from esmvalcore._config import (
-    configure_logging,
     read_config_user_file,
+)
+from esmvalcore._logging import (
+    configure_logging
 )
 from esmvalcore._recipe import (
     get_recipe_provenance,
@@ -93,6 +95,8 @@ def get_config_user(esmvaltool_config: dict, recipe_name: str, work_dir: str) ->
     config_user['skip-nonexistent'] = False
     config_user['diagnostics'] = {}
     config_user['synda_download'] = False
+    if "check_level" not in config_user:
+        config_user["check_level"] = "default"
 
     return config_user
 

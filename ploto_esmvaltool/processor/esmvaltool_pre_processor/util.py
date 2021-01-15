@@ -95,7 +95,7 @@ def generate_variables(
             }
         ]
     """
-    config_user = read_config_user_file(config_file=config_file, recipe_name="recipe")
+    config_user = read_config_user_file(config_file=config_file, folder_name="recipe")
 
     recipe = Recipe(
         raw_recipe,
