@@ -1,3 +1,5 @@
+import typing
+
 from esmvalcore.preprocessor import (
     load,
     save,
@@ -15,7 +17,12 @@ import iris
 from loguru import logger
 
 
-def run_load(operation, task, cube=None, **kwargs) -> iris.cube.CubeList:
+def run_load(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube=None,
+        **kwargs
+) -> iris.cube.CubeList:
     input_meta_file = task["input_meta_file"]
     with open(input_meta_file, "r") as f:
         m = yaml.safe_load(f)
@@ -35,7 +42,12 @@ def run_load(operation, task, cube=None, **kwargs) -> iris.cube.CubeList:
     return iris.cube.CubeList(cubes)
 
 
-def run_fix_metadata(operation, task, cube, **kwargs) -> iris.cube.CubeList:
+def run_fix_metadata(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube: iris.cube.CubeList,
+        **kwargs
+) -> iris.cube.CubeList:
     short_name = task["short_name"]
     project = task["project"]
     dataset = task["dataset"]
@@ -52,12 +64,22 @@ def run_fix_metadata(operation, task, cube, **kwargs) -> iris.cube.CubeList:
     return fixed_cubes
 
 
-def run_concatenate(operation, task, cube, **kwargs) -> iris.cube.Cube:
+def run_concatenate(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube: iris.cube.CubeList,
+        **kwargs
+) -> iris.cube.Cube:
     cubes = concatenate(cube)
     return cubes
 
 
-def run_cmor_check_metadata(operation, task, cube, **kwargs) -> iris.cube.Cube:
+def run_cmor_check_metadata(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube: iris.cube.Cube,
+        **kwargs
+) -> iris.cube.Cube:
     short_name = task["short_name"]
     project = task["project"]
     mip = task["mip"]
@@ -72,7 +94,12 @@ def run_cmor_check_metadata(operation, task, cube, **kwargs) -> iris.cube.Cube:
     return cubes
 
 
-def run_clip_start_end_year(operation, task, cube, **kwargs) -> iris.cube.Cube:
+def run_clip_start_end_year(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube: iris.cube.Cube,
+        **kwargs
+) -> iris.cube.Cube:
     start_year = task["start_year"]
     end_year = task["end_year"]
     cube = clip_start_end_year(
@@ -83,7 +110,12 @@ def run_clip_start_end_year(operation, task, cube, **kwargs) -> iris.cube.Cube:
     return cube
 
 
-def run_fix_data(operation, task, cube, **kwargs) -> iris.cube.Cube:
+def run_fix_data(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube: iris.cube.Cube,
+        **kwargs
+) -> iris.cube.Cube:
     short_name = task["short_name"]
     project = task["project"]
     dataset = task["dataset"]
@@ -99,7 +131,12 @@ def run_fix_data(operation, task, cube, **kwargs) -> iris.cube.Cube:
     return cubes
 
 
-def run_cmor_check_data(operation, task, cube, **kwargs) -> iris.cube.Cube:
+def run_cmor_check_data(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube: iris.cube.Cube,
+        **kwargs
+) -> iris.cube.Cube:
     short_name = task["short_name"]
     frequency = task["frequency"]
     mip = task["mip"]

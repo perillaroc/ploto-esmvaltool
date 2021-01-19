@@ -4,6 +4,7 @@ from pathlib import Path
 from loguru import logger
 import yaml
 
+import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
 
 def run_processor(
         task: typing.Dict,
@@ -23,5 +24,18 @@ def run_processor(
     """
     logger.info("running processor: esmvalcore_pre_processor")
 
+    operations = task["operations"]
+
+    cube = None
+    for step in operations:
+        op = step["type"]
+        logger.info(f"run step {op}")
+        fun = getattr(esmvalcore_operations, f"run_{op}")
+        cube = fun(
+            operation=step,
+            task=task,
+            cube=cube
+        )
+    print(cube)
 
     logger.info("running processor done: esmvalcore_pre_processor")

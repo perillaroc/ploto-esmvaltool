@@ -1,9 +1,10 @@
-from ploto_esmvaltool.processor.esmvalcore_pre_processor import operations as esmvalcore_operations
+from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 
 from loguru import logger
 
 
 def main():
+    work_dir = "./dist/tests/esmvalcore_pre_processor"
     operations = [
         {
             "type": "load",
@@ -52,19 +53,11 @@ def main():
         "short_name": "pr",
     }
 
-    cube = None
-    for step in operations:
-        op = step["type"]
-        logger.info(f"run step {op}")
-        fun = getattr(esmvalcore_operations, f"run_{op}")
-        cube = fun(
-            operation=step,
-            task=task,
-            cube=cube
-        )
-    print(cube)
-
-
+    run_processor(
+        task=task,
+        work_dir="",
+        config=None,
+    )
 
 
 if __name__ == "__main__":
