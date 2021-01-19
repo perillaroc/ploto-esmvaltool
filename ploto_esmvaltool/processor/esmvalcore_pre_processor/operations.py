@@ -4,6 +4,7 @@ from esmvalcore.preprocessor import (
     fix_metadata,
     concatenate,
     cmor_check_metadata,
+    clip_start_end_year,
     fix_data,
     cmor_check_data,
 )
@@ -69,6 +70,17 @@ def run_cmor_check_metadata(operation, task, cube, **kwargs) -> iris.cube.Cube:
         frequency="day",
     )
     return cubes
+
+
+def run_clip_start_end_year(operation, task, cube, **kwargs) -> iris.cube.Cube:
+    start_year = task["start_year"]
+    end_year = task["end_year"]
+    cube = clip_start_end_year(
+        cube,
+        start_year=start_year,
+        end_year=end_year,
+    )
+    return cube
 
 
 def run_fix_data(operation, task, cube, **kwargs) -> iris.cube.Cube:

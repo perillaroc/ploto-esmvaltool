@@ -18,6 +18,9 @@ def main():
             "type": "cmor_check_metadata",
         },
         {
+            "type": "clip_start_end_year"
+        },
+        {
             "type": "fix_data"
         },
         {
