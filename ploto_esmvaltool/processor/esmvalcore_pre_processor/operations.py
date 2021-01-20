@@ -1,4 +1,5 @@
 import typing
+from pathlib import Path
 
 from esmvalcore.preprocessor import (
     load,
@@ -151,3 +152,29 @@ def run_cmor_check_data(
     return cubes
 
 
+def run_save(
+        operation,
+        task: typing.Dict,
+        cubes,
+        work_dir: str =".",
+        **kwargs
+) -> str:
+    output_dir = Path(work_dir, task["output_directory"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    project = task["project"]
+    dataset = task["dataset"]
+    exp = task["exp"]
+    ensemble = task["ensemble"]
+    short_name = task["short_name"]
+    mip = task["mip"]
+    start_year = task["start_year"]
+    end_year = task["end_year"]
+
+    file_path = Path(output_dir, f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc")
+
+    return save(
+        cubes=cubes,
+        filename=file_path,
+        **kwargs
+    )

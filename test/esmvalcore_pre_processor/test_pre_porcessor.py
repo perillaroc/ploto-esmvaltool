@@ -31,7 +31,7 @@ def main():
 
     task = {
         # input files
-        "input_meta_file": "./input_meta_file.yml",
+        "input_meta_file": "./test/esmvalcore_pre_processor/input_meta_file.yml",
 
         # operations
         "operations": operations,
@@ -51,12 +51,15 @@ def main():
 
         # parameter
         "short_name": "pr",
+
+        # output
+        "output_directory": "preproc/pr"
     }
 
     run_processor(
         task=task,
-        work_dir="",
-        config=None,
+        work_dir=work_dir,
+        config={},
     )
 
 

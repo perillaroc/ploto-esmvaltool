@@ -34,8 +34,17 @@ def run_processor(
         cube = fun(
             operation=step,
             task=task,
-            cube=cube
+            cube=cube,
+            work_dir=work_dir,
         )
-    print(cube)
+
+    # save to workdir
+    file_path = esmvalcore_operations.run_save(
+        operation={},
+        task=task,
+        cubes=[cube],
+        work_dir=work_dir,
+    )
+    logger.info(f"write file to {file_path}")
 
     logger.info("running processor done: esmvalcore_pre_processor")
