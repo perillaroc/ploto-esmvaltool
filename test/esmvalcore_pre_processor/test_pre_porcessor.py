@@ -47,7 +47,7 @@ def main():
         "frequency": "day",
 
         "start_year": 370,
-        "end_year": 390,
+        "end_year": 371,
 
         # parameter
         "short_name": "pr",
