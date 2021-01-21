@@ -53,7 +53,18 @@ def main():
         "short_name": "pr",
 
         # output
-        "output_directory": "preproc/pr"
+        "output_directory": "preproc/pr",
+
+        "alias": "FGOALS-g3",
+        "modeling_realm": [
+            "atmos"
+        ],
+
+        # diagnostic task
+        "variable_group": "pr",
+        "preprocessor": "default",
+        "recipe_dataset_index": 0,
+        "diagnostic": "dry_days",
     }
 
     run_processor(
