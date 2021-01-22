@@ -13,7 +13,7 @@ def main():
             "write_plots": True,
             "output_file_type": "png",
             "profile_diagnostic": False,
-            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.1/auxiliary_data"
+            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
         },
         "input_files": [
             "{work_dir}/preproc/pr/metadata.yml"

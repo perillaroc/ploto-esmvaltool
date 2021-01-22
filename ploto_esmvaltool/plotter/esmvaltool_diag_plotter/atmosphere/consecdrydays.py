@@ -1,7 +1,14 @@
+"""
+Consecutive dry days
+
+References
+----------
+https://docs.esmvaltool.org/en/latest/recipes/recipe_consecdrydays.html
+"""
+import typing
 
 
-
-def generate_default_task():
+def generate_default_task() -> typing.Dict:
     task = {
         "diag": {
             "dryindex": "cdd",
@@ -25,3 +32,30 @@ def generate_default_task():
     }
 
     return task
+
+
+def generate_default_operations() -> typing.List:
+    operations = [
+        {
+            "type": "load",
+        },
+        {
+            "type": "fix_metadata",
+        },
+        {
+            "type": "concatenate",
+        },
+        {
+            "type": "cmor_check_metadata",
+        },
+        {
+            "type": "clip_start_end_year"
+        },
+        {
+            "type": "fix_data"
+        },
+        {
+            "type": "cmor_check_data"
+        }
+    ]
+    return operations

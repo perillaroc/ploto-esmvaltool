@@ -1,70 +1,56 @@
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
-
+from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.consecdrydays import generate_default_operations
 from loguru import logger
 
 
 def main():
     work_dir = "./dist/tests/esmvalcore_pre_processor"
-    operations = [
-        {
-            "type": "load",
-        },
-        {
-            "type": "fix_metadata",
-        },
-        {
-            "type": "concatenate",
-        },
-        {
-            "type": "cmor_check_metadata",
-        },
-        {
-            "type": "clip_start_end_year"
-        },
-        {
-            "type": "fix_data"
-        },
-        {
-            "type": "cmor_check_data"
-        }
-    ]
+    operations = generate_default_operations()
 
-    task = {
-        # input files
-        "input_meta_file": "./test/esmvalcore_pre_processor/input_meta_file.yml",
-
-        # operations
-        "operations": operations,
-
-        # settings
+    dataset = {
         "dataset": "FGOALS-g3",
         "project": "CMIP6",
         "mip": "day",
         "exp": "1pctCO2",
         "ensemble": "r1i1p1f1",
         "grid": "gn",
-
         "frequency": "day",
 
         "start_year": 370,
         "end_year": 371,
+    }
 
-        # parameter
-        "short_name": "pr",
-
-        # output
-        "output_directory": "preproc/pr",
-
+    diag_dataset = {
+        "recipe_dataset_index": 0,
         "alias": "FGOALS-g3",
         "modeling_realm": [
             "atmos"
         ],
+    }
 
-        # diagnostic task
+    variable = {
+        "short_name": "pr",
         "variable_group": "pr",
         "preprocessor": "default",
-        "recipe_dataset_index": 0,
+    }
+
+    diag = {
         "diagnostic": "dry_days",
+    }
+
+    task = {
+        # input files
+        "input_meta_file": "./test/esmvalcore_pre_processor/input_meta_file.yml",
+        # output
+        "output_directory": "preproc/pr",
+
+        # operations
+        "operations": operations,
+
+        **dataset,
+        **diag_dataset,
+        **variable,
+        **diag,
     }
 
     run_processor(
