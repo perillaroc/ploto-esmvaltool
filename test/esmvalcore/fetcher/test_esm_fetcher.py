@@ -1,4 +1,4 @@
-from ploto_esmvaltool.fetcher.esmvalcore_cmip6_fetcher import get_data
+from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
 
 def main():
