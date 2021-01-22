@@ -4,7 +4,7 @@ from loguru import logger
 
 
 def main():
-    work_dir = "./dist/tests/esmvalcore_pre_processor"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case1/ploto/c1"
     operations = generate_default_operations()
 
     dataset = {
