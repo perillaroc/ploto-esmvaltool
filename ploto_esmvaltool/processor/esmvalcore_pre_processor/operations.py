@@ -12,10 +12,12 @@ from esmvalcore.preprocessor import (
     cmor_check_data,
 )
 from esmvalcore.preprocessor._io import concatenate_callback
+from esmvalcore._config import get_institutes
 
 import yaml
 import iris
 from loguru import logger
+from netCDF4 import Dataset
 
 
 def run_load(
@@ -153,10 +155,11 @@ def run_cmor_check_data(
 
 
 def run_save(
-        operation,
+        operation: typing.Dict,
         task: typing.Dict,
         cubes,
-        work_dir: str =".",
+        work_dir: str = ".",
+        file_path: typing.Union[str, Path] = None,
         **kwargs
 ) -> str:
     output_dir = Path(work_dir, task["output_directory"])
@@ -171,10 +174,81 @@ def run_save(
     start_year = task["start_year"]
     end_year = task["end_year"]
 
-    file_path = Path(output_dir, f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc")
+    if file_path is None:
+        file_path = Path(
+            output_dir,
+            f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc"
+        )
 
     return save(
         cubes=cubes,
         filename=file_path,
         **kwargs
     )
+
+
+def run_write_metadata(
+        operation,
+        task: typing.Dict,
+        work_dir: typing.Union[Path, str],
+        file_path: typing.Union[Path, str],
+        metadata_file_name: typing.Union[Path, str]="metadata.yml",
+        **kwargs,
+) -> Path:
+    output_dir = Path(work_dir, task["output_directory"])
+    file_path = Path(file_path).absolute()
+
+    short_name = task["short_name"]
+
+    d = Dataset(file_path)
+    field = d[short_name]
+
+    institutes = get_institutes(task)
+
+    dataset = {
+        "activity": d.activity_id,
+        "alias": task["alias"],
+        "dataset": task["dataset"],
+        "institute": institutes,
+        "ensemble": task["ensemble"],
+        "exp": task["exp"],
+        "project": task["project"],
+        "mip": task["mip"],
+        "modeling_realm": task["modeling_realm"],
+        "frequency": task["frequency"],
+        "grid": task["grid"],
+        "start_year": task["start_year"],
+        "end_year": task["end_year"],
+    }
+
+    variable = {
+        "short_name": short_name,
+        "long_name": field.long_name,
+        "standard_name": field.standard_name,
+        "units": field.units,
+    }
+
+    diagnostic_task = {
+        "variable_group": task["variable_group"],
+        "preprocessor": task["preprocessor"],
+        "recipe_dataset_index": task["recipe_dataset_index"],
+        "diagnostic": task["diagnostic"],
+    }
+
+    meta_data = {
+        **dataset,
+        "filename": str(file_path),
+        **variable,
+        **diagnostic_task,
+    }
+
+    d.close()
+
+    meta_data_path =   Path(output_dir, metadata_file_name)
+
+    with open(meta_data_path, "w") as f:
+        yaml.safe_dump({
+            str(file_path): meta_data,
+        }, f)
+
+    return meta_data_path
