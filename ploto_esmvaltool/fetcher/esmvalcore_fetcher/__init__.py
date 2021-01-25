@@ -1,3 +1,8 @@
+"""
+ESMValTool Fetcher
+
+Get file paths in local file systems.
+"""
 import pathlib
 import typing
 
@@ -48,7 +53,6 @@ def get_data(
         print(f)
 
     # write to metadata
-
     output_metadata_path = pathlib.Path(
         work_dir,
         task["output_directory"],

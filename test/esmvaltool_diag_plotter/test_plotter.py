@@ -21,8 +21,6 @@ def main():
     }
 
     config = {
-        "esmvaltool_python_plotter": {
-        },
         "esmvaltool": {
             "executables": {
                 "py": "/home/hujk/anaconda3/envs/wangdp-esm/bin/python"
