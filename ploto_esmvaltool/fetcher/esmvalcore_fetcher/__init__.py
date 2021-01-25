@@ -54,8 +54,7 @@ def get_data(
 
     # write to metadata
     output_metadata_path = pathlib.Path(
-        work_dir,
-        task["output_directory"],
+        task["output_directory"].format(work_dir=work_dir),
         task["output_data_source_file"]
     )
 

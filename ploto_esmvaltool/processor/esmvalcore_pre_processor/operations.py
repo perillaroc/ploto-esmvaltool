@@ -162,7 +162,7 @@ def run_save(
         file_path: typing.Union[str, Path] = None,
         **kwargs
 ) -> str:
-    output_dir = Path(work_dir, task["output_directory"])
+    output_dir = Path(task["output_directory"].format(work_dir=work_dir))
     output_dir.mkdir(parents=True, exist_ok=True)
 
     project = task["project"]
@@ -195,7 +195,7 @@ def run_write_metadata(
         metadata_file_name: typing.Union[Path, str]="metadata.yml",
         **kwargs,
 ) -> Path:
-    output_dir = Path(work_dir, task["output_directory"])
+    output_dir = Path(task["output_directory"].format(work_dir=work_dir))
     file_path = Path(file_path).absolute()
 
     short_name = task["short_name"]

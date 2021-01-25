@@ -1,3 +1,5 @@
+import pathlib
+
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.consecdrydays import generate_default_preprocessor_operations
 from loguru import logger
@@ -40,9 +42,9 @@ def main():
 
     task = {
         # input files
-        "input_meta_file": "./test/esmvalcore_pre_processor/input_meta_file.yml",
+        "input_meta_file": pathlib.Path(pathlib.Path(__file__).parent, "./input_meta_file.yml"),
         # output
-        "output_directory": "preproc/pr",
+        "output_directory": "{work_dir}/preproc/pr",
 
         # operations
         "operations": operations,

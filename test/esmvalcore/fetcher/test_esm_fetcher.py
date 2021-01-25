@@ -39,7 +39,7 @@ def main():
         **variables,
         **data_path,
 
-        "output_directory": "preproc/pr",
+        "output_directory": "{work_dir}/preproc/pr",
         "output_data_source_file": "data_source.yml",
     }
 
