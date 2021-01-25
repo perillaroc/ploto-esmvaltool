@@ -50,7 +50,14 @@ def run_processor(
     )
     logger.info(f"write file to {file_path}")
 
-    metadata = write_metadata(task, work_dir, file_path)
+    output_metadata_file_name = task.get("output_metadata_file_name", "metadata.yml")
+
+    metadata = write_metadata(
+        task,
+        work_dir,
+        file_path,
+        metadata_file_name=output_metadata_file_name,
+    )
     logger.info(f"write metadata to {metadata.absolute()}")
 
     logger.info("running processor done: esmvalcore_pre_processor")
