@@ -8,7 +8,7 @@ https://docs.esmvaltool.org/en/latest/recipes/recipe_consecdrydays.html
 import typing
 
 
-def generate_default_task() -> typing.Dict:
+def generate_default_plot_task() -> typing.Dict:
     task = {
         "diag": {
             "dryindex": "cdd",
@@ -34,7 +34,7 @@ def generate_default_task() -> typing.Dict:
     return task
 
 
-def generate_default_operations() -> typing.List:
+def generate_default_preprocessor_operations() -> typing.List:
     operations = [
         {
             "type": "load",

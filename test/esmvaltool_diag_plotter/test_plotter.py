@@ -1,10 +1,10 @@
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter import run_plotter
-from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.consecdrydays import generate_default_task
+from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.consecdrydays import generate_default_plot_task
 
 def main():
     work_dir = "./dist/tests/esmvalcore_pre_processor"
 
-    task = generate_default_task()
+    task = generate_default_plot_task()
     task = {
         **task,
         "config": {

@@ -1,11 +1,11 @@
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
-from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.consecdrydays import generate_default_operations
+from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.consecdrydays import generate_default_preprocessor_operations
 from loguru import logger
 
 
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case1/ploto/c1"
-    operations = generate_default_operations()
+    operations = generate_default_preprocessor_operations()
 
     dataset = {
         "dataset": "FGOALS-g3",

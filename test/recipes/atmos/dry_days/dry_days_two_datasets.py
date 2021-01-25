@@ -1,6 +1,6 @@
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.consecdrydays import (
-    generate_default_operations,
-    generate_default_task,
+    generate_default_preprocessor_operations,
+    generate_default_plot_task,
 )
 from ploto.run import run_ploto
 
@@ -89,7 +89,7 @@ def run_dry_days():
     diag = {
         "diagnostic": "dry_days",
     }
-    operations = generate_default_operations()
+    operations = generate_default_preprocessor_operations()
 
     steps.extend([
         {
@@ -131,7 +131,7 @@ def run_dry_days():
         }
     ])
 
-    plot_task = generate_default_task()
+    plot_task = generate_default_plot_task()
     steps.append({
         "step_type": "plotter",
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
