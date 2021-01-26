@@ -4,6 +4,8 @@ from pathlib import Path
 from loguru import logger
 
 import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
+import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.io
+
 
 def run_processor(
         task: typing.Dict,
@@ -38,7 +40,7 @@ def run_processor(
         )
 
     # save to workdir
-    file_path = esmvalcore_operations.run_save(
+    file_path = ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.io.run_save(
         operation={},
         task=task,
         cubes=[cube],
@@ -48,7 +50,7 @@ def run_processor(
 
     output_metadata_file_name = task.get("output_metadata_file_name", "metadata.yml")
 
-    metadata = esmvalcore_operations.run_write_metadata(
+    metadata = ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.io.run_write_metadata(
         operation={},
         task=task,
         work_dir=work_dir,
