@@ -1,0 +1,3 @@
+input_files:
+- /home/hujk/clusterfs/wangdp/data/CMIP6/FGOALS-g3/historical/day/tasmax/tasmax_day_FGOALS-g3_historical_r1i1p1f1_gn_19800101-19801231.nc
+- /home/hujk/clusterfs/wangdp/data/CMIP6/FGOALS-g3/historical/day/tasmax/tasmax_day_FGOALS-g3_historical_r1i1p1f1_gn_19810101-19811231.nc

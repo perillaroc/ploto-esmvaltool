@@ -10,6 +10,8 @@ from esmvalcore.preprocessor import (
     clip_start_end_year,
     fix_data,
     cmor_check_data,
+    mask_landsea,
+    extract_region,
 )
 from esmvalcore.preprocessor._io import concatenate_callback
 from esmvalcore._config import get_institutes
@@ -154,6 +156,50 @@ def run_cmor_check_data(
     return cubes
 
 
+def run_mask_landsea(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube,
+        **kwargs
+):
+    settings = _get_settings(operation, task)
+
+    fx_variables = settings["fx_variables"]
+    mask_out = settings["mask_out"]
+    always_use_ne_mask = settings.get("always_use_ne_mask", False)
+
+    cubes = mask_landsea(
+        cube,
+        fx_variables=fx_variables,
+        mask_out=mask_out,
+        always_use_ne_mask=always_use_ne_mask,
+    )
+    return cubes
+
+
+def run_extract_region(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube,
+        **kwargs,
+):
+    settings = _get_settings(operation, task)
+    start_longitude = settings["start_longitude"]
+    end_longitude = settings["end_longitude"]
+    start_latitude = settings["start_latitude"]
+    end_latitude = settings["end_latitude"]
+
+    cubes = extract_region(
+        cube,
+        start_longitude=start_longitude,
+        end_longitude=end_longitude,
+        start_latitude=start_latitude,
+        end_latitude=end_latitude,
+    )
+
+    return cubes
+
+
 def run_save(
         operation: typing.Dict,
         task: typing.Dict,
@@ -252,3 +298,20 @@ def run_write_metadata(
         }, f)
 
     return meta_data_path
+
+
+def _get_settings(
+        operation,
+        task,
+):
+    settings = {}
+    if "settings" in operation:
+        settings = operation["settings"]
+
+    operation_type = operation["type"]
+    if operation_type in task["settings"]:
+        settings = {
+            **settings,
+            **task["settings"][operation_type],
+        }
+    return settings
