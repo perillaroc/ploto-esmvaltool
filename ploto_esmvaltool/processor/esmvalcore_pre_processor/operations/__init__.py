@@ -23,4 +23,7 @@ from .time import (
     run_clip_start_end_year
 )
 
+from .area import (
+    run_extract_region
+)
 

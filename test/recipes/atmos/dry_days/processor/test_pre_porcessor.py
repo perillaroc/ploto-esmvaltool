@@ -42,7 +42,7 @@ def main():
 
     task = {
         # input files
-        "input_meta_file": pathlib.Path(pathlib.Path(__file__).parent, "input_meta_file.yml"),
+        "input_data_source_file": pathlib.Path(pathlib.Path(__file__).parent, "input_meta_file.yml"),
         # output
         "output_directory": "{work_dir}/preproc/pr",
 

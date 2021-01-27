@@ -5,7 +5,13 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.diurnal_tempera
 from loguru import logger
 
 
-def main():
+def run(
+        exp,
+        variable,
+        recipe_dataset_index,
+        start_year,
+        end_year
+):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case2/ploto/processor"
     operations = generate_default_preprocessor_operations()
 
@@ -13,28 +19,24 @@ def main():
         "dataset": "FGOALS-g3",
         "project": "CMIP6",
         "mip": "day",
-        "exp": "historical",
+        "exp": exp,
         "ensemble": "r1i1p1f1",
         "grid": "gn",
         "frequency": "day",
 
-        "start_year": 1980,
-        "end_year": 1981,
+        "start_year": start_year,
+        "end_year": end_year,
     }
 
     diag_dataset = {
-        "recipe_dataset_index": 0,
+        "recipe_dataset_index": recipe_dataset_index,
         "alias": "historical",
         "modeling_realm": [
             "atmos"
         ],
     }
 
-    variable = {
-        "short_name": "tasmax",
-        "variable_group": "tasmax",
-        "preprocessor": "preproc",
-    }
+    variable = variable
 
     diag = {
         "diagnostic": "diurnal_temperature_indicator",
@@ -55,10 +57,9 @@ def main():
     }
 
     task = {
-        # input files
-        "input_meta_file": pathlib.Path(pathlib.Path(__file__).parent, "data_source.yml"),
+        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case2/ploto/fetcher/preproc/{dataset['exp']}/{variable['short_name']}/data_source.yml",
         # output
-        "output_directory": "{work_dir}/preproc/historical/tasmax",
+        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{variable['short_name']}",
 
         # operations
         "operations": operations,
@@ -75,6 +76,57 @@ def main():
         work_dir=work_dir,
         config={},
     )
+
+
+def main():
+    tasks = [
+        {
+            "exp": "historical",
+            "variable": {
+                "short_name": "tasmax",
+                "variable_group": "tasmax",
+                "preprocessor": "preproc",
+            },
+            "recipe_dataset_index": 0,
+            "start_year": 1980,
+            "end_year": 1981
+        },
+        {
+            "exp": "historical",
+            "variable": {
+                "short_name": "tasmin",
+                "variable_group": "tasmin",
+                "preprocessor": "preproc",
+            },
+            "recipe_dataset_index": 0,
+            "start_year": 1980,
+            "end_year": 1981
+        },
+        {
+            "exp": "ssp119",
+            "variable": {
+                "short_name": "tasmax",
+                "variable_group": "tasmax",
+                "preprocessor": "preproc",
+            },
+            "recipe_dataset_index": 1,
+            "start_year": 2030,
+            "end_year": 2031
+        },
+        {
+            "exp": "ssp119",
+            "variable": {
+                "short_name": "tasmin",
+                "variable_group": "tasmin",
+                "preprocessor": "preproc",
+            },
+            "recipe_dataset_index": 1,
+            "start_year": 2030,
+            "end_year": 2031
+        }
+    ]
+    for task in tasks:
+        run(**task)
 
 
 if __name__ == "__main__":

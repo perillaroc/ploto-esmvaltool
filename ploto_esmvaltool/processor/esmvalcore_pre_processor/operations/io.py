@@ -116,7 +116,7 @@ def run_load(
         cube=None,
         **kwargs
 ) -> iris.cube.CubeList:
-    input_meta_file = task["input_meta_file"]
+    input_meta_file = task["input_data_source_file"]
     with open(input_meta_file, "r") as f:
         m = yaml.safe_load(f)
         input_files = m["input_files"]
