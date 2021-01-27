@@ -8,13 +8,13 @@ def main():
         "dataset": "FGOALS-g3",
         "project": "CMIP6",
         "mip": "day",
-        "exp": "historical",
+        "exp": "ssp119",
         "ensemble": "r1i1p1f1",
         "grid": "gn",
         "frequency": "day",
 
         "start_year": 1961,
-        "end_year": 1990,
+        "end_year": 1962,
     }
 
     variables = {
@@ -38,7 +38,7 @@ def main():
         **variables,
         **data_path,
 
-        "output_directory": "{work_dir}/preproc/historical/tasmax",
+        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/tasmax",
         "output_data_source_file": "data_source.yml",
     }
 
