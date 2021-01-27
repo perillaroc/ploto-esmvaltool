@@ -10,7 +10,8 @@ def run(
         variable,
         recipe_dataset_index,
         start_year,
-        end_year
+        end_year,
+        alias
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case2/ploto/processor"
     operations = generate_default_preprocessor_operations()
@@ -30,7 +31,7 @@ def run(
 
     diag_dataset = {
         "recipe_dataset_index": recipe_dataset_index,
-        "alias": "historical",
+        "alias": alias,
         "modeling_realm": [
             "atmos"
         ],
@@ -89,7 +90,8 @@ def main():
             },
             "recipe_dataset_index": 0,
             "start_year": 1980,
-            "end_year": 1981
+            "end_year": 1981,
+            "alias": "historical"
         },
         {
             "exp": "historical",
@@ -100,7 +102,8 @@ def main():
             },
             "recipe_dataset_index": 0,
             "start_year": 1980,
-            "end_year": 1981
+            "end_year": 1981,
+            "alias": "historical"
         },
         {
             "exp": "ssp119",
@@ -111,7 +114,8 @@ def main():
             },
             "recipe_dataset_index": 1,
             "start_year": 2030,
-            "end_year": 2031
+            "end_year": 2031,
+            "alias": "ssp119"
         },
         {
             "exp": "ssp119",
@@ -122,7 +126,8 @@ def main():
             },
             "recipe_dataset_index": 1,
             "start_year": 2030,
-            "end_year": 2031
+            "end_year": 2031,
+            "alias": "ssp119"
         }
     ]
     for task in tasks:
