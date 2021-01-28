@@ -6,6 +6,8 @@ from pathlib import Path
 from loguru import logger
 import yaml
 
+from .util import add_input_files, replace_settings_directories
+
 
 def run_plotter(
         task: typing.Dict,
@@ -69,10 +71,29 @@ def run_plotter(
         yaml.safe_dump(settings, f)
 
     diag_script_config = task["diag_script"]
-    diag_script_path = (
-        f"{config['esmvaltool']['diag_scripts'][diag_script_config['group']]}/"
+    diag_script_path = Path(
+        f"{config['esmvaltool']['diag_scripts'][diag_script_config['group']]}",
         f"{diag_script_config['name']}"
     )
+
+    suffix = diag_script_path.suffix.lower()[1:]
+    if suffix == "py":
+        run_python_script(
+            diag_script_path=diag_script_path,
+            settings_file_path=settings_file_path,
+            config=config
+        )
+    else:
+        logger.error(f"script suffix is not supported: {suffix}")
+
+    logger.info('running esmvaltool_python_plotter...done')
+
+
+def run_python_script(
+        diag_script_path,
+        settings_file_path,
+        config,
+):
     executable = config["esmvaltool"]["executables"]["py"]
 
     cmd = [
@@ -83,7 +104,10 @@ def run_plotter(
         str(settings_file_path.absolute()),
     ]
 
-    logger.info(f"command: {cmd}")
+    envs = os.environ.copy()
+    envs["MPLBACKEND"] = "Agg"
+
+    logger.info(f"python command: {cmd}")
     result = subprocess.run(
         cmd,
         env=envs,
@@ -91,56 +115,4 @@ def run_plotter(
         # shell=True,
     )
 
-    logger.info('running esmvaltool_python_plotter...done')
-
-
-def add_input_files(
-        settings: typing.Dict,
-        input_files: typing.List,
-        work_dir: str
-) -> typing.Dict:
-    """
-    Add input files, only yaml files are supported.
-
-    Parameters
-    ----------
-    settings: dict
-        settings from plotter's task
-    input_files: list
-        input file list
-    work_dir: str
-
-    Returns
-    -------
-    dict:
-        settings with input files
-    """
-    settings['input_files'] = [
-        f.format(work_dir=work_dir) for f in input_files
-        if f.endswith('.yml') or os.path.isdir(f)
-    ]
-    return settings
-
-
-def replace_settings_directories(
-        settings: typing.Dict,
-        work_dir: str
-) -> typing.Dict:
-    """
-    Replace directories using work dir.
-
-    Parameters
-    ----------
-    settings: dict
-        settings from plotter's task
-    work_dir: str
-        task work dir
-    Returns
-    -------
-    dict:
-        settings with work dir
-    """
-    settings['work_dir'] = str(Path(work_dir, 'work'))
-    settings['plot_dir'] = str(Path(work_dir, 'plots'))
-    settings['run_dir'] = str(Path(work_dir, 'run'))
-    return settings
+    return result
