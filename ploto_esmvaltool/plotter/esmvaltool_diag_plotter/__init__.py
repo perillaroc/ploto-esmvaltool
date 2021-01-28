@@ -1,11 +1,14 @@
 import os
-import subprocess
 import typing
 from pathlib import Path
 
 from loguru import logger
 import yaml
 
+from .run import (
+    run_python_script,
+    run_r_script
+)
 from .util import add_input_files, replace_settings_directories
 
 
@@ -72,9 +75,10 @@ def run_plotter(
         yaml.safe_dump(settings, f)
 
     diag_script_config = task["diag_script"]
+    diag_scripts = config['esmvaltool']['diag_scripts'][diag_script_config['group']]
     diag_script_path = Path(
-        f"{config['esmvaltool']['diag_scripts'][diag_script_config['group']]}",
-        f"{diag_script_config['script']}"
+        diag_scripts,
+        diag_script_config['script']
     )
 
     suffix = diag_script_path.suffix.lower()[1:]
@@ -84,36 +88,16 @@ def run_plotter(
             settings_file_path=settings_file_path,
             config=config
         )
+    elif suffix == "r":
+        run_r_script(
+            diag_script_path=diag_script_path,
+            diag_scripts=diag_scripts,
+            settings_file_path=settings_file_path,
+            config=config,
+        )
     else:
         logger.error(f"script suffix is not supported: {suffix}")
 
     logger.info('running esmvaltool_python_plotter...done')
 
 
-def run_python_script(
-        diag_script_path,
-        settings_file_path,
-        config,
-):
-    executable = config["esmvaltool"]["executables"]["py"]
-
-    cmd = [
-        executable,
-        diag_script_path,
-        "-f",
-        "-i",
-        str(settings_file_path.absolute()),
-    ]
-
-    envs = os.environ.copy()
-    envs["MPLBACKEND"] = "Agg"
-
-    logger.info(f"python command: {cmd}")
-    result = subprocess.run(
-        cmd,
-        env=envs,
-        # start_new_session=True,
-        # shell=True,
-    )
-
-    return result
