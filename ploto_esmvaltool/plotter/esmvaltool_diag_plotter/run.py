@@ -58,7 +58,7 @@ def get_r_cmd(
 
     cmd = [
         executable,
-        diag_script_path,
+        str(diag_script_path),
     ]
 
     return cmd
