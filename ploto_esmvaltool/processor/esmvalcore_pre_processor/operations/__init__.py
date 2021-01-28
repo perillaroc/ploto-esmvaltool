@@ -27,3 +27,8 @@ from .area import (
     run_extract_region
 )
 
+from .regrid import (
+    run_extract_levels,
+    run_regrid
+)
+
