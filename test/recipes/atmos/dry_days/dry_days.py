@@ -72,7 +72,7 @@ def run_dry_days():
         "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
 
         # input files
-        "input_meta_file": "preproc/pr/data_source.yml",
+        "input_data_source_file": "preproc/pr/data_source.yml",
         # output
         "output_directory": "preproc/pr",
 
