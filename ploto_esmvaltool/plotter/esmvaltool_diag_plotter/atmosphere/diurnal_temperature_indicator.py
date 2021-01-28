@@ -12,7 +12,7 @@ def generate_default_plot_task() -> typing.Dict:
     task = {
         "diag": {
             "recipe": "recipe_diurnal_temperature_index.yml",
-            "script": "main"
+            "name": "diurnal_temperature_indicator"
         },
 
         "input_files": [
@@ -20,7 +20,8 @@ def generate_default_plot_task() -> typing.Dict:
 
         "diag_script": {
             "group": "base",
-            "name": "magic_bsc/diurnal_temp_index.R",
+            "script": "magic_bsc/diurnal_temp_index.R",
+            "name": "main"
         },
     }
 

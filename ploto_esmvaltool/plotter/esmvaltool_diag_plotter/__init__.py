@@ -55,6 +55,7 @@ def run_plotter(
         "input_files": input_files,
         **task_config,
     }
+    settings["script"] = task["diag_script"]["name"]
 
     settings = add_input_files(
         settings,
@@ -73,7 +74,7 @@ def run_plotter(
     diag_script_config = task["diag_script"]
     diag_script_path = Path(
         f"{config['esmvaltool']['diag_scripts'][diag_script_config['group']]}",
-        f"{diag_script_config['name']}"
+        f"{diag_script_config['script']}"
     )
 
     suffix = diag_script_path.suffix.lower()[1:]

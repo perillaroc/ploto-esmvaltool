@@ -18,7 +18,7 @@ def generate_default_plot_task() -> typing.Dict:
                 "plot_type": "pcolormesh",
             },
             "recipe": "recipe_consecdrydays.yml",
-            "script": "consecutive_dry_days"
+            "name": "dry_days"
         },
 
         "input_files": [
@@ -27,7 +27,8 @@ def generate_default_plot_task() -> typing.Dict:
 
         "diag_script": {
             "group": "base",
-            "name": "droughtindex/diag_cdd.py",
+            "script": "droughtindex/diag_cdd.py",
+            "name": "consecutive_dry_days",
         },
     }
 
