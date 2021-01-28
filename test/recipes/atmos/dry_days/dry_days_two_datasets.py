@@ -105,10 +105,10 @@ def run_dry_days():
             # operations
             "operations": operations,
 
-            **dataset_1,
-            **diag_dataset,
-            **variable,
-            **diag,
+            "dataset": dataset_1,
+            "diagnostic_dataset": diag_dataset,
+            "variable": variable,
+            "diagnostic" :diag,
         },
         {
 
@@ -124,10 +124,10 @@ def run_dry_days():
             # operations
             "operations": operations,
 
-            **dataset_2,
-            **diag_dataset,
-            **variable,
-            **diag,
+            "dataset": dataset_2,
+            "diagnostic_dataset": diag_dataset,
+            "variable": variable,
+            "diagnostic": diag,
         }
     ])
 

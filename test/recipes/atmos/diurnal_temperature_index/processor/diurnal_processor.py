@@ -17,34 +17,34 @@ def run(
     operations = generate_default_preprocessor_operations()
 
     dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "mip": "day",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "day",
+            "dataset": "FGOALS-g3",
+            "project": "CMIP6",
+            "mip": "day",
+            "exp": exp,
+            "ensemble": "r1i1p1f1",
+            "grid": "gn",
+            "frequency": "day",
 
-        "start_year": start_year,
-        "end_year": end_year,
+            "start_year": start_year,
+            "end_year": end_year,
     }
 
     diag_dataset = {
-        "recipe_dataset_index": recipe_dataset_index,
-        "alias": alias,
-        "modeling_realm": [
-            "atmos"
-        ],
+            "recipe_dataset_index": recipe_dataset_index,
+            "alias": alias,
+            "modeling_realm": [
+                "atmos"
+            ],
     }
 
     variable = variable
+
 
     diag = {
         "diagnostic": "diurnal_temperature_indicator",
     }
 
     settings = {
-        "settings": {
             "extract_region": {
                 "start_longitude": 70,
                 "end_longitude": 140,
@@ -54,7 +54,6 @@ def run(
             "mask_landsea": {
                 "mask_out": "sea"
             }
-        }
     }
 
     task = {
@@ -65,11 +64,11 @@ def run(
         # operations
         "operations": operations,
 
-        **dataset,
-        **diag_dataset,
-        **variable,
-        **diag,
-        **settings
+        "dataset": dataset,
+        "diagnostic_dataset": diag_dataset,
+        "variable": variable,
+        "diagnostic": diag,
+        "settings": settings
     }
 
     run_processor(

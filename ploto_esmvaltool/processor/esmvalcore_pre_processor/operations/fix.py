@@ -10,10 +10,10 @@ def run_fix_metadata(
         cube: iris.cube.CubeList,
         **kwargs
 ) -> iris.cube.CubeList:
-    short_name = task["short_name"]
-    project = task["project"]
-    dataset = task["dataset"]
-    mip = task["mip"]
+    short_name = task["variable"]["short_name"]
+    project = task["dataset"]["project"]
+    dataset = task["dataset"]["dataset"]
+    mip = task["dataset"]["mip"]
 
     fixed_cubes = fix_metadata(
         cube,
@@ -32,10 +32,10 @@ def run_fix_data(
         cube: iris.cube.Cube,
         **kwargs
 ) -> iris.cube.Cube:
-    short_name = task["short_name"]
-    project = task["project"]
-    dataset = task["dataset"]
-    mip = task["mip"]
+    short_name = task["variable"]["short_name"]
+    project = task["dataset"]["project"]
+    dataset = task["dataset"]["dataset"]
+    mip = task["dataset"]["mip"]
 
     cubes = fix_data(
         cube,

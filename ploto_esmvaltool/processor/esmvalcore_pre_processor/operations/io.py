@@ -21,14 +21,16 @@ def run_save(
     output_dir = Path(task["output_directory"].format(work_dir=work_dir))
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    project = task["project"]
-    dataset = task["dataset"]
-    exp = task["exp"]
-    ensemble = task["ensemble"]
-    short_name = task["short_name"]
-    mip = task["mip"]
-    start_year = task["start_year"]
-    end_year = task["end_year"]
+    task_dataset = task["dataset"]
+    project = task_dataset["project"]
+    dataset = task_dataset["dataset"]
+    exp = task_dataset["exp"]
+    ensemble = task_dataset["ensemble"]
+    mip = task_dataset["mip"]
+    start_year = task_dataset["start_year"]
+    end_year = task_dataset["end_year"]
+
+    short_name = task["variable"]["short_name"]
 
     if file_path is None:
         file_path = Path(
@@ -54,46 +56,39 @@ def run_write_metadata(
     output_dir = Path(task["output_directory"].format(work_dir=work_dir))
     file_path = Path(file_path).absolute()
 
-    short_name = task["short_name"]
+    task_diagnostic_dataset = task["diagnostic_dataset"]
+    task_diagnostic = task["diagnostic"]
+    task_dataset = task["dataset"]
+    task_variable = task["variable"]
+
+    short_name = task["variable"]["short_name"]
 
     d = Dataset(file_path)
     field = d[short_name]
 
-    institutes = get_institutes(task)
+    institutes = get_institutes(task_dataset)
 
     dataset = {
         "activity": d.activity_id,
-        "alias": task["alias"],
-        "dataset": task["dataset"],
         "institute": institutes,
-        "ensemble": task["ensemble"],
-        "exp": task["exp"],
-        "project": task["project"],
-        "mip": task["mip"],
-        "modeling_realm": task["modeling_realm"],
-        "frequency": task["frequency"],
-        "grid": task["grid"],
-        "start_year": task["start_year"],
-        "end_year": task["end_year"],
+        **task_dataset,
     }
 
     variable = {
-        "short_name": short_name,
+        **task_variable,
         "long_name": field.long_name,
         "standard_name": field.standard_name,
         "units": field.units,
     }
 
     diagnostic_task = {
-        "variable_group": task["variable_group"],
-        "preprocessor": task["preprocessor"],
-        "recipe_dataset_index": task["recipe_dataset_index"],
-        "diagnostic": task["diagnostic"],
+        **task_diagnostic,
+        **task_diagnostic_dataset,
     }
 
     meta_data = {
-        **dataset,
         "filename": str(file_path),
+        **dataset,
         **variable,
         **diagnostic_task,
     }

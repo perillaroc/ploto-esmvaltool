@@ -10,8 +10,8 @@ def run_clip_start_end_year(
         cube: iris.cube.Cube,
         **kwargs
 ) -> iris.cube.Cube:
-    start_year = task["start_year"]
-    end_year = task["end_year"]
+    start_year = task["dataset"]["start_year"]
+    end_year = task["dataset"]["end_year"]
     cube = clip_start_end_year(
         cube,
         start_year=start_year,

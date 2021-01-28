@@ -10,9 +10,9 @@ def run_cmor_check_metadata(
         cube: iris.cube.Cube,
         **kwargs
 ) -> iris.cube.Cube:
-    short_name = task["short_name"]
-    project = task["project"]
-    mip = task["mip"]
+    short_name = task["variable"]["short_name"]
+    project = task["dataset"]["project"]
+    mip = task["dataset"]["mip"]
 
     cubes = cmor_check_metadata(
         cube,
@@ -30,13 +30,14 @@ def run_cmor_check_data(
         cube: iris.cube.Cube,
         **kwargs
 ) -> iris.cube.Cube:
-    short_name = task["short_name"]
-    frequency = task["frequency"]
-    mip = task["mip"]
+    short_name = task["variable"]["short_name"]
+    frequency = task["dataset"]["frequency"]
+    mip = task["dataset"]["mip"]
+    project = task["dataset"]["project"]
 
     cubes = cmor_check_data(
         cube,
-        "CMIP6",
+        cmor_table=project,
         mip=mip,
         short_name=short_name,
         frequency=frequency

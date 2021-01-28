@@ -160,7 +160,6 @@ def get_processor_task(
     }
 
     settings = {
-        "settings": {
             "extract_region": {
                 "start_longitude": 70,
                 "end_longitude": 140,
@@ -170,7 +169,6 @@ def get_processor_task(
             "mask_landsea": {
                 "mask_out": "sea"
             }
-        }
     }
 
     task = {
@@ -181,11 +179,11 @@ def get_processor_task(
         # operations
         "operations": operations,
 
-        **dataset,
-        **diag_dataset,
-        **variable,
-        **diag,
-        **settings,
+        "dataset": dataset,
+        "diagnostic_dataset": diag_dataset,
+        "variable": variable,
+        "diagnostic": diag,
+        "settings": settings,
 
         "step_type": "processor",
         "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor"

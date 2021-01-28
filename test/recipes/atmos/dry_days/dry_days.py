@@ -79,10 +79,10 @@ def run_dry_days():
         # operations
         "operations": operations,
 
-        **dataset,
-        **diag_dataset,
-        **variable,
-        **diag,
+        "dataset": dataset,
+        "diagnostic_dataset": diag_dataset,
+        "variable": variable,
+        "diagnostic": diag,
     })
 
     plot_task = generate_default_plot_task()

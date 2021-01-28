@@ -67,11 +67,11 @@ def run(
         # operations
         "operations": operations,
 
-        **dataset,
-        **diag_dataset,
-        **variable,
-        **diag,
-        **settings
+        "dataset": dataset,
+        "diagnostic_dataset": diag_dataset,
+        "variable": variable,
+        "diagnostic": diag,
+        "settings": settings
     }
 
     run_processor(
