@@ -5,6 +5,21 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.diurnal_tempera
 from ploto.run import run_ploto
 
 
+historical_start_year = 1961
+historical_end_year = 1990
+ssp119_start_year = 2030
+ssp119_end_year = 2080
+
+dataset_common = {
+    "dataset": "FGOALS-g3",
+    "project": "CMIP6",
+    "mip": "day",
+    "ensemble": "r1i1p1f1",
+    "grid": "gn",
+    "frequency": "day",
+}
+
+
 def run_dry_days():
     steps = []
 
@@ -45,16 +60,11 @@ def get_fetcher_task(
         end_year
 ):
     dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "mip": "day",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "day",
+        **dataset_common,
 
         "start_year": start_year,
         "end_year": end_year,
+        "exp": exp,
     }
 
     variables = {
@@ -92,26 +102,26 @@ def get_fetcher_tasks():
         {
             "exp": "historical",
             "short_name": "tasmax",
-            "start_year": 1980,
-            "end_year": 1981
+            "start_year": historical_start_year,
+            "end_year": historical_end_year
         },
         {
             "exp": "historical",
             "short_name": "tasmin",
-            "start_year": 1980,
-            "end_year": 1981
+            "start_year": historical_start_year,
+            "end_year": historical_end_year
         },
         {
             "exp": "ssp119",
             "short_name": "tasmax",
-            "start_year": 2030,
-            "end_year": 2031
+            "start_year": ssp119_start_year,
+            "end_year": ssp119_end_year
         },
         {
             "exp": "ssp119",
             "short_name": "tasmin",
-            "start_year": 2030,
-            "end_year": 2031
+            "start_year": ssp119_start_year,
+            "end_year": ssp119_end_year
         }
     ]
     return [ get_fetcher_task(**task) for task in tasks]
@@ -128,14 +138,9 @@ def get_processor_task(
     operations = generate_default_preprocessor_operations()
 
     dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "mip": "day",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "day",
+        **dataset_common,
 
+        "exp": exp,
         "start_year": start_year,
         "end_year": end_year,
     }
@@ -225,8 +230,8 @@ def get_processor_tasks():
                 "preprocessor": "preproc",
             },
             "recipe_dataset_index": 0,
-            "start_year": 1980,
-            "end_year": 1981,
+            "start_year": historical_start_year,
+            "end_year": historical_end_year,
             "alias": "historical"
         },
         {
@@ -237,8 +242,8 @@ def get_processor_tasks():
                 "preprocessor": "preproc",
             },
             "recipe_dataset_index": 0,
-            "start_year": 1980,
-            "end_year": 1981,
+            "start_year": historical_start_year,
+            "end_year": historical_end_year,
             "alias": "historical"
         },
         {
@@ -249,8 +254,8 @@ def get_processor_tasks():
                 "preprocessor": "preproc",
             },
             "recipe_dataset_index": 1,
-            "start_year": 2030,
-            "end_year": 2031,
+            "start_year": ssp119_start_year,
+            "end_year": ssp119_end_year,
             "alias": "ssp119"
         },
         {
@@ -261,8 +266,8 @@ def get_processor_tasks():
                 "preprocessor": "preproc",
             },
             "recipe_dataset_index": 1,
-            "start_year": 2030,
-            "end_year": 2031,
+            "start_year": ssp119_start_year,
+            "end_year": ssp119_end_year,
             "alias": "ssp119"
         }
     ]
