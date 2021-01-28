@@ -49,13 +49,19 @@ def run(
     }
 
     settings = {
-        "settings": {
-            "extract_region": {
-                "start_longitude": 70,
-                "end_longitude": 140,
-                "start_latitude": 15,
-                "end_latitude": 55,
-            },
+        "extract_region": {
+            "start_longitude": 70,
+            "end_longitude": 140,
+            "start_latitude": 15,
+            "end_latitude": 55,
+        },
+        "extract_levels": {
+            "levels": 50000,
+            "scheme": "linear"
+        },
+        "regrid": {
+            "target_grid": "2.5x2.5",
+            "scheme": "linear_extrapolate"
         }
     }
 
