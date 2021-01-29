@@ -30,19 +30,40 @@ def get_data(
     project = dataset["project"]
 
     if dataset_type == "exp":
-        get_exp_data(
+        selected_files = get_exp_data(
             task=task,
             work_dir=work_dir,
             config=config
         )
     elif dataset_type == "reanaly" and project == "OBS6":
-        get_obs6_data(
+        selected_files = get_obs6_data(
             task=task,
             work_dir=work_dir,
             config=config
         )
     else:
         logger.error(f"dataset type is not supported: {dataset_type}")
+
+    logger.info(f"Selected files: {len(selected_files)}")
+    for f in selected_files:
+        print(f)
+
+    # write to metadata
+    output_metadata_path = pathlib.Path(
+        task["output_directory"].format(work_dir=work_dir),
+        task["output_data_source_file"]
+    )
+
+    output_metadata_path.parent.mkdir(parents=True, exist_ok=True)
+
+    data_source = {
+        "input_files": [str(f) for f in selected_files]
+    }
+
+    with open(output_metadata_path, "w") as f:
+        yaml.safe_dump(data_source, f)
+
+    logger.info(f"write data source file: {str(output_metadata_path)}")
 
 
 def get_exp_data(
@@ -78,26 +99,7 @@ def get_exp_data(
         end_year=end_year
     )
 
-    logger.info(f"Selected files: {len(selected_files)}")
-    for f in selected_files:
-        print(f)
-
-    # write to metadata
-    output_metadata_path = pathlib.Path(
-        task["output_directory"].format(work_dir=work_dir),
-        task["output_data_source_file"]
-    )
-
-    output_metadata_path.parent.mkdir(parents=True, exist_ok=True)
-
-    data_source = {
-        "input_files": [str(f) for f in selected_files]
-    }
-
-    with open(output_metadata_path, "w") as f:
-        yaml.safe_dump(data_source, f)
-
-    logger.info(f"write data source file: {str(output_metadata_path)}")
+    return selected_files
 
 
 def get_obs6_data(
@@ -132,23 +134,4 @@ def get_obs6_data(
         end_year=dataset["end_year"]
     )
 
-    logger.info(f"Selected files: {len(selected_files)}")
-    for f in selected_files:
-        print(f)
-
-    # write to metadata
-    output_metadata_path = pathlib.Path(
-        task["output_directory"].format(work_dir=work_dir),
-        task["output_data_source_file"]
-    )
-
-    output_metadata_path.parent.mkdir(parents=True, exist_ok=True)
-
-    data_source = {
-        "input_files": [str(f) for f in selected_files]
-    }
-
-    with open(output_metadata_path, "w") as f:
-        yaml.safe_dump(data_source, f)
-
-    logger.info(f"write data source file: {str(output_metadata_path)}")
+    return selected_files
