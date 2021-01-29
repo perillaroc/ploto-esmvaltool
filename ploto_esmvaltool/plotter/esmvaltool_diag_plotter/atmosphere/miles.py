@@ -51,3 +51,36 @@ def generate_default_preprocessor_operations() -> typing.List:
         }
     ]
     return operations
+
+
+def generate_default_plot_task(script="miles_block") -> typing.Dict:
+    mapper = {
+        "miles_block": _generate_default_plot_task_for_block,
+    }
+    task = mapper[script]()
+    return task
+
+
+def _generate_default_plot_task_for_block() -> typing.Dict:
+    task = {
+        "diagnostic": {
+            "recipe": "recipe_miles_block.yml",
+            "name": "miles_diagnostics"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "miles/miles_block.R",
+            },
+            "settings": {
+                "script": "miles_block",
+                "seasons": "DJF"
+            }
+        },
+    }
+
+    return task

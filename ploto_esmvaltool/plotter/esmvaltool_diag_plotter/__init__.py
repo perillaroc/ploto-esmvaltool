@@ -51,14 +51,15 @@ def run_plotter(
 
     input_files = task["input_files"]
     task_config = task["config"]
-    task_diag = task["diag"]
+    task_diagnostic = task["diagnostic"]
+    task_diagnostic_script = task["diagnostic_script"]
 
     settings = {
-        **task_diag,
+        **task_diagnostic,
         "input_files": input_files,
+        **task_diagnostic_script["settings"],
         **task_config,
     }
-    settings["script"] = task["diag_script"]["name"]
 
     settings = add_input_files(
         settings,
@@ -74,11 +75,10 @@ def run_plotter(
     with open(settings_file_path, "w") as f:
         yaml.safe_dump(settings, f)
 
-    diag_script_config = task["diag_script"]
-    diag_scripts = config['esmvaltool']['diag_scripts'][diag_script_config['group']]
+    diag_scripts = config['esmvaltool']['diag_scripts'][task_diagnostic_script["path"]['group']]
     diag_script_path = Path(
         diag_scripts,
-        diag_script_config['script']
+        task_diagnostic_script["path"]['script']
     )
 
     suffix = diag_script_path.suffix.lower()[1:]

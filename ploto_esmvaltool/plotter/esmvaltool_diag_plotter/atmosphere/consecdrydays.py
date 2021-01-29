@@ -10,7 +10,7 @@ import typing
 
 def generate_default_plot_task() -> typing.Dict:
     task = {
-        "diag": {
+        "diagnostic": {
             "dryindex": "cdd",
             "frlim": 5,
             "plim": 1,
@@ -25,10 +25,14 @@ def generate_default_plot_task() -> typing.Dict:
             "{work_dir}/preproc/pr/metadata.yml"
         ],
 
-        "diag_script": {
-            "group": "base",
-            "script": "droughtindex/diag_cdd.py",
-            "name": "consecutive_dry_days",
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "droughtindex/diag_cdd.py",
+            },
+            "settings": {
+                "script": "consecutive_dry_days",
+            }
         },
     }
 
