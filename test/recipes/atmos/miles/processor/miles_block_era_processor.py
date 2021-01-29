@@ -50,10 +50,10 @@ def run(
 
     settings = {
         "extract_region": {
-            "start_longitude": 70,
-            "end_longitude": 140,
-            "start_latitude": 15,
-            "end_latitude": 55,
+            "start_longitude": 0,
+            "end_longitude": 360,
+            "start_latitude": -1.25,
+            "end_latitude": 90,
         },
         "extract_levels": {
             "levels": 50000,
@@ -93,7 +93,8 @@ def main():
             "variable": {
                 "short_name": "zg",
                 "variable_group": "zg",
-                "preprocessor": "preproc"
+                "preprocessor": "preproc",
+                "reference_dataset": "ERA-Interim", #**********************
             },
             "recipe_dataset_index": 1,
             "start_year": 1980,
