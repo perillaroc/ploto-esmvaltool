@@ -113,7 +113,7 @@ def get_obs6_data(
     dataset = task["dataset"]
     project = dataset["project"]
 
-    directories = task["data_path"][project]
+    directories = [pathlib.Path(d, input_dir.format(**dataset)) for d in task["data_path"][project]]
     variables = task["variables"]
 
     filenames = [
