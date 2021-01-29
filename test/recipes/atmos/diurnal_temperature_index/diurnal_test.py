@@ -67,26 +67,22 @@ def get_fetcher_task(
         "exp": exp,
     }
 
-    variables = {
-        "variables": [
+    variables = [
             {
                 "short_name": short_name,
             }
         ]
-    }
 
-    data_path = {
-        "data_path": {
+    data_path ={
             "CMIP6": [
                 "/home/hujk/clusterfs/wangdp/data/CMIP6"
             ]
         }
-    }
 
     task = {
-        **dataset,
-        **variables,
-        **data_path,
+        "dataset": dataset,
+        "variables": variables,
+        "data_path": data_path,
 
         "output_directory": "{work_dir}/preproc/" + f"{dataset['exp']}/{short_name}",
         "output_data_source_file": "data_source.yml",

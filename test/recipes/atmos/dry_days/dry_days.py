@@ -21,29 +21,25 @@ def run_dry_days():
         "end_year": 371,
     }
 
-    variables = {
-        "variables": [
+    variables = [
             {
                 "short_name": "pr",
             }
         ]
-    }
 
     data_path = {
-        "data_path": {
             "CMIP6": [
                 "/data/brick/b1/CMIP6_DATA/",
                 "/data/brick/b0/CMIP6/",
             ]
         }
-    }
 
     steps.append({
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-        **dataset,
-        **variables,
-        **data_path,
+        "dataset": dataset,
+        "varialbes": variables,
+        "data_path": data_path,
         "output_directory": "preproc/pr",
         "output_data_source_file": "data_source.yml",
     })

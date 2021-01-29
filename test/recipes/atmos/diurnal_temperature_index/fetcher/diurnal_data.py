@@ -22,26 +22,22 @@ def run(
         "end_year": end_year,
     }
 
-    variables = {
-        "variables": [
-            {
-                "short_name": short_name,
-            }
+    variables = [
+        {
+            "short_name": short_name,
+        }
+    ]
+
+    data_path = {
+        "CMIP6": [
+            "/home/hujk/clusterfs/wangdp/data/CMIP6"
         ]
     }
 
-    data_path = {
-        "data_path": {
-            "CMIP6": [
-                "/home/hujk/clusterfs/wangdp/data/CMIP6"
-            ]
-        }
-    }
-
     task = {
-        **dataset,
-        **variables,
-        **data_path,
+        "dataset": dataset,
+        "variables": variables,
+        "data_path": data_path,
 
         "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{short_name}",
         "output_data_source_file": "data_source.yml",

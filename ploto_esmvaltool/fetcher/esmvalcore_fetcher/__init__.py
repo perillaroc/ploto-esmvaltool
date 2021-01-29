@@ -20,7 +20,29 @@ def get_data(
         work_dir: typing.Union[pathlib.Path, str],
         config: typing.Dict,
 ):
-    dataset = task
+    dataset = task["dataset"]
+
+    if "type" in dataset:
+        dataset_type = dataset["type"]
+    else:
+        dataset_type = "exp"
+
+    if dataset_type == "exp":
+        get_exp_data(
+            task=task,
+            work_dir=work_dir,
+            config=config
+        )
+    else:
+        logger.error(f"dataset type is not supported: {dataset_type}")
+
+
+def get_exp_data(
+        task: typing.Dict,
+        work_dir: typing.Union[pathlib.Path, str],
+        config: typing.Dict,
+):
+    dataset = task["dataset"]
     project = dataset["project"]
     start_year = dataset["start_year"]
     end_year = dataset["end_year"]
@@ -61,7 +83,7 @@ def get_data(
     output_metadata_path.parent.mkdir(parents=True, exist_ok=True)
 
     data_source = {
-        "input_files": [ str(f) for f in selected_files ]
+        "input_files": [str(f) for f in selected_files]
     }
 
     with open(output_metadata_path, "w") as f:

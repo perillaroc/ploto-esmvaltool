@@ -17,27 +17,23 @@ def main():
         "end_year": 371,
     }
 
-    variables = {
-        "variables": [
-            {
-                "short_name": "pr",
-            }
+    variables = [
+        {
+            "short_name": "pr",
+        }
+    ]
+
+    data_path = {
+        "CMIP6": [
+            "/data/brick/b1/CMIP6_DATA/",
+            "/data/brick/b0/CMIP6/",
         ]
     }
 
-    data_path = {
-        "data_path": {
-            "CMIP6": [
-                "/data/brick/b1/CMIP6_DATA/",
-                "/data/brick/b0/CMIP6/",
-            ]
-        }
-    }
-
     task = {
-        **dataset,
-        **variables,
-        **data_path,
+        "dataset": dataset,
+        "variables": variables,
+        "data_path": data_path,
 
         "output_directory": "{work_dir}/preproc/pr",
         "output_data_source_file": "data_source.yml",

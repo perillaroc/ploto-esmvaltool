@@ -34,39 +34,36 @@ def run_dry_days():
         "end_year": 1996,
     }
 
-    variables = {
-        "variables": [
+    variables =  [
             {
                 "short_name": "pr",
             }
         ]
-    }
+
 
     data_path = {
-        "data_path": {
             "CMIP6": [
                 "/data/brick/b1/CMIP6_DATA/",
                 "/data/brick/b0/CMIP6/",
             ]
         }
-    }
 
     steps.extend([
         {
             "step_type": "fetcher",
             "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-            **dataset_1,
-            **variables,
-            **data_path,
+            "dataset": dataset_1,
+            "variables": variables,
+            "data_path": data_path,
             "output_directory": "preproc/pr/1pctCO2",
             "output_data_source_file": "data_source.yml",
         },
         {
             "step_type": "fetcher",
             "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-            **dataset_2,
-            **variables,
-            **data_path,
+            "dataset": dataset_2,
+            "variables": variables,
+            "data_path": data_path,
             "output_directory": "preproc/pr/amip",
             "output_data_source_file": "data_source.yml",
         },
