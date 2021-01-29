@@ -8,11 +8,12 @@ from pathlib import Path
 
 
 def run_miles_block():
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/plotter/block"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/plotter/eof"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    plot_task = generate_default_plot_task(script="miles_block")
+    plot_task = generate_default_plot_task(script="miles_eof")
     plot_task["diagnostic_script"]["settings"]["seasons"] = "DJF"
+    plot_task["diagnostic_script"]["settings"]["teles"] = "NAO"
 
     task = {
         "step_type": "plotter",
@@ -45,7 +46,7 @@ def run_miles_block():
             },
         },
         "base": {
-            "run_base_dir": "/home/hujk/ploto/ploto-esmvaltool/dist/cases/case1/run"
+            "run_base_dir": "/home/hujk/ploto/ploto-esmvaltool/dist/cases/case3/run"
         }
     }
 

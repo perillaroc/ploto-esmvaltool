@@ -55,13 +55,14 @@ def generate_default_preprocessor_operations() -> typing.List:
 
 def generate_default_plot_task(script="miles_block") -> typing.Dict:
     mapper = {
-        "miles_block": _generate_default_plot_task_for_block,
+        "miles_block": _generate_plot_task_for_block,
+        "miles_eof": _generate_plot_task_for_eof,
     }
     task = mapper[script]()
     return task
 
 
-def _generate_default_plot_task_for_block() -> typing.Dict:
+def _generate_plot_task_for_block() -> typing.Dict:
     task = {
         "diagnostic": {
             "recipe": "recipe_miles_block.yml",
@@ -79,6 +80,32 @@ def _generate_default_plot_task_for_block() -> typing.Dict:
             "settings": {
                 "script": "miles_block",
                 "seasons": "DJF"
+            }
+        },
+    }
+
+    return task
+
+
+def _generate_plot_task_for_eof() -> typing.Dict:
+    task = {
+        "diagnostic": {
+            "recipe": "recipe_miles_eof.yml",
+            "name": "miles_diagnostics"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "miles/miles_eof.R",
+            },
+            "settings": {
+                "script": "miles_eof",
+                "seasons": "DJF",
+                "teles": "NAO"
             }
         },
     }
