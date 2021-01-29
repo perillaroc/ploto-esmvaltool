@@ -64,7 +64,7 @@ def main():
             "exp": "historical",
             "short_name": "zg",
             "start_year": 1980,
-            "end_year": 1981
+            "end_year": 1985
         }
     ]
     for task in tasks:

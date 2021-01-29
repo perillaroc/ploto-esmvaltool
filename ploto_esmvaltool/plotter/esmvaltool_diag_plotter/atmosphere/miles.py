@@ -57,6 +57,7 @@ def generate_default_plot_task(script="miles_block") -> typing.Dict:
     mapper = {
         "miles_block": _generate_plot_task_for_block,
         "miles_eof": _generate_plot_task_for_eof,
+        "miles_regimes": _generate_plot_task_for_regimes,
     }
     task = mapper[script]()
     return task
@@ -106,6 +107,32 @@ def _generate_plot_task_for_eof() -> typing.Dict:
                 "script": "miles_eof",
                 "seasons": "DJF",
                 "teles": "NAO"
+            }
+        },
+    }
+
+    return task
+
+
+def _generate_plot_task_for_regimes() -> typing.Dict:
+    task = {
+        "diagnostic": {
+            "recipe": "recipe_miles_regimes.yml",
+            "name": "miles_diagnostics"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "miles/miles_regimes.R",
+            },
+            "settings": {
+                "script": "miles_regimes",
+                "seasons": "DJF",
+                "nclusters": 4
             }
         },
     }

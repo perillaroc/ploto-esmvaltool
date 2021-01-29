@@ -37,7 +37,8 @@ def run(
             "/home/hujk/clusterfs/wangdp/data/CMIP6"
         ],
         "OBS6": [
-            "/home/hujk/clusterfs/wangdp/data/obs"
+            #"/home/hujk/clusterfs/wangdp/data/obs"
+            "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210119_071639"
         ],
     }
 
@@ -66,7 +67,7 @@ def main():
         {
             "short_name": "zg",
             "start_year": 1980,
-            "end_year": 1981
+            "end_year": 1985
         }
     ]
     for task in tasks:

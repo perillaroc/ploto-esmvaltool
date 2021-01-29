@@ -98,7 +98,7 @@ def main():
             },
             "recipe_dataset_index": 1,
             "start_year": 1980,
-            "end_year": 1981,
+            "end_year": 1985,
             "alias": "OBS6"
         },
     ]
