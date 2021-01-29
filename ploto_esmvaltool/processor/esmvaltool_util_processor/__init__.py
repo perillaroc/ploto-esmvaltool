@@ -54,6 +54,6 @@ def combine_metadata(
             data = {**data, **metadata}
 
     with open(output_file_path, "w") as f:
-        yaml.safe_dump(data, f)
+        yaml.safe_dump(data, f, sort_keys=False)
     logger.info(f"write metadata to {str(output_file_path.absolute())}")
     logger.info("running combine_metadata...done")
