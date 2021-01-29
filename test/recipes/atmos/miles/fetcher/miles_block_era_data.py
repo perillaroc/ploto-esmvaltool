@@ -20,6 +20,7 @@ def run(
         "tier": 3,
 
         "mip": "day",
+        "frequency": "day",
 
         "start_year": start_year,
         "end_year": end_year,

@@ -21,28 +21,45 @@ def run_save(
     output_dir = Path(task["output_directory"].format(work_dir=work_dir))
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    task_dataset = task["dataset"]
-    project = task_dataset["project"]
-    dataset = task_dataset["dataset"]
-    exp = task_dataset["exp"]
-    ensemble = task_dataset["ensemble"]
-    mip = task_dataset["mip"]
-    start_year = task_dataset["start_year"]
-    end_year = task_dataset["end_year"]
-
-    short_name = task["variable"]["short_name"]
-
     if file_path is None:
-        file_path = Path(
-            output_dir,
-            f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc"
-        )
+        file_path = _get_file_path(task, output_dir)
 
     return save(
         cubes=cubes,
         filename=file_path,
         **kwargs
     )
+
+
+def _get_file_path(task, output_dir):
+    task_dataset = task["dataset"]
+    project = task_dataset["project"]
+    dataset = task_dataset["dataset"]
+    start_year = task_dataset["start_year"]
+    end_year = task_dataset["end_year"]
+    short_name = task["variable"]["short_name"]
+
+    if project == "CMIP6":
+        exp = task_dataset["exp"]
+        ensemble = task_dataset["ensemble"]
+        mip = task_dataset["mip"]
+        file_path = Path(
+            output_dir,
+            f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc"
+        )
+    elif project == "OBS6":
+        version = task_dataset["version"]
+        mip = task_dataset["mip"]
+        data_type = task_dataset["type"]
+        file_path = Path(
+            output_dir,
+            f"{project}_{dataset}_{data_type}_{version}_{mip}_{short_name}_{start_year}-{end_year}.nc"
+        )
+    else:
+        logger.error(f"project is not supported: {project}")
+        raise ValueError(f"project is not supported: {project}")
+
+    return file_path
 
 
 def run_write_metadata(
@@ -63,16 +80,25 @@ def run_write_metadata(
 
     short_name = task["variable"]["short_name"]
 
+    project = task_dataset["project"]
+
     d = Dataset(file_path)
     field = d[short_name]
 
-    institutes = get_institutes(task_dataset)
+    if project == "CMIP6":
+        institutes = get_institutes(task_dataset)
 
-    dataset = {
-        "activity": d.activity_id,
-        "institute": institutes,
-        **task_dataset,
-    }
+        dataset = {
+            "activity": d.activity_id,
+            "institute": institutes,
+            **task_dataset,
+        }
+    elif project == "OBS6":
+        dataset = {
+            **task_dataset,
+        }
+    else:
+        raise ValueError(f"project is not supported: {project}")
 
     variable = {
         **task_variable,

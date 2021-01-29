@@ -8,7 +8,6 @@ from loguru import logger
 
 
 def run(
-        exp,
         variable,
         recipe_dataset_index,
         start_year,
@@ -21,12 +20,13 @@ def run(
     operations = generate_default_preprocessor_operations()
 
     dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
+        "dataset": "ERA-Interim",
+        "project": "OBS6",
+        "type": "reanaly",
+        "version": 1,
+        "tier": 3,
+
         "mip": "day",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
         "frequency": "day",
 
         "start_year": start_year,
@@ -66,9 +66,9 @@ def run(
     }
 
     task = {
-        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case3/ploto/fetcher/preproc/{dataset['exp']}/{variable['short_name']}/data_source.yml",
+        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case3/ploto/fetcher/preproc/{dataset['dataset']}/{variable['short_name']}/data_source.yml",
         # output
-        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{variable['short_name']}",
+        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{variable['short_name']}",
 
         # operations
         "operations": operations,
@@ -90,16 +90,15 @@ def run(
 def main():
     tasks = [
         {
-            "exp": "historical",
             "variable": {
                 "short_name": "zg",
                 "variable_group": "zg",
                 "preprocessor": "preproc"
             },
-            "recipe_dataset_index": 0,
+            "recipe_dataset_index": 1,
             "start_year": 1980,
             "end_year": 1981,
-            "alias": "historical"
+            "alias": "OBS6"
         },
     ]
     for task in tasks:
