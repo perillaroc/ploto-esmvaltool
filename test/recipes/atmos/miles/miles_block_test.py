@@ -25,16 +25,57 @@ variable = {
     "reference_dataset": "ERA-Interim",  # *****************
 }
 
+processor_settings = {
+    "extract_region": {
+        "start_longitude": 0,
+        "end_longitude": 360,
+        "start_latitude": -1.25,
+        "end_latitude": 90,
+    },
+    "extract_levels": {
+        "levels": 50000,
+        "scheme": "linear"
+    },
+    "regrid": {
+        "target_grid": "2.5x2.5",
+        "scheme": "linear_extrapolate"
+    }
+}
+
+
+exp = "historical"
+exp_dataset = {
+    "dataset": "FGOALS-g3",
+    "project": "CMIP6",
+    "exp": exp,
+    "ensemble": "r1i1p1f1",
+    "grid": "gn",
+    "type": "exp",
+}
+
+reanaly_dataset = {
+    "dataset": "ERA-Interim",
+    "project": "OBS6",
+    "type": "reanaly",
+    "version": 1,
+    "tier": 3,
+}
+
+
+data_path = {
+    "CMIP6": [
+        "/home/hujk/clusterfs/wangdp/data/CMIP6"
+    ],
+    "OBS6": [
+        # "/home/hujk/clusterfs/wangdp/data/obs"
+        "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210119_071639"
+    ],
+}
+
 
 def get_fetcher_steps():
-    exp = "historical"
     dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-
+        **exp_dataset,
         **common_dataset
     }
 
@@ -43,16 +84,6 @@ def get_fetcher_steps():
             "short_name": short_name,
         }
     ]
-
-    data_path = {
-        "CMIP6": [
-            "/home/hujk/clusterfs/wangdp/data/CMIP6"
-        ],
-        "OBS6": [
-            # "/home/hujk/clusterfs/wangdp/data/obs"
-            "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210119_071639"
-        ],
-    }
 
     task = {
         "dataset": dataset,
@@ -67,12 +98,7 @@ def get_fetcher_steps():
     }
 
     era_dataset = {
-        "dataset": "ERA-Interim",
-        "project": "OBS6",
-        "type": "reanaly",
-        "version": 1,
-        "tier": 3,
-
+        **reanaly_dataset,
         **common_dataset
     }
 
@@ -95,24 +121,17 @@ def get_fetcher_steps():
 
 
 def get_processor_steps():
-    exp = "historical"
     recipe_dataset_index = 0
     alias = "historical"
 
     operations = generate_default_preprocessor_operations()
 
     dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "type": "exp",  # *******************
-
+        **exp_dataset,
         **common_dataset,
     }
 
-    diag_dataset = {
+    diagnostic_dataset = {
         "recipe_dataset_index": recipe_dataset_index,
         "alias": alias,
         "modeling_realm": [
@@ -121,25 +140,8 @@ def get_processor_steps():
         "reference_dataset": "ERA-Interim"
     }
 
-    diag = {
+    diagnostic = {
         "diagnostic": "diurnal_temperature_indicator",
-    }
-
-    settings = {
-        "extract_region": {
-            "start_longitude": 0,
-            "end_longitude": 360,
-            "start_latitude": -1.25,
-            "end_latitude": 90,
-        },
-        "extract_levels": {
-            "levels": 50000,
-            "scheme": "linear"
-        },
-        "regrid": {
-            "target_grid": "2.5x2.5",
-            "scheme": "linear_extrapolate"
-        }
     }
 
     task = {
@@ -151,10 +153,10 @@ def get_processor_steps():
         "operations": operations,
 
         "dataset": dataset,
-        "diagnostic_dataset": diag_dataset,
+        "diagnostic_dataset": diagnostic_dataset,
         "variable": variable,
-        "diagnostic": diag,
-        "settings": settings,
+        "diagnostic": diagnostic,
+        "settings": processor_settings,
 
         "step_type": "processor",
         "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
@@ -164,26 +166,17 @@ def get_processor_steps():
     alias = "OBS6"
 
     dataset = {
-        "dataset": "ERA-Interim",
-        "project": "OBS6",
-        "type": "reanaly",
-        "version": 1,
-        "tier": 3,
-
+        **reanaly_dataset,
         **common_dataset
     }
 
-    diag_dataset = {
+    diagnostic_dataset = {
         "recipe_dataset_index": recipe_dataset_index,
         "alias": alias,
         "modeling_realm": [
             "atmos"
         ],
         "reference_dataset": "ERA-Interim"
-    }
-
-    diag = {
-        "diagnostic": "diurnal_temperature_indicator",
     }
 
     era_task = {
@@ -195,10 +188,10 @@ def get_processor_steps():
         "operations": operations,
 
         "dataset": dataset,
-        "diagnostic_dataset": diag_dataset,
+        "diagnostic_dataset": diagnostic_dataset,
         "variable": variable,
-        "diagnostic": diag,
-        "settings": settings,
+        "diagnostic": diagnostic,
+        "settings": processor_settings,
 
         "step_type": "processor",
         "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
