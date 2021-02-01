@@ -71,7 +71,17 @@ def run_plotter(
         work_dir
     )
 
-    settings_file_path = Path(work_dir, "settings.yml")
+    run_dir = settings["run_dir"]
+
+    settings_file_path = Path(
+        run_dir,
+        task_diagnostic["name"],
+        task_diagnostic_script["settings"]["script"] ,
+        "settings.yml"
+    )
+
+    settings_file_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(settings_file_path, "w") as f:
         yaml.safe_dump(settings, f)
 
