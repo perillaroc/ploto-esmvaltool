@@ -18,12 +18,17 @@ common_dataset = {
     "end_year": end_year,
 }
 
+# variable
+
 variable = {
     "short_name": short_name,
     "variable_group": short_name,
+
     "preprocessor": "preproc",
     "reference_dataset": "ERA-Interim",  # *****************
 }
+
+# processor
 
 processor_settings = {
     "extract_region": {
@@ -42,6 +47,7 @@ processor_settings = {
     }
 }
 
+# datasets
 
 exp = "historical"
 exp_dataset = {
@@ -61,6 +67,7 @@ reanaly_dataset = {
     "tier": 3,
 }
 
+# config
 
 data_path = {
     "CMIP6": [
@@ -71,7 +78,6 @@ data_path = {
         "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210119_071639"
     ],
 }
-
 
 plot_config = {
     "log_level": "info",
