@@ -230,7 +230,7 @@ def get_plotter_steps():
     plot_task = generate_default_plot_task(script="miles_block")
     plot_task["diagnostic_script"]["settings"]["seasons"] = "DJF"
 
-    task = {
+    block_task = {
         **plot_task,
         "config": plot_config,
         "input_files": [
@@ -241,8 +241,36 @@ def get_plotter_steps():
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
     }
 
+    plot_task = generate_default_plot_task(script="miles_eof")
+    plot_task["diagnostic_script"]["settings"]["seasons"] = "DJF"
+    plot_task["diagnostic_script"]["settings"]["teles"] = "NAO"
+
+    eof_task = {
+        "step_type": "plotter",
+        "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
+        **plot_task,
+        "config": plot_config,
+        "input_files": [
+            "{work_dir}/preproc/metadata.yml"
+        ],
+    }
+
+    plot_task = generate_default_plot_task(script="miles_regimes")
+
+    regime_task = {
+        "step_type": "plotter",
+        "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
+        **plot_task,
+        "config": plot_config,
+        "input_files": [
+            "{work_dir}/preproc/metadata.yml"
+        ],
+    }
+
     return [
-        task
+        block_task,
+        eof_task,
+        regime_task,
     ]
 
 
