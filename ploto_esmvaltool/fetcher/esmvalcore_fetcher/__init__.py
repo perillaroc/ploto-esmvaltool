@@ -12,7 +12,8 @@ from ploto.logger import get_logger
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher._util import (
     get_exp_data,
-    get_obs6_data
+    get_obs6_data,
+    get_native6_data
 )
 
 logger = get_logger()
@@ -40,6 +41,12 @@ def get_data(
         )
     elif dataset_type == "reanaly" and project == "OBS6":
         selected_files = get_obs6_data(
+            task=task,
+            work_dir=work_dir,
+            config=config
+        )
+    elif dataset_type == "reanaly" and project == "native6":
+        selected_files = get_native6_data(
             task=task,
             work_dir=work_dir,
             config=config
