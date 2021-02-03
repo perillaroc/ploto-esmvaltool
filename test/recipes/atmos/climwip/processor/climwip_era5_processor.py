@@ -88,7 +88,7 @@ def main():
             "dataset": "ERA5",
             "variable": {
                 "short_name": "tas",
-                "variable_group": "tas",
+                "variable_group": "tas_CLIM",
                 "preprocessor": "preproc",
             },
             "recipe_dataset_index": 2,
