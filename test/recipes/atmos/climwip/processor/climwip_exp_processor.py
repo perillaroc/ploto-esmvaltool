@@ -1,4 +1,5 @@
 from pathlib import Path
+import itertools
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import generate_climatological_mean_operations
@@ -84,34 +85,63 @@ def run(
 
 
 def main():
+    variables = ["tas", "psl", "pr"]
+    datasets = [
+        {
+            "name": "FGOALS-g3",
+            "index": 0
+        },
+        {
+            "name": "CAMS-CSM1-0",
+            "index": 1
+        }
+    ]
+
     tasks = [
         {
-            "dataset": "FGOALS-g3",
+            "dataset": d["name"],
             "exp": "historical",
             "variable": {
-                "short_name": "tas",
-                "variable_group": "tas_CLIM",
+                "short_name": v,
+                "variable_group": f"{v}_CLIM",
                 "preprocessor": "preproc",
             },
-            "recipe_dataset_index": 0,
+            "recipe_dataset_index": d["index"],
             "start_year": 1995,
             "end_year": 2014,
-            "alias": "FGOALS-g3"
-        },
-        {
-            "dataset": "CAMS-CSM1-0",
-            "exp": "historical",
-            "variable": {
-                "short_name": "tas",
-                "variable_group": "tas_CLIM",
-                "preprocessor": "preproc",
-            },
-            "recipe_dataset_index": 2,
-            "start_year": 1995,
-            "end_year": 2014,
-            "alias": "CAMS-CSM1-0"
-        },
+            "alias": d["name"]
+        }
+        for v, d in itertools.product(variables, datasets)
     ]
+
+    # tasks = [
+    #     {
+    #         "dataset": "FGOALS-g3",
+    #         "exp": "historical",
+    #         "variable": {
+    #             "short_name": "tas",
+    #             "variable_group": "tas_CLIM",
+    #             "preprocessor": "preproc",
+    #         },
+    #         "recipe_dataset_index": 0,
+    #         "start_year": 1995,
+    #         "end_year": 2014,
+    #         "alias": "FGOALS-g3"
+    #     },
+    #     {
+    #         "dataset": "CAMS-CSM1-0",
+    #         "exp": "historical",
+    #         "variable": {
+    #             "short_name": "tas",
+    #             "variable_group": "tas_CLIM",
+    #             "preprocessor": "preproc",
+    #         },
+    #         "recipe_dataset_index": 1,
+    #         "start_year": 1995,
+    #         "end_year": 2014,
+    #         "alias": "CAMS-CSM1-0"
+    #     },
+    # ]
     for task in tasks:
         run(**task)
 

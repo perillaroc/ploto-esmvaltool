@@ -21,7 +21,7 @@ def main():
     work_dir = f"{base_dir}/processor"
 
     tasks = [
-        get_task(work_dir, short_name) for short_name in ["tas"]
+        get_task(work_dir, short_name) for short_name in ["tas", "psl", "pr"]
     ]
 
     for task in tasks:

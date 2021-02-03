@@ -87,15 +87,15 @@ def main():
         {
             "dataset": "ERA5",
             "variable": {
-                "short_name": "tas",
-                "variable_group": "tas_CLIM",
+                "short_name": v,
+                "variable_group": f"{v}_CLIM",
                 "preprocessor": "preproc",
             },
             "recipe_dataset_index": 2,
             "start_year": 1995,
             "end_year": 2014,
             "alias": "native6"
-        }
+        } for v in ["tas", "pr", "psl"]
     ]
     for task in tasks:
         run(**task)

@@ -67,10 +67,10 @@ def run(
 def main():
     tasks = [
         {
-            "short_name": "tas",
+            "short_name": v,
             "start_year": 1995,
             "end_year": 2014
-        }
+        } for v in ["tas", "pr", "psl"]
     ]
     for task in tasks:
         run(**task)
