@@ -55,6 +55,14 @@ def _get_file_path(task, output_dir):
             output_dir,
             f"{project}_{dataset}_{data_type}_{version}_{mip}_{short_name}_{start_year}-{end_year}.nc"
         )
+    elif project == "native6":
+        version = task_dataset["version"]
+        mip = task_dataset["mip"]
+        data_type = task_dataset["type"]
+        file_path = Path(
+            output_dir,
+            f"{project}_{dataset}_{data_type}_{version}_{mip}_{short_name}_{start_year}-{end_year}.nc"
+        )
     else:
         logger.error(f"project is not supported: {project}")
         raise ValueError(f"project is not supported: {project}")
@@ -96,6 +104,10 @@ def run_write_metadata(
     elif project == "OBS6":
         dataset = {
             **task_dataset,
+        }
+    elif project == "native6":
+        dataset = {
+            **task_dataset
         }
     else:
         raise ValueError(f"project is not supported: {project}")
