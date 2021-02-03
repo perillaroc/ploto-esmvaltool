@@ -20,7 +20,8 @@ from .mask import (
 )
 
 from .time import (
-    run_clip_start_end_year
+    run_clip_start_end_year,
+    run_climate_statistics
 )
 
 from .area import (

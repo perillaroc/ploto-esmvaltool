@@ -13,13 +13,14 @@ def run_cmor_check_metadata(
     short_name = task["variable"]["short_name"]
     project = task["dataset"]["project"]
     mip = task["dataset"]["mip"]
+    frequency = task["dataset"]["frequency"]
 
     cubes = cmor_check_metadata(
         cube,
         cmor_table=project,
         mip=mip,
         short_name=short_name,
-        frequency="day",
+        frequency=frequency,
     )
     return cubes
 
