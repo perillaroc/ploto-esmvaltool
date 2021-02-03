@@ -4,7 +4,10 @@ from pathlib import Path
 from loguru import logger
 
 import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
-import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.io
+from .operations import (
+    run_save,
+    run_write_metadata,
+)
 
 
 def run_processor(
@@ -28,6 +31,7 @@ def run_processor(
     operations = task["operations"]
 
     cube = None
+
     for step in operations:
         op = step["type"]
         logger.info(f"run step {op}")
@@ -40,7 +44,7 @@ def run_processor(
         )
 
     # save to workdir
-    file_path = ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.io.run_save(
+    file_path = run_save(
         operation={},
         task=task,
         cubes=[cube],
@@ -50,7 +54,8 @@ def run_processor(
 
     output_metadata_file_name = task.get("output_metadata_file_name", "metadata.yml")
 
-    metadata = ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.io.run_write_metadata(
+    # write metadata
+    metadata = run_write_metadata(
         operation={},
         task=task,
         work_dir=work_dir,
