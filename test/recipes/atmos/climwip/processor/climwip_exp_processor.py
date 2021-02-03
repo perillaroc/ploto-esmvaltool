@@ -6,6 +6,7 @@ from loguru import logger
 
 
 def run(
+        dataset,
         exp,
         variable,
         recipe_dataset_index,
@@ -19,7 +20,7 @@ def run(
     operations = generate_climatological_mean_operations()
 
     dataset = {
-        "dataset": "FGOALS-g3",
+        "dataset": dataset,
         "project": "CMIP6",
         "mip": "Amon",
         "exp": exp,
@@ -60,9 +61,10 @@ def run(
     }
 
     task = {
-        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/fetcher/preproc/{dataset['exp']}/{variable['short_name']}/data_source.yml",
+        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/fetcher/preproc/"
+                                  f"{dataset['dataset']}/{dataset['exp']}/{variable['short_name']}/data_source.yml",
         # output
-        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{variable['short_name']}",
+        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{dataset['exp']}/{variable['short_name']}",
 
         # operations
         "operations": operations,
@@ -84,6 +86,20 @@ def run(
 def main():
     tasks = [
         {
+            "dataset": "FGOALS-g3",
+            "exp": "historical",
+            "variable": {
+                "short_name": "tas",
+                "variable_group": "tas",
+                "preprocessor": "preproc",
+            },
+            "recipe_dataset_index": 0,
+            "start_year": 1995,
+            "end_year": 2014,
+            "alias": "historical"
+        },
+        {
+            "dataset": "CAMS-CSM1-0",
             "exp": "historical",
             "variable": {
                 "short_name": "tas",

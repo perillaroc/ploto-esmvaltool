@@ -4,6 +4,7 @@ from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
 
 def run(
+        dataset,
         exp,
         short_name,
         start_year,
@@ -14,7 +15,7 @@ def run(
 
 
     dataset = {
-        "dataset": "FGOALS-g3",
+        "dataset": dataset,
         "project": "CMIP6",
         "mip": "Amon",
         "exp": exp,
@@ -43,7 +44,7 @@ def run(
         "variables": variables,
         "data_path": data_path,
 
-        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{short_name}",
+        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{dataset['exp']}/{short_name}",
         "output_data_source_file": "data_source.yml",
     }
 
@@ -61,6 +62,14 @@ def run(
 def main():
     tasks = [
         {
+            "dataset": "FGOALS-g3",
+            "exp": "historical",
+            "short_name": "tas",
+            "start_year": 1995,
+            "end_year": 2015
+        },
+        {
+            "dataset": "CAMS-CSM1-0",
             "exp": "historical",
             "short_name": "tas",
             "start_year": 1995,
