@@ -1,5 +1,6 @@
 import pathlib
 import typing
+import itertools
 
 from esmvalcore._data_finder import find_files, select_files
 
@@ -16,25 +17,36 @@ def get_exp_data(
     start_year = dataset["start_year"]
     end_year = dataset["end_year"]
 
-    variables = task["variables"]
+    exp = dataset["exp"]
+    if isinstance(exp, str):
+        exp = [exp]
+    ensemble = dataset["ensemble"]
+    if isinstance(ensemble, str):
+        ensemble = [ensemble]
 
+    variables = task["variables"]
     directories = task["data_path"][project]
 
-    filenames = [
-        f"{v['short_name']}_{dataset['mip']}_{dataset['dataset']}_"
-        f"{dataset['exp']}_{dataset['ensemble']}_{dataset['grid']}*.nc"
-        for v in variables
-    ]
+    total_files = []
 
-    files = find_files(
-        directories,
-        filenames
-    )
+    iter = itertools.product(exp, ensemble, variables)
+    for e, ens, v in iter:
+        logger.info(f"checking for exp {e}, ensemble {ens}, and variable {v}")
+        filenames = [
+            f"{v['short_name']}_{dataset['mip']}_{dataset['dataset']}_"
+            f"{e}_{ens}_{dataset['grid']}*.nc"
+        ]
 
-    logger.info(f"Found files: {len(files)}")
+        files = find_files(
+            directories,
+            filenames
+        )
+
+        logger.info(f"Found files: {len(files)}")
+        total_files.extend(files)
 
     selected_files = select_files(
-        files,
+        total_files,
         start_year=start_year,
         end_year=end_year
     )
