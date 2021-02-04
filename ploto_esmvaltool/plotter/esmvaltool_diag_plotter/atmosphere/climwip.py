@@ -56,3 +56,42 @@ def generate_climatological_mean_operations(settings: typing.Dict = None) -> typ
         }
     ]
     return operations
+
+
+def generate_calculate_weights_plot_task() -> typing.Dict:
+    task = {
+        "diagnostic": {
+            "recipe": "recipe_climwip.yml",
+            "name": "calculate_weights_climwip"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "weighting/climwip/main.py",
+            },
+            "settings": {
+                "script": "climwip",
+                "obs_data": "native6",
+                "combine_ensemble_members": True,
+                "performance_sigma": 0.5,
+                "performance_contributions": {
+                    "tas_CLIM": 1,
+                    "pr_CLIM": 2,
+                    "psl_CLIM": 1,
+
+                },
+                "independence_sigma": 0.5,
+                "independence_contributions": {
+                    "tas_CLIM": .5,
+                    "pr_CLIM": .25,
+                    "psl_CLIM": 0,  # equivalent to not setting it
+                }
+            }
+        },
+    }
+
+    return task
