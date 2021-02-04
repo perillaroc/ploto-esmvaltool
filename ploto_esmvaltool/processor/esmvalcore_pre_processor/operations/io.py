@@ -7,7 +7,7 @@ from esmvalcore._config import get_institutes
 from esmvalcore.preprocessor import save, load, concatenate
 from esmvalcore.preprocessor._io import concatenate_callback
 from loguru import logger
-from netCDF4._netCDF4 import Dataset
+from netCDF4 import Dataset
 
 
 def run_save(
@@ -41,6 +41,8 @@ def _get_file_path(task, output_dir):
 
     if project == "CMIP6":
         exp = task_dataset["exp"]
+        if isinstance(exp, typing.Iterable):
+            exp = "-".join(exp)
         ensemble = task_dataset["ensemble"]
         mip = task_dataset["mip"]
         file_path = Path(
