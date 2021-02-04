@@ -21,11 +21,14 @@ from .mask import (
 
 from .time import (
     run_clip_start_end_year,
-    run_climate_statistics
+    run_climate_statistics,
+    run_annual_statistics,
+    run_anomalies,
 )
 
 from .area import (
-    run_extract_region
+    run_extract_region,
+    run_area_statistics
 )
 
 from .regrid import (

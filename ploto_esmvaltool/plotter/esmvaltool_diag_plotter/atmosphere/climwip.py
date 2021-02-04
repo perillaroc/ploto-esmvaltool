@@ -95,3 +95,57 @@ def generate_calculate_weights_plot_task() -> typing.Dict:
     }
 
     return task
+
+
+def generate_temperature_anomalies_operations(settings: typing.Dict = None) -> typing.List:
+    operations = [
+        {
+            "type": "load",
+        },
+        {
+            "type": "fix_metadata",
+        },
+        {
+            "type": "concatenate",
+        },
+        {
+            "type": "cmor_check_metadata",
+        },
+        {
+            "type": "clip_start_end_year"
+        },
+        {
+            "type": "fix_data",
+        },
+        {
+            "type": "cmor_check_data"
+        },
+        {
+            "type": "area_statistics",
+            "settings": {
+                "operator": "mean"
+            }
+        },
+        {
+            "type": "annual_statistics",
+            "settings": {
+                "operator": "mean"
+            }
+        },
+        {
+            "type": "anomalies",
+            "settings": {
+                "period": "full",
+                "standardize": False,
+                "reference": {
+                    "start_year": 1981,
+                    "start_month": 1,
+                    "start_day": 1,
+                    "end_year": 2010,
+                    "end_month": 12,
+                    "end_day": 31,
+                }
+            }
+        }
+    ]
+    return operations

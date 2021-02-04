@@ -1,6 +1,9 @@
 import typing
 
-from esmvalcore.preprocessor import extract_region
+from esmvalcore.preprocessor import (
+    extract_region,
+    area_statistics,
+)
 
 from .util import _get_settings
 
@@ -25,4 +28,21 @@ def run_extract_region(
         end_latitude=end_latitude,
     )
 
+    return cubes
+
+def run_area_statistics(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube,
+        **kwargs,
+):
+    settings = _get_settings(operation, task)
+    operator = settings["operator"]
+    fx_variables = None
+
+    cubes = area_statistics(
+        cube,
+        operator=operator,
+        fx_variables=fx_variables
+    )
     return cubes
