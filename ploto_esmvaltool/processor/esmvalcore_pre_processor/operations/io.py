@@ -41,7 +41,7 @@ def _get_file_path(task, output_dir):
 
     if project == "CMIP6":
         exp = task_dataset["exp"]
-        if isinstance(exp, typing.Iterable):
+        if isinstance(exp, typing.List) or isinstance(exp, typing.Tuple):
             exp = "-".join(exp)
         ensemble = task_dataset["ensemble"]
         mip = task_dataset["mip"]
