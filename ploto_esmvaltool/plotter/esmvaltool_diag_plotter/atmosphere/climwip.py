@@ -174,3 +174,31 @@ def generate_weighted_temperature_graph_plot_task() -> typing.Dict:
     }
 
     return task
+
+
+def generate_weighted_temperature_map_plot_task() -> typing.Dict:
+    task = {
+        "diagnostic": {
+            "recipe": "recipe_climwip.yml",
+            "name": "climwip"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "weighting/weighted_temperature_map.py",
+            },
+            "settings": {
+                "script": "weighted_temperature_map",
+                "weights": "weights.nc",
+                "model_aggregation": "mean",
+                "xticks": [0, 10, 20, 30, 40],
+                "yticks": [30, 40, 50, 60, 70, 80]
+            }
+        },
+    }
+
+    return task
