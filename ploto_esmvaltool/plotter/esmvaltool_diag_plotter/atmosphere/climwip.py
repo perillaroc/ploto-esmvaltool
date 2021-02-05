@@ -149,3 +149,28 @@ def generate_temperature_anomalies_operations(settings: typing.Dict = None) -> t
         }
     ]
     return operations
+
+
+def generate_weighted_temperature_graph_plot_task() -> typing.Dict:
+    task = {
+        "diagnostic": {
+            "recipe": "recipe_climwip.yml",
+            "name": "climwip"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "weighting/weighted_temperature_graph.py",
+            },
+            "settings": {
+                "script": "weighted_temperature_graph",
+                "weights": "weights.nc"
+            }
+        },
+    }
+
+    return task
