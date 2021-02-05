@@ -1,24 +1,27 @@
 from pathlib import Path
+import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
 
 def run(
+        dataset,
+        exp,
         short_name,
         start_year,
         end_year
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/fetcher/"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/fetcher/"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    dataset = {
-        "dataset": "ERA5",
-        "project": "native6",
-        "type": "reanaly",
-        "version": 1,
-        "tier": 3,
 
-        "mip": "Amip",
+    dataset = {
+        "dataset": dataset,
+        "project": "CMIP6",
+        "mip": "Amon",
+        "exp": exp,
+        "ensemble": "r1i1p1f1",
+        "grid": "gn",
         "frequency": "mon",
 
         "start_year": start_year,
@@ -34,13 +37,6 @@ def run(
     data_path = {
         "CMIP6": [
             "/home/hujk/clusterfs/wangdp/data/CMIP6"
-        ],
-        "OBS6": [
-            #"/home/hujk/clusterfs/wangdp/data/obs"
-            "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210119_071639"
-        ],
-        "native6": [
-            "/home/hujk/clusterfs/wangdp/data/rawobs"
         ]
     }
 
@@ -65,13 +61,37 @@ def run(
 
 
 def main():
+    variables = ["tas", "psl", "pr"]
+    datasets = ["FGOALS-g3", "CAMS-CSM1-0"]
+
     tasks = [
         {
+            "dataset": d,
+            "exp": ["historical", "ssp585"],
             "short_name": v,
             "start_year": 1995,
-            "end_year": 2014
-        } for v in ["tas", "pr", "psl"]
+            "end_year": 2015
+        }
+        for v, d in itertools.product(variables, datasets)
     ]
+
+    # tasks = [
+    #     {
+    #         "dataset": "FGOALS-g3",
+    #         "exp": "historical",
+    #         "short_name": "tas",
+    #         "start_year": 1995,
+    #         "end_year": 2015
+    #     },
+    #     {
+    #         "dataset": "CAMS-CSM1-0",
+    #         "exp": "historical",
+    #         "short_name": "tas",
+    #         "start_year": 1995,
+    #         "end_year": 2015
+    #     }
+    # ]
+
     for task in tasks:
         run(**task)
 

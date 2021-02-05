@@ -11,7 +11,7 @@ def run(
         start_year,
         end_year
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/fetcher/"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/graph/fetcher"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
 
@@ -45,7 +45,7 @@ def run(
         "variables": variables,
         "data_path": data_path,
 
-        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{dataset['exp']}/{short_name}",
+        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{short_name}",
         "output_data_source_file": "data_source.yml",
     }
 
@@ -61,36 +61,18 @@ def run(
 
 
 def main():
-    variables = ["tas", "psl", "pr"]
     datasets = ["FGOALS-g3", "CAMS-CSM1-0"]
 
     tasks = [
         {
             "dataset": d,
-            "exp": "historical",
-            "short_name": v,
-            "start_year": 1995,
-            "end_year": 2015
+            "exp": ["historical", "ssp585"],
+            "short_name": "tas",
+            "start_year": 1960,
+            "end_year": 2099
         }
-        for v, d in itertools.product(variables, datasets)
+        for d in datasets
     ]
-
-    # tasks = [
-    #     {
-    #         "dataset": "FGOALS-g3",
-    #         "exp": "historical",
-    #         "short_name": "tas",
-    #         "start_year": 1995,
-    #         "end_year": 2015
-    #     },
-    #     {
-    #         "dataset": "CAMS-CSM1-0",
-    #         "exp": "historical",
-    #         "short_name": "tas",
-    #         "start_year": 1995,
-    #         "end_year": 2015
-    #     }
-    # ]
 
     for task in tasks:
         run(**task)

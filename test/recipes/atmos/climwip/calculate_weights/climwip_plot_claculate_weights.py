@@ -8,7 +8,7 @@ import os
 
 
 def run_dry_days():
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/plotter"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/plotter"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     plot_task = generate_calculate_weights_plot_task()
@@ -25,9 +25,9 @@ def run_dry_days():
             "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
         },
         "input_files": [
-            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/processor/preproc/tas/metadata.yml",
-            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/processor/preproc/pr/metadata.yml",
-            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/processor/preproc/psl/metadata.yml",
+            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor/preproc/tas/metadata.yml",
+            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor/preproc/pr/metadata.yml",
+            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor/preproc/psl/metadata.yml",
         ],
     }
 
@@ -45,7 +45,7 @@ def run_dry_days():
             },
         },
         "base": {
-            "run_base_dir": "/home/hujk/ploto/ploto-esmvaltool/dist/cases/case1/run"
+            "run_base_dir": "/home/hujk/ploto/ploto-esmvaltool/dist/cases/case105/run"
         }
     }
 

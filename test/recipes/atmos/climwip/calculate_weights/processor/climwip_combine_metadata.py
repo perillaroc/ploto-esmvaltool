@@ -1,16 +1,17 @@
 from ploto_esmvaltool.processor.esmvaltool_util_processor import run_processor
 
 
-base_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto"
+base_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights"
 
 def get_task(work_dir, short_name):
     task = {
         "util_type": "combine_metadata",
         "metadata_files": [
-            f"{base_dir}/processor/graph/preproc/FGOALS-g3/{short_name}/metadata.yml",
-            f"{base_dir}/processor/graph/preproc/CAMS-CSM1-0/{short_name}/metadata.yml",
+            f"{base_dir}/processor/preproc/FGOALS-g3/{short_name}/metadata.yml",
+            f"{base_dir}/processor/preproc/CAMS-CSM1-0/{short_name}/metadata.yml",
+            f"{base_dir}/processor/preproc/ERA5/{short_name}/metadata.yml"
         ],
-        "output_directory": f"{work_dir}/graph/preproc/{short_name}"
+        "output_directory": f"{work_dir}/preproc/{short_name}"
     }
     return task
 
@@ -20,7 +21,7 @@ def main():
     work_dir = f"{base_dir}/processor"
 
     tasks = [
-        get_task(work_dir, short_name) for short_name in ["tas"]
+        get_task(work_dir, short_name) for short_name in ["tas", "psl", "pr"]
     ]
 
     for task in tasks:

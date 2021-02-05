@@ -15,7 +15,7 @@ def run(
         end_year,
         alias
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/processor/graph"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/graph/processor"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     operations = generate_temperature_anomalies_operations()
@@ -51,7 +51,7 @@ def run(
     settings = {}
 
     task = {
-        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/fetcher/graph/preproc/"
+        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/graph/fetcher/preproc/"
                                   f"{dataset['dataset']}/{variable['short_name']}/data_source.yml",
         # output
         "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{variable['short_name']}",
@@ -89,7 +89,7 @@ def main():
     tasks = [
         {
             "dataset": d["name"],
-            "exp": ["historical", "ssp585"],
+            "exp": "historical-ssp585",
             "variable": {
                 "short_name": v,
                 "variable_group": v,
