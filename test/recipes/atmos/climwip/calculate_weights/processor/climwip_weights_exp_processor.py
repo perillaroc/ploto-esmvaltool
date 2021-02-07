@@ -114,34 +114,6 @@ def main():
         for v, d in itertools.product(variables, datasets)
     ]
 
-    # tasks = [
-    #     {
-    #         "dataset": "FGOALS-g3",
-    #         "exp": "historical",
-    #         "variable": {
-    #             "short_name": "tas",
-    #             "variable_group": "tas_CLIM",
-    #             "preprocessor": "preproc",
-    #         },
-    #         "recipe_dataset_index": 0,
-    #         "start_year": 1995,
-    #         "end_year": 2014,
-    #         "alias": "FGOALS-g3"
-    #     },
-    #     {
-    #         "dataset": "CAMS-CSM1-0",
-    #         "exp": "historical",
-    #         "variable": {
-    #             "short_name": "tas",
-    #             "variable_group": "tas_CLIM",
-    #             "preprocessor": "preproc",
-    #         },
-    #         "recipe_dataset_index": 1,
-    #         "start_year": 1995,
-    #         "end_year": 2014,
-    #         "alias": "CAMS-CSM1-0"
-    #     },
-    # ]
     for task in tasks:
         run(**task)
 

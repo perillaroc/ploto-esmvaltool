@@ -238,8 +238,224 @@ def get_fetcher_steps():
     return steps
 
 
+def get_weights_exp_processor(
+        dataset,
+        exp,
+        variable,
+        recipe_dataset_index,
+        start_year,
+        end_year,
+        alias
+):
+    operations = generate_climatological_mean_operations()
+
+    dataset = {
+        "dataset": dataset,
+        "project": "CMIP6",
+        "mip": "Amon",
+        "exp": exp,
+        "ensemble": "r1i1p1f1",
+        "grid": "gn",
+        "frequency": "mon",
+        "type": "exp",
+
+        "start_year": start_year,
+        "end_year": end_year,
+    }
+
+    diag_dataset = {
+        "recipe_dataset_index": recipe_dataset_index,
+        "alias": alias,
+        "modeling_realm": [
+            "atmos"
+        ]
+    }
+
+    variable = variable
+
+    diag = {
+        "diagnostic": "calculate_weights_climwip",
+    }
+
+    settings = {
+        "mask_landsea": {
+            "mask_out": "sea",
+        },
+        "regrid": {
+            "target_grid": "2.5x2.5",
+            "scheme": "linear"
+        },
+        "climate_statistics": {
+            "operator": "mean"
+        }
+    }
+
+    task = {
+        "input_data_source_file": "{work_dir}/weights/fetcher/preproc/"
+                                  f"{dataset['dataset']}/{variable['short_name']}/data_source.yml",
+        # output
+        "output_directory": "{work_dir}" + f"/weights/processor/preproc/{dataset['dataset']}/{variable['short_name']}",
+
+        # operations
+        "operations": operations,
+
+        "dataset": dataset,
+        "diagnostic_dataset": diag_dataset,
+        "variable": variable,
+        "diagnostic": diag,
+        "settings": settings,
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
+    }
+
+    return task
+
+
+
+def get_weights_era5_processor(
+        dataset,
+        variable,
+        recipe_dataset_index,
+        start_year,
+        end_year,
+        alias
+):
+    operations = generate_climatological_mean_operations()
+
+    dataset = {
+        "dataset": dataset,
+        "project": "native6",
+        "type": "reanaly",
+        "version": 1,
+        "tier": 3,
+
+        "mip": "Amon",
+        "frequency": "mon",
+
+        "start_year": start_year,
+        "end_year": end_year,
+    }
+
+    diag_dataset = {
+        "recipe_dataset_index": recipe_dataset_index,
+        "alias": alias,
+        "modeling_realm": [
+            "atmos"
+        ]
+    }
+
+    variable = variable
+
+    diag = {
+        "diagnostic": "calculate_weights_climwip",
+    }
+
+    settings = {
+        "mask_landsea": {
+            "mask_out": "sea",
+        },
+        "regrid": {
+            "target_grid": "2.5x2.5",
+            "scheme": "linear"
+        },
+        "climate_statistics": {
+            "operator": "mean"
+        }
+    }
+
+    task = {
+        "input_data_source_file": "{work_dir}/weights/fetcher/preproc/"
+                                  f"{dataset['dataset']}/{variable['short_name']}/data_source.yml",
+        # output
+        "output_directory": "{work_dir}" + f"/weights/processor/preproc/{dataset['dataset']}/{variable['short_name']}",
+
+        # operations
+        "operations": operations,
+
+        "dataset": dataset,
+        "diagnostic_dataset": diag_dataset,
+        "variable": variable,
+        "diagnostic": diag,
+        "settings": settings,
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
+    }
+    return task
+
+
+def get_weights_combine_task(short_name):
+    task = {
+        "util_type": "combine_metadata",
+        "metadata_files": [
+            "{work_dir}" + f"/weights/processor/preproc/FGOALS-g3/{short_name}/metadata.yml",
+            "{work_dir}" + f"/weights/processor/preproc/CAMS-CSM1-0/{short_name}/metadata.yml",
+            "{work_dir}" + f"/weights/processor/preproc/ERA5/{short_name}/metadata.yml"
+        ],
+        "output_directory": "{work_dir}" + f"/weights/processor/preproc/{short_name}",
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvaltool_util_processor",
+    }
+    return task
+
+
 def get_processor_steps():
     steps = []
+
+    variables = ["tas", "psl", "pr"]
+    datasets = [
+        {
+            "name": "FGOALS-g3",
+            "index": 0
+        },
+        {
+            "name": "CAMS-CSM1-0",
+            "index": 1
+        }
+    ]
+
+    tasks = [
+        {
+            "dataset": d["name"],
+            "exp": "historical-ssp585",
+            "variable": {
+                "short_name": v,
+                "variable_group": f"{v}_CLIM",
+                "preprocessor": "preproc",
+            },
+            "recipe_dataset_index": d["index"],
+            "start_year": 1995,
+            "end_year": 2014,
+            "alias": d["name"]
+        }
+        for v, d in itertools.product(variables, datasets)
+    ]
+    steps.extend([get_weights_exp_processor(**task) for task in tasks])
+
+    tasks = [
+        {
+            "dataset": "ERA5",
+            "variable": {
+                "short_name": v,
+                "variable_group": f"{v}_CLIM",
+                "preprocessor": "preproc",
+            },
+            "recipe_dataset_index": 2,
+            "start_year": 1995,
+            "end_year": 2014,
+            "alias": "native6"
+        } for v in ["tas", "pr", "psl"]
+    ]
+    steps.extend([get_weights_era5_processor(**task) for task in tasks])
+
+    tasks = [
+        get_weights_combine_task(short_name) for short_name in ["tas", "psl", "pr"]
+    ]
+    steps.extend(tasks)
+
+
     return steps
 
 
