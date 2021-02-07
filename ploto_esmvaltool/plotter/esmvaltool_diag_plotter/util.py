@@ -24,8 +24,9 @@ def add_input_files(
     dict:
         settings with input files
     """
+    input_files = [f.format(work_dir=work_dir) for f in input_files]
     settings['input_files'] = [
-        f.format(work_dir=work_dir) for f in input_files
+        f for f in input_files
         if f.endswith('.yml') or os.path.isdir(f)
     ]
     return settings
@@ -33,7 +34,7 @@ def add_input_files(
 
 def replace_settings_directories(
         settings: typing.Dict,
-        work_dir: str
+        step_work_dir: str
 ) -> typing.Dict:
     """
     Replace directories using work dir.
@@ -42,14 +43,14 @@ def replace_settings_directories(
     ----------
     settings: dict
         settings from plotter's task
-    work_dir: str
+    step_work_dir: str
         task work dir
     Returns
     -------
     dict:
         settings with work dir
     """
-    settings['work_dir'] = str(Path(work_dir, 'work'))
-    settings['plot_dir'] = str(Path(work_dir, 'plots'))
-    settings['run_dir'] = str(Path(work_dir, 'run'))
+    settings['work_dir'] = str(Path(step_work_dir, 'work'))
+    settings['plot_dir'] = str(Path(step_work_dir, 'plots'))
+    settings['run_dir'] = str(Path(step_work_dir, 'run'))
     return settings

@@ -75,6 +75,8 @@ def generate_calculate_weights_plot_task() -> typing.Dict:
                 }
             }
         },
+
+        "step_work_dir": "{work_dir}/weights/plotter/"
     }
 
     return task
@@ -135,6 +137,8 @@ def generate_weighted_temperature_graph_plot_task() -> typing.Dict:
                 "weights": "weights.nc"
             }
         },
+
+        "step_work_dir": "{work_dir}/graph/plotter/"
     }
 
     return task
@@ -163,6 +167,8 @@ def generate_weighted_temperature_map_plot_task() -> typing.Dict:
                 "yticks": [30, 40, 50, 60, 70, 80]
             }
         },
+
+        "step_work_dir": "{work_dir}/map/plotter/"
     }
 
     return task

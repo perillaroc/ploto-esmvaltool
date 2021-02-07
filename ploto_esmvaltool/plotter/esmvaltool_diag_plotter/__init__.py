@@ -66,9 +66,11 @@ def run_plotter(
         input_files,
         work_dir
     )
+
+    step_work_dir = task.get("step_work_dir", work_dir).format(work_dir=work_dir)
     settings = replace_settings_directories(
         settings,
-        work_dir
+        step_work_dir,
     )
 
     run_dir = settings["run_dir"]
