@@ -44,10 +44,11 @@ def get_weights_fetcher(
     dataset = {
         "dataset": dataset,
         "project": "CMIP6",
-        "mip": "Amon",
         "exp": exp,
         "ensemble": "r1i1p1f1",
         "grid": "gn",
+        
+        "mip": "Amon",
         "frequency": "mon",
 
         "start_year": start_year,
@@ -123,10 +124,11 @@ def get_graph_fetcher(
     dataset = {
         "dataset": dataset,
         "project": "CMIP6",
-        "mip": "Amon",
         "exp": exp,
         "ensemble": "r1i1p1f1",
         "grid": "gn",
+        
+        "mip": "Amon",
         "frequency": "mon",
 
         "start_year": start_year,
@@ -159,15 +161,16 @@ def get_map_tas_fetcher(
         exp,
         start_year,
         end_year,
-        short_name
+        variable,
 ):
     dataset = {
         "dataset": dataset,
         "project": "CMIP6",
-        "mip": "Amon",
         "exp": exp,
         "ensemble": "r1i1p1f1",
         "grid": "gn",
+        
+        "mip": "Amon",
         "frequency": "mon",
 
         "start_year": start_year,
@@ -176,7 +179,8 @@ def get_map_tas_fetcher(
 
     variables = [
         {
-            "short_name": short_name,
+            "short_name": variable["short_name"],
+            "variable_group": variable["variable_group"]
         }
     ]
 
@@ -185,55 +189,12 @@ def get_map_tas_fetcher(
         "variables": variables,
         "data_path": data_path,
 
-        "output_directory": "{work_dir}" + f"/map/fetcher/preproc/{dataset['dataset']}/{short_name}",
+        "output_directory": "{work_dir}" + f"/map/fetcher/preproc/{dataset['dataset']}/{variable['variable_group']}",
         "output_data_source_file": "data_source.yml",
 
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
     }
-    return task
-
-
-def get_map_tas_reference_fetcher(
-        dataset,
-        exp,
-        short_name,
-        variable_group,
-        start_year,
-        end_year
-):
-    dataset = {
-        "dataset": dataset,
-        "project": "CMIP6",
-        "mip": "Amon",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
-    }
-
-    variables = [
-        {
-            "short_name": short_name,
-            "variable_group": variable_group
-        }
-    ]
-
-    task = {
-        "dataset": dataset,
-        "variables": variables,
-        "data_path": data_path,
-
-        "output_directory": "{work_dir}" + f"/map/fetcher/preproc/{dataset['dataset']}/{variable_group}",
-        "output_data_source_file": "data_source.yml",
-
-        "step_type": "fetcher",
-        "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-    }
-
     return task
 
 
@@ -282,7 +243,10 @@ def get_fetcher_steps():
         {
             "dataset": d,
             "exp": ["historical", "ssp585"],
-            "short_name": v,
+            "variable": {
+                "short_name": v,
+                "variable_group": v,
+            },
             "start_year": 2081,
             "end_year": 2099
         }
@@ -294,14 +258,16 @@ def get_fetcher_steps():
         {
             "dataset": d,
             "exp": ["historical", "ssp585"],
-            "short_name": v,
-            "variable_group": f"{v}_reference",
+            "variable": {
+                "short_name": v,
+                "variable_group": f"{v}_reference",
+            },
             "start_year": 1995,
             "end_year": 2014
         }
         for v, d in itertools.product(variables, datasets)
     ]
-    steps.extend([get_map_tas_reference_fetcher(**task) for task in tasks])
+    steps.extend([get_map_tas_fetcher(**task) for task in tasks])
 
     return steps
 
@@ -618,79 +584,6 @@ def get_map_tas_processor(
     return task
 
 
-def get_map_tas_reference_processor(
-        dataset,
-        exp,
-        variable,
-        recipe_dataset_index,
-        start_year,
-        end_year,
-        alias
-):
-    operations = generate_climatological_mean_operations()
-
-    dataset = {
-        "dataset": dataset,
-        "project": "CMIP6",
-        "mip": "Amon",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "mon",
-        "type": "exp",  #*******************
-
-        "start_year": start_year,
-        "end_year": end_year,
-    }
-
-    diag_dataset = {
-        "recipe_dataset_index": recipe_dataset_index,
-        "alias": alias,
-        "modeling_realm": [
-            "atmos"
-        ]
-    }
-
-    variable = variable
-
-    diag = {
-        "diagnostic": "weighted_temperature_map",
-    }
-
-    settings = {
-        "mask_landsea": {
-            "mask_out": "sea",
-        },
-        "regrid": {
-            "target_grid": "2.5x2.5",
-            "scheme": "linear"
-        },
-        "climate_statistics": {
-            "operator": "mean"
-        }
-    }
-
-    task = {
-        "input_data_source_file": "{work_dir}/map/fetcher/preproc/"
-                                  f"{dataset['dataset']}/{variable['variable_group']}/data_source.yml",
-        # output
-        "output_directory": "{work_dir}" + f"/map/processor/preproc/{dataset['dataset']}/{variable['variable_group']}",
-
-        # operations
-        "operations": operations,
-
-        "dataset": dataset,
-        "diagnostic_dataset": diag_dataset,
-        "variable": variable,
-        "diagnostic": diag,
-        "settings": settings,
-
-        "step_type": "processor",
-        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
-    }
-    return task
-
-
 def get_map_combine_task(variable_group):
     task = {
         "util_type": "combine_metadata",
@@ -709,6 +602,7 @@ def get_map_combine_task(variable_group):
 def get_processor_steps():
     steps = []
 
+    # STEP: weights
     variables = ["tas", "psl", "pr"]
     datasets = [
         {
@@ -728,7 +622,7 @@ def get_processor_steps():
             "variable": {
                 "short_name": v,
                 "variable_group": f"{v}_CLIM",
-                "preprocessor": "preproc",
+                "preprocessor": "climatological_mean",
             },
             "recipe_dataset_index": d["index"],
             "start_year": 1995,
@@ -745,13 +639,13 @@ def get_processor_steps():
             "variable": {
                 "short_name": v,
                 "variable_group": f"{v}_CLIM",
-                "preprocessor": "preproc",
+                "preprocessor": "climatological_mean",
             },
             "recipe_dataset_index": 2,
             "start_year": 1995,
             "end_year": 2014,
             "alias": "native6"
-        } for v in ["tas", "pr", "psl"]
+        } for v in variables
     ]
     steps.extend([get_weights_era5_processor(**task) for task in tasks])
 
@@ -760,18 +654,8 @@ def get_processor_steps():
     ]
     steps.extend(tasks)
 
+    # STEP: graph
     variables = ["tas"]
-    # datasets = [
-    #     {
-    #         "name": "FGOALS-g3",
-    #         "index": 0
-    #     },
-    #     {
-    #         "name": "CAMS-CSM1-0",
-    #         "index": 1
-    #     }
-    # ]
-
     tasks = [
         {
             "dataset": d["name"],
@@ -795,18 +679,8 @@ def get_processor_steps():
     ]
     steps.extend(tasks)
 
+    # STEP: map
     variables = ["tas"]
-    # datasets = [
-    #     {
-    #         "name": "FGOALS-g3",
-    #         "index": 0
-    #     },
-    #     {
-    #         "name": "CAMS-CSM1-0",
-    #         "index": 1
-    #     }
-    # ]
-
     tasks = [
         {
             "dataset": d["name"],
@@ -814,7 +688,7 @@ def get_processor_steps():
             "variable": {
                 "short_name": v,
                 "variable_group": v,
-                "preprocessor": "climatological_mean",
+                "preprocessor": "temperature_anomalies",
             },
             "recipe_dataset_index": d["index"],
             "start_year": 2081,
@@ -833,7 +707,7 @@ def get_processor_steps():
             "variable": {
                 "short_name": v,
                 "variable_group": f"{v}_reference",
-                "preprocessor": "climatological_mean",
+                "preprocessor": "temperature_anomalies",
             },
             "recipe_dataset_index": d["index"],
             "start_year": 1995,
@@ -842,7 +716,7 @@ def get_processor_steps():
         }
         for v, d in itertools.product(variables, datasets)
     ]
-    steps.extend([get_map_tas_reference_processor(**task) for task in tasks])
+    steps.extend([get_map_tas_processor(**task) for task in tasks])
 
     tasks = [
         get_map_combine_task(variable_group) for variable_group in ["tas", "tas_reference"]
@@ -860,14 +734,7 @@ def get_plotter_steps():
         "step_type": "plotter",
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
         **plot_task,
-        "config": {
-            "log_level": "info",
-            "write_netcdf": True,
-            "write_plots": True,
-            "output_file_type": "png",
-            "profile_diagnostic": False,
-            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
-        },
+        "config": plot_config,
         "input_files": [
             "{work_dir}/weights/processor/preproc/tas/metadata.yml",
             "{work_dir}/weights/processor/preproc/pr/metadata.yml",
@@ -881,14 +748,7 @@ def get_plotter_steps():
         "step_type": "plotter",
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
         **plot_task,
-        "config": {
-            "log_level": "info",
-            "write_netcdf": True,
-            "write_plots": True,
-            "output_file_type": "png",
-            "profile_diagnostic": False,
-            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
-        },
+        "config": plot_config,
         "input_files": [
             "{work_dir}/weights/plotter/work/",
             "{work_dir}/graph/processor/preproc/tas/metadata.yml",
@@ -901,14 +761,7 @@ def get_plotter_steps():
         "step_type": "plotter",
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
         **plot_task,
-        "config": {
-            "log_level": "info",
-            "write_netcdf": True,
-            "write_plots": True,
-            "output_file_type": "png",
-            "profile_diagnostic": False,
-            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
-        },
+        "config": plot_config,
         "input_files": [
             "{work_dir}/weights/plotter/work/",
             "{work_dir}/map/processor/preproc/tas/metadata.yml",
