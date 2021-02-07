@@ -3,7 +3,10 @@ from pathlib import Path
 
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import (
     generate_climatological_mean_operations,
-    generate_temperature_anomalies_operations
+    generate_temperature_anomalies_operations,
+    generate_calculate_weights_plot_task,
+    generate_weighted_temperature_graph_plot_task,
+    generate_weighted_temperature_map_plot_task,
 )
 from ploto.run import run_ploto
 
@@ -19,6 +22,15 @@ data_path = {
     "native6": [
         "/home/hujk/clusterfs/wangdp/data/rawobs"
     ]
+}
+
+plot_config = {
+    "log_level": "info",
+    "write_netcdf": True,
+    "write_plots": True,
+    "output_file_type": "png",
+    "profile_diagnostic": False,
+    "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
 }
 
 
@@ -232,7 +244,7 @@ def get_fetcher_steps():
     datasets = ["FGOALS-g3", "CAMS-CSM1-0"]
 
     tasks = [
-       {
+        {
             "dataset": d,
             "exp": ["historical", "ssp585"],
             "short_name": v,
@@ -524,7 +536,7 @@ def get_graph_combine_task(short_name):
         "metadata_files": [
             "{work_dir}" + f"/graph/processor/preproc/FGOALS-g3/{short_name}/metadata.yml",
             "{work_dir}" + f"/graph/processor/preproc/CAMS-CSM1-0/{short_name}/metadata.yml",
-        ],
+            ],
         "output_directory": "{work_dir}" + f"/graph/processor/preproc/{short_name}",
 
         "step_type": "processor",
@@ -685,7 +697,7 @@ def get_map_combine_task(variable_group):
         "metadata_files": [
             "{work_dir}" + f"/map/processor/preproc/FGOALS-g3/{variable_group}/metadata.yml",
             "{work_dir}" + f"/map/processor/preproc/CAMS-CSM1-0/{variable_group}/metadata.yml",
-        ],
+            ],
         "output_directory": "{work_dir}" + f"/map/processor/preproc/{variable_group}",
 
         "step_type": "processor",
@@ -842,6 +854,69 @@ def get_processor_steps():
 
 def get_plotter_steps():
     steps = []
+
+    plot_task = generate_calculate_weights_plot_task()
+    task = {
+        "step_type": "plotter",
+        "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
+        **plot_task,
+        "config": {
+            "log_level": "info",
+            "write_netcdf": True,
+            "write_plots": True,
+            "output_file_type": "png",
+            "profile_diagnostic": False,
+            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
+        },
+        "input_files": [
+            "{work_dir}/weights/processor/preproc/tas/metadata.yml",
+            "{work_dir}/weights/processor/preproc/pr/metadata.yml",
+            "{work_dir}/weights/processor/preproc/psl/metadata.yml",
+        ],
+    }
+    steps.append(task)
+
+    plot_task = generate_weighted_temperature_graph_plot_task()
+    task = {
+        "step_type": "plotter",
+        "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
+        **plot_task,
+        "config": {
+            "log_level": "info",
+            "write_netcdf": True,
+            "write_plots": True,
+            "output_file_type": "png",
+            "profile_diagnostic": False,
+            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
+        },
+        "input_files": [
+            "{work_dir}/weights/plotter/work/",
+            "{work_dir}/graph/processor/preproc/tas/metadata.yml",
+        ],
+    }
+    steps.append(task)
+
+    plot_task = generate_weighted_temperature_map_plot_task()
+    task = {
+        "step_type": "plotter",
+        "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
+        **plot_task,
+        "config": {
+            "log_level": "info",
+            "write_netcdf": True,
+            "write_plots": True,
+            "output_file_type": "png",
+            "profile_diagnostic": False,
+            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
+        },
+        "input_files": [
+            "{work_dir}/weights/plotter/work/",
+            "{work_dir}/map/processor/preproc/tas/metadata.yml",
+            "{work_dir}/map/processor/preproc/tas_reference/metadata.yml",
+        ],
+    }
+    steps.append(task)
+
     return steps
 
 
