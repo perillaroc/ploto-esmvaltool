@@ -7,30 +7,13 @@ https://docs.esmvaltool.org/en/latest/recipes/recipe_climwip.html
 """
 import typing
 
+from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import _get_default_operations
+
 
 def generate_climatological_mean_operations(settings: typing.Dict = None) -> typing.List:
+    default_operations = _get_default_operations()
     operations = [
-        {
-            "type": "load",
-        },
-        {
-            "type": "fix_metadata",
-        },
-        {
-            "type": "concatenate",
-        },
-        {
-            "type": "cmor_check_metadata",
-        },
-        {
-            "type": "clip_start_end_year"
-        },
-        {
-            "type": "fix_data"
-        },
-        {
-            "type": "cmor_check_data"
-        },
+        *default_operations,
         {
             "type": "mask_landsea",
             "settings": {
@@ -98,28 +81,9 @@ def generate_calculate_weights_plot_task() -> typing.Dict:
 
 
 def generate_temperature_anomalies_operations(settings: typing.Dict = None) -> typing.List:
+    default_operations = _get_default_operations()
     operations = [
-        {
-            "type": "load",
-        },
-        {
-            "type": "fix_metadata",
-        },
-        {
-            "type": "concatenate",
-        },
-        {
-            "type": "cmor_check_metadata",
-        },
-        {
-            "type": "clip_start_end_year"
-        },
-        {
-            "type": "fix_data",
-        },
-        {
-            "type": "cmor_check_data"
-        },
+        *default_operations,
         {
             "type": "area_statistics",
             "settings": {

@@ -7,6 +7,8 @@ https://docs.esmvaltool.org/en/latest/recipes/recipe_consecdrydays.html
 """
 import typing
 
+from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import _get_default_operations
+
 
 def generate_default_plot_task() -> typing.Dict:
     task = {
@@ -40,27 +42,8 @@ def generate_default_plot_task() -> typing.Dict:
 
 
 def generate_default_preprocessor_operations() -> typing.List:
+    default_operations = _get_default_operations()
     operations = [
-        {
-            "type": "load",
-        },
-        {
-            "type": "fix_metadata",
-        },
-        {
-            "type": "concatenate",
-        },
-        {
-            "type": "cmor_check_metadata",
-        },
-        {
-            "type": "clip_start_end_year"
-        },
-        {
-            "type": "fix_data"
-        },
-        {
-            "type": "cmor_check_data"
-        }
+        *default_operations
     ]
     return operations
