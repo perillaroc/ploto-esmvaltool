@@ -75,23 +75,6 @@ def main():
         for v, d in itertools.product(variables, datasets)
     ]
 
-    # tasks = [
-    #     {
-    #         "dataset": "FGOALS-g3",
-    #         "exp": "historical",
-    #         "short_name": "tas",
-    #         "start_year": 1995,
-    #         "end_year": 2015
-    #     },
-    #     {
-    #         "dataset": "CAMS-CSM1-0",
-    #         "exp": "historical",
-    #         "short_name": "tas",
-    #         "start_year": 1995,
-    #         "end_year": 2015
-    #     }
-    # ]
-
     for task in tasks:
         run(**task)
 
