@@ -1,53 +1,34 @@
-from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import (
-    generate_calculate_weights_plot_task
-)
-from ploto_esmvaltool.plotter.esmvaltool_diag_plotter import run_plotter
-
 from pathlib import Path
 import os
 
+from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import (
+    generate_default_plot_task
+)
+from ploto_esmvaltool.plotter.esmvaltool_diag_plotter import run_plotter
+
+from test.recipes.atmos.climwip import recipe as climwip_recipe
+from test.recipes.atmos.climwip import config as climwip_config
+
 
 def run_dry_days():
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/plotter"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    plot_task = generate_calculate_weights_plot_task()
+    variables = climwip_recipe.weights_variables
+
+    plot_task = generate_default_plot_task("calculate_weights_climwip")
     task = {
         "step_type": "plotter",
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
         **plot_task,
-        "config": {
-            "log_level": "info",
-            "write_netcdf": True,
-            "write_plots": True,
-            "output_file_type": "png",
-            "profile_diagnostic": False,
-            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
-        },
+        "config": climwip_config.plot_config,
         "input_files": [
-            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor/preproc/tas/metadata.yml",
-            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor/preproc/pr/metadata.yml",
-            "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor/preproc/psl/metadata.yml",
+            f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor/preproc/{variable['variable_group']}/metadata.yml"
+            for variable in variables
         ],
     }
 
-    config = {
-        "esmvaltool": {
-            "executables": {
-                "py": "/home/hujk/anaconda3/envs/wangdp-esm/bin/python",
-                "r": "/home/hujk/anaconda3/envs/wangdp-esm/bin/Rscript"
-            },
-            "recipes": {
-                "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/recipes",
-            },
-            "diag_scripts": {
-                "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/diag_scripts",
-            },
-        },
-        "base": {
-            "run_base_dir": "/home/hujk/ploto/ploto-esmvaltool/dist/cases/case105/run"
-        }
-    }
+    config = climwip_config.config
 
     os.chdir(work_dir)
 
