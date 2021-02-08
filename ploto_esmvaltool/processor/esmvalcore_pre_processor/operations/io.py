@@ -97,11 +97,15 @@ def run_write_metadata(
 
     if project == "CMIP6":
         institutes = get_institutes(task_dataset)
+        exp = task_dataset["exp"]
+        if isinstance(exp, typing.List):
+            exp = "-".join(exp)
 
         dataset = {
             "activity": d.activity_id,
             "institute": institutes,
             **task_dataset,
+            "exp": exp
         }
     elif project == "OBS6":
         dataset = {
@@ -113,6 +117,8 @@ def run_write_metadata(
         }
     else:
         raise ValueError(f"project is not supported: {project}")
+
+
 
     variable = {
         **task_variable,
@@ -129,13 +135,13 @@ def run_write_metadata(
     meta_data = {
         "filename": str(file_path),
         **dataset,
-        **variable,
         **diagnostic_task,
+        **variable,
     }
 
     d.close()
 
-    meta_data_path =   Path(output_dir, metadata_file_name)
+    meta_data_path = Path(output_dir, metadata_file_name)
 
     with open(meta_data_path, "w") as f:
         yaml.safe_dump({
