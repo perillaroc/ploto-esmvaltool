@@ -3,36 +3,26 @@ import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
+from test.recipes.atmos.climwip import recipe as climwip_recipe
 
 def run(
-        dataset,
-        exp,
-        short_name,
-        start_year,
-        end_year
+        exp_dataset,
+        variable
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/fetcher/"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
 
     dataset = {
-        "dataset": dataset,
-        "project": "CMIP6",
-        "mip": "Amon",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
+        **exp_dataset,
+        # **variable
     }
 
     variables = [
-        {
-            "short_name": short_name,
-        }
+        variable
     ]
+
+    short_name = variable["short_name"]
 
     data_path = {
         "CMIP6": [
@@ -61,16 +51,13 @@ def run(
 
 
 def main():
-    variables = ["tas", "psl", "pr"]
-    datasets = ["FGOALS-g3", "CAMS-CSM1-0"]
+    variables = climwip_recipe.weights_variables
+    datasets = climwip_recipe.exp_datasets
 
     tasks = [
         {
-            "dataset": d,
-            "exp": ["historical", "ssp585"],
-            "short_name": v,
-            "start_year": 1995,
-            "end_year": 2015
+            "exp_dataset": d,
+            "variable": v,
         }
         for v, d in itertools.product(variables, datasets)
     ]

@@ -3,35 +3,24 @@ import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
+from test.recipes.atmos.climwip import recipe as climwip_recipe
+
 
 def run(
-        dataset,
-        exp,
-        short_name,
-        start_year,
-        end_year
+        exp_dataset,
+        variable
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/map/fetcher/"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
 
     dataset = {
-        "dataset": dataset,
-        "project": "CMIP6",
-        "mip": "Amon",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
+        **exp_dataset,
+        **variable
     }
 
     variables = [
-        {
-            "short_name": short_name,
-        }
+        variable
     ]
 
     data_path = {
@@ -40,12 +29,14 @@ def run(
         ]
     }
 
+    variable_group = dataset["variable_group"]
+
     task = {
         "dataset": dataset,
         "variables": variables,
         "data_path": data_path,
 
-        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{short_name}",
+        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{variable_group}",
         "output_data_source_file": "data_source.yml",
     }
 
@@ -61,20 +52,16 @@ def run(
 
 
 def main():
-    variables = ["tas"]
-    datasets = ["FGOALS-g3", "CAMS-CSM1-0"]
+    variables = climwip_recipe.map_variables
+    datasets = climwip_recipe.exp_datasets
 
     tasks = [
         {
-            "dataset": d,
-            "exp": ["historical", "ssp585"],
-            "short_name": v,
-            "start_year": 2081,
-            "end_year": 2099
+            "exp_dataset": d,
+            "variable": v,
         }
         for v, d in itertools.product(variables, datasets)
     ]
-
 
     for task in tasks:
         run(**task)

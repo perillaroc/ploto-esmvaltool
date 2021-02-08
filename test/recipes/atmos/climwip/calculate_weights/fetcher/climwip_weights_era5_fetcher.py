@@ -1,34 +1,25 @@
 from pathlib import Path
+import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
+from test.recipes.atmos.climwip.recipe import *
+
 
 def run(
-        short_name,
-        start_year,
-        end_year
+        exp_dataset,
+        variable,
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/fetcher/"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     dataset = {
-        "dataset": "ERA5",
-        "project": "native6",
-        "type": "reanaly",
-        "version": 1,
-        "tier": 3,
-
-        "mip": "Amip",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
+        **exp_dataset,
+        **variable,
     }
 
     variables = [
-        {
-            "short_name": short_name,
-        }
+        variable
     ]
 
     data_path = {
@@ -43,6 +34,8 @@ def run(
             "/home/hujk/clusterfs/wangdp/data/rawobs"
         ]
     }
+
+    short_name = variable["short_name"]
 
     task = {
         "dataset": dataset,
@@ -65,15 +58,19 @@ def run(
 
 
 def main():
+    variables = weights_variables
+    datasets = obs_datasets
+
     tasks = [
         {
-            "short_name": v,
-            "start_year": 1995,
-            "end_year": 2014
-        } for v in ["tas", "pr", "psl"]
+            "variable": v,
+            "exp_dataset": d
+        }
+        for v, d in itertools.product(variables, datasets)
     ]
     for task in tasks:
         run(**task)
+
 
 if __name__ == "__main__":
     main()

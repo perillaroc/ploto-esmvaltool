@@ -11,30 +11,42 @@ def get_exp_data(
         task: typing.Dict,
         work_dir: typing.Union[pathlib.Path, str],
         config: typing.Dict,
-):
+) -> typing.List:
+    """
+    由 dataset 和 variable 共同决定数据文件查找的参数 combined_variable
+    """
     dataset = task["dataset"]
     project = dataset["project"]
-    start_year = dataset["start_year"]
-    end_year = dataset["end_year"]
 
     exp = dataset["exp"]
     if isinstance(exp, str):
         exp = [exp]
+
     ensemble = dataset["ensemble"]
     if isinstance(ensemble, str):
         ensemble = [ensemble]
 
     variables = task["variables"]
+
     directories = task["data_path"][project]
 
-    total_files = []
+    selected_files = []
 
     iter = itertools.product(exp, ensemble, variables)
     for e, ens, v in iter:
-        logger.info(f"checking for exp {e}, ensemble {ens}, and variable {v}")
+        combined_variable = {
+            **dataset,
+            **v,
+            "exp": e,
+            "ensemble": ens
+        }
+        start_year = combined_variable["start_year"]
+        end_year = combined_variable["end_year"]
+
+        logger.info(f"checking for variable {combined_variable}")
         filenames = [
-            f"{v['short_name']}_{dataset['mip']}_{dataset['dataset']}_"
-            f"{e}_{ens}_{dataset['grid']}*.nc"
+            f"{combined_variable['short_name']}_{combined_variable['mip']}_{combined_variable['dataset']}_"
+            f"{combined_variable['exp']}_{combined_variable['ensemble']}_{combined_variable['grid']}*.nc"
         ]
 
         files = find_files(
@@ -43,13 +55,14 @@ def get_exp_data(
         )
 
         logger.info(f"Found files: {len(files)}")
-        total_files.extend(files)
 
-    selected_files = select_files(
-        total_files,
-        start_year=start_year,
-        end_year=end_year
-    )
+        current_selected_files = select_files(
+            files,
+            start_year=start_year,
+            end_year=end_year
+        )
+
+        selected_files.extend(current_selected_files)
 
     return selected_files
 
@@ -58,7 +71,7 @@ def get_obs6_data(
         task,
         work_dir,
         config
-):
+) -> typing.List:
     input_dir = "Tier{tier}/{dataset}"
     input_file = "{project}_{dataset}_{type}_{version}_{mip}_{short_name}[_.]*nc"
 
@@ -68,23 +81,29 @@ def get_obs6_data(
     directories = [pathlib.Path(d, input_dir.format(**dataset)) for d in task["data_path"][project]]
     variables = task["variables"]
 
-    filenames = [
-        input_file.format(**dataset, short_name=v["short_name"])
-        for v in variables
-    ]
+    selected_files = []
+    for v in variables:
+        combined_variable = {
+            **dataset,
+            **v,
+        }
+        filenames = [
+            input_file.format(**combined_variable)
+        ]
 
-    files = find_files(
-        directories,
-        filenames
-    )
+        files = find_files(
+            directories,
+            filenames
+        )
 
-    logger.info(f"Found files: {len(files)}")
+        logger.info(f"Found files: {len(files)}")
 
-    selected_files = select_files(
-        files,
-        start_year=dataset["start_year"],
-        end_year=dataset["end_year"]
-    )
+        current_selected_files = select_files(
+            files,
+            start_year=combined_variable["start_year"],
+            end_year=combined_variable["end_year"]
+        )
+        selected_files.extend(current_selected_files)
 
     return selected_files
 
@@ -93,35 +112,36 @@ def get_native6_data(
         task,
         work_dir,
         config
-):
+) -> typing.List:
     input_dir = "Tier{tier}/{dataset}/{version}/{frequency}/{short_name}"
     input_file = "*.nc"
 
     dataset = task["dataset"]
     project = dataset["project"]
 
-
     variables = task["variables"]
 
-    files = []
+    selected_files = []
     for v in variables:
-        directories = [pathlib.Path(d, input_dir.format(
+        combined_variable = {
             **dataset,
-            **v,
-        )) for d in task["data_path"][project]]
-        filenames = input_file.format(**dataset, short_name=v["short_name"])
+            **v
+        }
+        directories = [pathlib.Path(d, input_dir.format(**combined_variable)) for d in task["data_path"][project]]
+        filenames = input_file.format(**combined_variable)
 
-        files.extend(find_files(
+        current_files = find_files(
             directories,
             filenames
-        ))
+        )
 
-    logger.info(f"Found files: {len(files)}")
+        logger.info(f"Found files: {len(current_files)}")
 
-    selected_files = select_files(
-        files,
-        start_year=dataset["start_year"],
-        end_year=dataset["end_year"]
-    )
+        current_selected_files = select_files(
+            current_files,
+            start_year=dataset["start_year"],
+            end_year=dataset["end_year"]
+        )
+        selected_files.extend(current_selected_files)
 
     return selected_files
