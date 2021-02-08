@@ -11,7 +11,7 @@ def run_miles_block():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/plotter/regimes"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    plot_task = generate_default_plot_task(script="miles_regimes")
+    plot_task = generate_default_plot_task(name="miles_regimes")
 
     task = {
         "step_type": "plotter",

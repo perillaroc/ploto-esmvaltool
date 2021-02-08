@@ -1,55 +1,40 @@
 from pathlib import Path
+import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
+from test.recipes.atmos.miles import recipe as miles_recipe
+from test.recipes.atmos.miles import config as miles_config
+
 
 def run(
-        exp,
-        short_name,
-        start_year,
-        end_year
+    exp_dataset,
+    variable,
+    diagnostic_name
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/fetcher/"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
 
-    dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "mip": "day",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "day",
-
-        "start_year": start_year,
-        "end_year": end_year,
+    combined_dataset = {
+        **exp_dataset,
+        **variable
     }
 
     variables = [
-        {
-            "short_name": short_name,
-        }
+        variable
     ]
 
-    data_path = {
-        "CMIP6": [
-            "/home/hujk/clusterfs/wangdp/data/CMIP6"
-        ]
-    }
-
     task = {
-        "dataset": dataset,
+        "dataset": combined_dataset,
         "variables": variables,
-        "data_path": data_path,
+        "data_path": miles_config.data_path,
 
-        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{short_name}",
+        "output_directory": f"{work_dir}/{diagnostic_name}/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
         "output_data_source_file": "data_source.yml",
     }
 
-    config = {
-
-    }
+    config = {}
 
     get_data(
         task=task,
@@ -59,14 +44,18 @@ def run(
 
 
 def main():
+    exp_datasets = miles_recipe.exp_datasets
+    variables = miles_recipe.variables
+
     tasks = [
         {
-            "exp": "historical",
-            "short_name": "zg",
-            "start_year": 1980,
-            "end_year": 1985
+            "exp_dataset": d,
+            "variable": v,
+            "diagnostic_name": "miles_block"
         }
+        for d, v in itertools.product(exp_datasets, variables)
     ]
+
     for task in tasks:
         run(**task)
 

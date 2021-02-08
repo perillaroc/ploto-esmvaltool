@@ -11,7 +11,7 @@ def run_miles_block():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/plotter/eof"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    plot_task = generate_default_plot_task(script="miles_eof")
+    plot_task = generate_default_plot_task(name="miles_eof")
     plot_task["diagnostic_script"]["settings"]["seasons"] = "DJF"
     plot_task["diagnostic_script"]["settings"]["teles"] = "NAO"
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.miles import (
-    generate_default_preprocessor_operations
+    generate_default_operations
 )
 from loguru import logger
 
@@ -17,7 +17,7 @@ def run(
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/processor"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    operations = generate_default_preprocessor_operations()
+    operations = generate_default_operations()
 
     dataset = {
         "dataset": "ERA-Interim",

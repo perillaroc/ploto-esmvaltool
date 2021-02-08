@@ -10,7 +10,7 @@ import typing
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import _get_default_operations
 
 
-def generate_default_preprocessor_operations() -> typing.List:
+def generate_default_operations() -> typing.List:
     default_operations = _get_default_operations()
     operations = [
         *default_operations,
@@ -36,13 +36,13 @@ def generate_default_preprocessor_operations() -> typing.List:
     return operations
 
 
-def generate_default_plot_task(script="miles_block") -> typing.Dict:
+def generate_default_plot_task(name="miles_block") -> typing.Dict:
     mapper = {
         "miles_block": _generate_plot_task_for_block,
         "miles_eof": _generate_plot_task_for_eof,
         "miles_regimes": _generate_plot_task_for_regimes,
     }
-    task = mapper[script]()
+    task = mapper[name]()
     return task
 
 

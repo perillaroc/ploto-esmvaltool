@@ -1,6 +1,6 @@
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.miles import (
     generate_default_plot_task,
-    generate_default_preprocessor_operations,
+    generate_default_operations,
 )
 from ploto.run import run_ploto
 
@@ -131,7 +131,7 @@ def get_fetcher_steps():
 
 
 def get_processor_steps():
-    operations = generate_default_preprocessor_operations()
+    operations = generate_default_operations()
 
     recipe_dataset_index = 0
     alias = "historical"
@@ -227,7 +227,7 @@ def get_processor_steps():
 
 
 def get_plotter_steps():
-    plot_task = generate_default_plot_task(script="miles_block")
+    plot_task = generate_default_plot_task(name="miles_block")
     plot_task["diagnostic_script"]["settings"]["seasons"] = "DJF"
 
     task = {
