@@ -10,6 +10,29 @@ import typing
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import _get_default_operations
 
 
+def generate_default_operations(
+        name,
+        settings: typing.Dict = None
+) -> typing.List:
+    mapper = {
+        "climatological_mean": generate_climatological_mean_operations,
+        "temperature_anomalies": generate_temperature_anomalies_operations
+    }
+    generate_function = mapper[name]
+    return generate_function(settings)
+
+
+def generate_default_plot_task(name) -> typing.Dict:
+    mapper = {
+        "calculate_weights_climwip": generate_calculate_weights_plot_task,
+        "weighted_temperature_graph": generate_weighted_temperature_graph_plot_task,
+        "weighted_temperature_map": generate_weighted_temperature_map_plot_task,
+    }
+
+    generate_function = mapper[name]
+    return generate_function()
+
+
 def generate_climatological_mean_operations(settings: typing.Dict = None) -> typing.List:
     default_operations = _get_default_operations()
     operations = [
