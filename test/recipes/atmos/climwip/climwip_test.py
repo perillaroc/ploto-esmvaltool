@@ -2,272 +2,97 @@ import itertools
 from pathlib import Path
 
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import (
-    generate_climatological_mean_operations,
-    generate_temperature_anomalies_operations,
-    generate_calculate_weights_plot_task,
-    generate_weighted_temperature_graph_plot_task,
-    generate_weighted_temperature_map_plot_task,
+    generate_default_operations,
+    generate_default_plot_task
 )
 from ploto.run import run_ploto
 
 
-data_path = {
-    "CMIP6": [
-        "/home/hujk/clusterfs/wangdp/data/CMIP6"
-    ],
-    "OBS6": [
-        #"/home/hujk/clusterfs/wangdp/data/obs"
-        "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210119_071639"
-    ],
-    "native6": [
-        "/home/hujk/clusterfs/wangdp/data/rawobs"
-    ]
-}
-
-plot_config = {
-    "log_level": "info",
-    "write_netcdf": True,
-    "write_plots": True,
-    "output_file_type": "png",
-    "profile_diagnostic": False,
-    "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
-}
+from test.recipes.atmos.climwip import recipe as climwip_recipe
+from test.recipes.atmos.climwip import config as climwip_config
 
 
-def get_weights_fetcher(
-        dataset,
-        exp,
-        start_year,
-        end_year,
-        short_name
-):
-    dataset = {
-        "dataset": dataset,
-        "project": "CMIP6",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        
-        "mip": "Amon",
-        "frequency": "mon",
 
-        "start_year": start_year,
-        "end_year": end_year,
-    }
-
-    variables = [
-        {
-            "short_name": short_name,
-        }
-    ]
-
-    task = {
-        "dataset": dataset,
-        "variables": variables,
-        "data_path": data_path,
-
-        "output_directory": "{work_dir}" + f"/weights/fetcher/preproc/{dataset['dataset']}/{short_name}",
-        "output_data_source_file": "data_source.yml",
-
-        "step_type": "fetcher",
-        "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-    }
-    return task
-
-
-def get_weights_era5_fetcher(
-        start_year,
-        end_year,
-        short_name
-):
-    dataset = {
-        "dataset": "ERA5",
-        "project": "native6",
-        "type": "reanaly",
-        "version": 1,
-        "tier": 3,
-
-        "mip": "Amip",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
-    }
-
-    variables = [
-        {
-            "short_name": short_name,
-        }
-    ]
-
-    task = {
-        "dataset": dataset,
-        "variables": variables,
-        "data_path": data_path,
-
-        "output_directory": "{work_dir}" + f"/weights/fetcher/preproc/{dataset['dataset']}/{short_name}",
-        "output_data_source_file": "data_source.yml",
-
-        "step_type": "fetcher",
-        "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-    }
-    return task
-
-
-def get_graph_fetcher(
-        dataset,
-        exp,
-        start_year,
-        end_year,
-        short_name
-):
-    dataset = {
-        "dataset": dataset,
-        "project": "CMIP6",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        
-        "mip": "Amon",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
-    }
-
-    variables = [
-        {
-            "short_name": short_name,
-        }
-    ]
-
-    task = {
-        "dataset": dataset,
-        "variables": variables,
-        "data_path": data_path,
-
-        "output_directory": "{work_dir}" + f"/graph/fetcher/preproc/{dataset['dataset']}/{short_name}",
-        "output_data_source_file": "data_source.yml",
-
-        "step_type": "fetcher",
-        "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-    }
-
-    return task
-
-
-def get_map_tas_fetcher(
-        dataset,
-        exp,
-        start_year,
-        end_year,
+def get_fetcher(
+        exp_dataset,
         variable,
+        diagnostic_name,
 ):
     dataset = {
-        "dataset": dataset,
-        "project": "CMIP6",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        
-        "mip": "Amon",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
+        **exp_dataset,
+        **variable
     }
 
     variables = [
-        {
-            "short_name": variable["short_name"],
-            "variable_group": variable["variable_group"]
-        }
+        variable
     ]
+
+    short_name = variable["short_name"]
 
     task = {
         "dataset": dataset,
         "variables": variables,
-        "data_path": data_path,
+        "data_path": climwip_config.data_path,
 
-        "output_directory": "{work_dir}" + f"/map/fetcher/preproc/{dataset['dataset']}/{variable['variable_group']}",
+        "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{dataset['dataset']}/{short_name}",
         "output_data_source_file": "data_source.yml",
 
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
     }
+
     return task
 
 
 def get_fetcher_steps():
     steps = []
 
-    variables = ["tas", "psl", "pr"]
-    datasets = ["FGOALS-g3", "CAMS-CSM1-0"]
+    exp_datasets = climwip_recipe.exp_datasets
+    obs_datasets = climwip_recipe.obs_datasets
+    weights_variables = climwip_recipe.weights_variables
 
     tasks = [
         {
-            "dataset": d,
-            "exp": ["historical", "ssp585"],
-            "short_name": v,
-            "start_year": 1995,
-            "end_year": 2015
+            "exp_dataset": d,
+            "variable": v,
+            "diagnostic_name": "weights"
         }
-        for v, d in itertools.product(variables, datasets)
+        for v, d in itertools.product(weights_variables, exp_datasets)
     ]
-    steps.extend([get_weights_fetcher(**task) for task in tasks])
+    steps.extend([get_fetcher(**task) for task in tasks])
 
     tasks = [
         {
-            "short_name": v,
-            "start_year": 1995,
-            "end_year": 2014
-        } for v in ["tas", "pr", "psl"]
-    ]
-    steps.extend([get_weights_era5_fetcher(**task) for task in tasks])
-
-    tasks = [
-        {
-            "dataset": d,
-            "exp": ["historical", "ssp585"],
-            "short_name": "tas",
-            "start_year": 1960,
-            "end_year": 2099
+            "exp_dataset": d,
+            "variable": v,
+            "diagnostic_name": "weights"
         }
-        for d in datasets
+        for v, d in itertools.product(weights_variables, obs_datasets)
     ]
-    steps.extend([get_graph_fetcher(**task) for task in tasks])
+    steps.extend([get_fetcher(**task) for task in tasks])
 
-
-    variables = ["tas"]
+    graph_variables = climwip_recipe.graph_variables
     tasks = [
         {
-            "dataset": d,
-            "exp": ["historical", "ssp585"],
-            "variable": {
-                "short_name": v,
-                "variable_group": v,
-            },
-            "start_year": 2081,
-            "end_year": 2099
+            "exp_dataset": d,
+            "variable": v,
+            "diagnostic_name": "graph"
         }
-        for v, d in itertools.product(variables, datasets)
+        for v, d in itertools.product(graph_variables, exp_datasets)
     ]
-    steps.extend([get_map_tas_fetcher(**task) for task in tasks])
+    steps.extend([get_fetcher(**task) for task in tasks])
 
+
+    map_variables = climwip_recipe.map_variables
     tasks = [
         {
-            "dataset": d,
-            "exp": ["historical", "ssp585"],
-            "variable": {
-                "short_name": v,
-                "variable_group": f"{v}_reference",
-            },
-            "start_year": 1995,
-            "end_year": 2014
+            "exp_dataset": d,
+            "variable": v,
+            "diagnostic_name": "map"
         }
-        for v, d in itertools.product(variables, datasets)
+        for v, d in itertools.product(map_variables, exp_datasets)
     ]
-    steps.extend([get_map_tas_fetcher(**task) for task in tasks])
+    steps.extend([get_fetcher(**task) for task in tasks])
 
     return steps
 
@@ -761,7 +586,7 @@ def get_plotter_steps():
         "step_type": "plotter",
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
         **plot_task,
-        "config": plot_config,
+        "config": climwip_config.plot_config,
         "input_files": [
             "{work_dir}/weights/plotter/work/",
             "{work_dir}/map/processor/preproc/tas/metadata.yml",
@@ -776,26 +601,10 @@ def get_plotter_steps():
 def run_climwip():
     steps = []
     steps.extend(get_fetcher_steps())
-    steps.extend(get_processor_steps())
-    steps.extend(get_plotter_steps())
+    # steps.extend(get_processor_steps())
+    # steps.extend(get_plotter_steps())
 
-    config = {
-        "esmvaltool": {
-            "executables": {
-                "py": "/home/hujk/anaconda3/envs/wangdp-esm/bin/python",
-                "r": "/home/hujk/anaconda3/envs/wangdp-esm/bin/Rscript"
-            },
-            "recipes": {
-                "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/recipes",
-            },
-            "diag_scripts": {
-                "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/diag_scripts",
-            },
-        },
-        "base": {
-            "run_base_dir": "/home/hujk/ploto/esmvaltool/cases/case105/run"
-        }
-    }
+    config = climwip_config.config
     Path(config["base"]["run_base_dir"]).mkdir(parents=True, exist_ok=True)
 
     run_ploto({
