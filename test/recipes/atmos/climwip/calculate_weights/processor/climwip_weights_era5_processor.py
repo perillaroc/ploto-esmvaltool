@@ -1,40 +1,29 @@
 from pathlib import Path
+import itertools
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
-from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import generate_climatological_mean_operations
-from loguru import logger
+from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import generate_default_operations
+
+from test.recipes.atmos.climwip import recipe as climwip_recipe
 
 
 def run(
-        dataset,
-        variable,
-        recipe_dataset_index,
-        start_year,
-        end_year,
-        alias
+        obs_dataset,
+        variable
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    operations = generate_climatological_mean_operations()
+    operations = generate_default_operations("climatological_mean")
 
-    dataset = {
-        "dataset": dataset,
-        "project": "native6",
-        "type": "reanaly",
-        "version": 1,
-        "tier": 3,
-
-        "mip": "Amon",
-        "frequency": "mon",
-
-        "start_year": start_year,
-        "end_year": end_year,
+    combined_dataset = {
+        **obs_dataset,
+        **variable
     }
 
     diag_dataset = {
-        "recipe_dataset_index": recipe_dataset_index,
-        "alias": alias,
+        # "recipe_dataset_index": recipe_dataset_index,
+        # "alias": alias,
         "modeling_realm": [
             "atmos"
         ]
@@ -61,14 +50,14 @@ def run(
 
     task = {
         "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/fetcher/preproc/"
-                                  f"{dataset['dataset']}/{variable['short_name']}/data_source.yml",
+                                  f"{combined_dataset['dataset']}/{combined_dataset['short_name']}/data_source.yml",
         # output
-        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{variable['short_name']}",
+        "output_directory": f"{work_dir}/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
 
         # operations
         "operations": operations,
 
-        "dataset": dataset,
+        "dataset": combined_dataset,
         "diagnostic_dataset": diag_dataset,
         "variable": variable,
         "diagnostic": diag,
@@ -83,20 +72,25 @@ def run(
 
 
 def main():
+    variables = climwip_recipe.weights_variables
+    datasets = climwip_recipe.obs_datasets
+    datasets = [
+        {
+            **d,
+            "recipe_dataset_index": index + 2,
+            "alias": d["dataset"]
+        }
+        for index, d in enumerate(datasets)
+    ]
+
     tasks = [
         {
-            "dataset": "ERA5",
-            "variable": {
-                "short_name": v,
-                "variable_group": f"{v}_CLIM",
-                "preprocessor": "preproc",
-            },
-            "recipe_dataset_index": 2,
-            "start_year": 1995,
-            "end_year": 2014,
-            "alias": "native6"
-        } for v in ["tas", "pr", "psl"]
+            "obs_dataset": d,
+            "variable": v
+        }
+        for v, d in itertools.product(variables, datasets)
     ]
+
     for task in tasks:
         run(**task)
 
