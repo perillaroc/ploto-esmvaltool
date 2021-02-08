@@ -424,60 +424,151 @@ def get_map_combine_task(variable_group):
     return task
 
 
+def get_processor(
+        exp_dataset,
+        variable,
+        settings,
+        diagnostic_name,
+        diagnostic,
+        preprocessor_name,
+):
+    operations = generate_default_operations(preprocessor_name)
+
+    combined_dataset = {
+        **exp_dataset,
+        **variable
+    }
+
+    diag_dataset = {
+        "modeling_realm": [
+            "atmos"
+        ]
+    }
+
+    variable = variable
+
+    diag = {
+        "diagnostic": diagnostic,
+    }
+
+    task = {
+        "input_data_source_file": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/"
+                                                 f"{combined_dataset['dataset']}/{combined_dataset['short_name']}/data_source.yml",
+        # output
+        "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
+
+        # operations
+        "operations": operations,
+
+        "dataset": combined_dataset,
+        "diagnostic_dataset": diag_dataset,
+        "variable": variable,
+        "diagnostic": diag,
+        "settings": settings,
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
+    }
+    return task
+
+
+def get_combine_processor(
+        datasets,
+        variable,
+        diagnostic_name,
+):
+    task = {
+        "util_type": "combine_metadata",
+        "metadata_files": [
+            "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{d['dataset']}/{variable['variable_group']}/metadata.yml"
+            for d in datasets
+        ],
+        "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{variable['variable_group']}",
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvaltool_util_processor",
+    }
+    return task
+
+
 def get_processor_steps():
     steps = []
 
     # STEP: weights
-    variables = ["tas", "psl", "pr"]
-    datasets = [
+    weights_variables = climwip_recipe.weights_variables
+    exp_datasets = climwip_recipe.exp_datasets
+    exp_datasets = [
         {
-            "name": "FGOALS-g3",
-            "index": 0
+            **d,
+            "recipe_dataset_index": index,
+            "alias": d["dataset"]
+        }
+        for index, d in enumerate(exp_datasets)
+    ]
+
+    obs_datasets = climwip_recipe.obs_datasets
+    obs_datasets = [
+        {
+            **d,
+            "recipe_dataset_index": index + len(exp_datasets),
+            "alias": d["dataset"]
+        }
+        for index, d in enumerate(obs_datasets)
+    ]
+
+    weights_settings = {
+        "mask_landsea": {
+            "mask_out": "sea",
         },
-        {
-            "name": "CAMS-CSM1-0",
-            "index": 1
+        "regrid": {
+            "target_grid": "2.5x2.5",
+            "scheme": "linear"
+        },
+        "climate_statistics": {
+            "operator": "mean"
         }
-    ]
+    }
 
     tasks = [
         {
-            "dataset": d["name"],
-            "exp": "historical-ssp585",
-            "variable": {
-                "short_name": v,
-                "variable_group": f"{v}_CLIM",
-                "preprocessor": "climatological_mean",
-            },
-            "recipe_dataset_index": d["index"],
-            "start_year": 1995,
-            "end_year": 2014,
-            "alias": d["name"]
+            "exp_dataset": d,
+            "variable": v,
+            "settings": weights_settings,
+            "diagnostic_name": "weights",
+            "diagnostic": "calculate_weights_climwip",
+            "preprocessor_name": "climatological_mean",
         }
-        for v, d in itertools.product(variables, datasets)
+        for v, d in itertools.product(weights_variables, exp_datasets)
     ]
-    steps.extend([get_weights_exp_processor(**task) for task in tasks])
+    steps.extend([get_processor(**task) for task in tasks])
 
     tasks = [
         {
-            "dataset": "ERA5",
-            "variable": {
-                "short_name": v,
-                "variable_group": f"{v}_CLIM",
-                "preprocessor": "climatological_mean",
-            },
-            "recipe_dataset_index": 2,
-            "start_year": 1995,
-            "end_year": 2014,
-            "alias": "native6"
-        } for v in variables
+            "exp_dataset": d,
+            "variable": v,
+            "settings": weights_settings,
+            "diagnostic_name": "weights",
+            "diagnostic": "calculate_weights_climwip",
+            "preprocessor_name": "climatological_mean",
+        }
+        for v, d in itertools.product(weights_variables, obs_datasets)
     ]
-    steps.extend([get_weights_era5_processor(**task) for task in tasks])
+    steps.extend([get_processor(**task) for task in tasks])
 
     tasks = [
-        get_weights_combine_task(short_name) for short_name in ["tas", "psl", "pr"]
+        {
+            "datasets": [
+                *exp_datasets,
+                *obs_datasets,
+            ],
+            "variable": v,
+            "diagnostic_name": "weights",
+        }
+        for v in weights_variables
     ]
-    steps.extend(tasks)
+
+    steps.extend([get_combine_processor(**task) for task in tasks])
+    return steps
 
     # STEP: graph
     variables = ["tas"]
@@ -601,7 +692,7 @@ def get_plotter_steps():
 def run_climwip():
     steps = []
     steps.extend(get_fetcher_steps())
-    # steps.extend(get_processor_steps())
+    steps.extend(get_processor_steps())
     # steps.extend(get_plotter_steps())
 
     config = climwip_config.config
