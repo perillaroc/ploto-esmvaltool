@@ -1,3 +1,10 @@
+"""
+Notes
+-----
+多个数据集：
+
+在 settings.yml 中的 input_files 添加多个 metadata.yml
+"""
 import itertools
 
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.dry_days import (
@@ -10,116 +17,119 @@ from test.recipes.atmos.dry_days import recipe as dry_days_recipe
 from test.recipes.atmos.dry_days import config as dry_days_config
 
 
-def run_dry_days():
-    steps = []
-
-    dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "mip": "day",
-        "exp": "1pctCO2",
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "day",
-
-        "start_year": 370,
-        "end_year": 371,
+def get_fetcher(
+        exp_dataset,
+        variable
+):
+    combined_dataset = {
+        **exp_dataset,
+        **variable
     }
 
     variables = [
-            {
-                "short_name": "pr",
-            }
-        ]
+        variable
+    ]
 
-    data_path = {
-            "CMIP6": [
-                "/data/brick/b1/CMIP6_DATA/",
-                "/data/brick/b0/CMIP6/",
-            ]
-        }
+    data_path = dry_days_config.data_path
 
-    steps.append({
+    task = {
+        "dataset": combined_dataset,
+        "variables": variables,
+        "data_path": data_path,
+
+        "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['dataset']}/{variable['variable_group']}",
+        "output_data_source_file": "data_source.yml",
+
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
-        "dataset": dataset,
-        "varialbes": variables,
-        "data_path": data_path,
-        "output_directory": "preproc/pr",
-        "output_data_source_file": "data_source.yml",
-    })
+    }
+    return task
+
+
+def get_processor(
+        exp_dataset,
+        variable
+):
+    operations = generate_default_operations()
+
+    combined_dataset = {
+        **exp_dataset,
+        **variable
+    }
 
     diag_dataset = {
-        "recipe_dataset_index": 0,
-        "alias": "FGOALS-g3",
         "modeling_realm": [
             "atmos"
         ],
     }
 
-    variable = {
-        "short_name": "pr",
-        "variable_group": "pr",
-        "preprocessor": "default",
-    }
-
     diag = {
         "diagnostic": "dry_days",
     }
-    operations = generate_default_operations()
 
-    steps.append({
-        "step_type": "processor",
-        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
-
+    task = {
         # input files
-        "input_data_source_file": "preproc/pr/data_source.yml",
+        "input_data_source_file": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}/data_source.yml",
         # output
-        "output_directory": "preproc/pr",
+        "output_directory": "{work_dir}" + f"/processor/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
 
         # operations
         "operations": operations,
 
-        "dataset": dataset,
+        "dataset": combined_dataset,
         "diagnostic_dataset": diag_dataset,
         "variable": variable,
         "diagnostic": diag,
-    })
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
+    }
+    return task
+
+
+def run_dry_days():
+    steps = []
+
+    exp_datasets = dry_days_recipe.exp_datasets
+    variables = dry_days_recipe.variables
+
+    tasks = [
+        {
+            "exp_dataset": d,
+            "variable": v,
+        }
+        for d, v in itertools.product(exp_datasets, variables)
+    ]
+    steps.extend([get_fetcher(**task) for task in tasks])
+
+    datasets = [
+        {
+            **d,
+            "recipe_dataset_index": index,
+            "alias": d["dataset"]
+        }
+        for index, d in enumerate(exp_datasets)
+    ]
+    for d, v in itertools.product(datasets, variables):
+        steps.append(get_processor(d, v))
 
     plot_task = generate_default_plot_task()
-    steps.append({
-        "step_type": "plotter",
-        "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
-        **plot_task,
-        "config": {
-            "log_level": "info",
-            "write_netcdf": True,
-            "write_plots": True,
-            "output_file_type": "png",
-            "profile_diagnostic": False,
-            "auxiliary_data_dir": "/home/hujk/ploto/esmvaltool/cases/case1/case1.2/auxiliary_data"
-        },
-        "input_files": [
-            "{work_dir}/preproc/pr/metadata.yml"
-        ],
-    })
+    steps.extend([
+        {
+            "step_type": "plotter",
+            "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
 
-    config = {
-        "esmvaltool": {
-            "executables": {
-                "py": "/home/hujk/anaconda3/envs/wangdp-esm/bin/python"
-            },
-            "recipes": {
-                "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/recipes",
-            },
-            "diag_scripts": {
-                "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/diag_scripts",
-            },
-        },
-        "base": {
-            "run_base_dir": "/home/hujk/ploto/ploto-esmvaltool/dist/cases/case1/run"
+            **plot_task,
+            "config": dry_days_config.plot_config,
+            "input_files": [
+                "{work_dir}" + f"/processor/preproc/{d['dataset']}/{v['variable_group']}/metadata.yml"
+                for d in datasets
+            ],
         }
-    }
+        for v in variables
+    ])
+
+    config = dry_days_config.config
 
     run_ploto({
         "data": {
