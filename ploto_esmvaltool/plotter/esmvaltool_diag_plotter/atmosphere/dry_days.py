@@ -41,7 +41,7 @@ def generate_default_plot_task() -> typing.Dict:
     return task
 
 
-def generate_default_preprocessor_operations() -> typing.List:
+def generate_default_operations() -> typing.List:
     default_operations = _get_default_operations()
     operations = [
         *default_operations
