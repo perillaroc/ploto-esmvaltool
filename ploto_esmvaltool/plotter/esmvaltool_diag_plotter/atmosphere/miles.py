@@ -43,6 +43,7 @@ def generate_default_plot_task(name="miles_block") -> typing.Dict:
         "miles_regimes": _generate_plot_task_for_regimes,
     }
     task = mapper[name]()
+    task["step_work_dir"] = "{work_dir}" + f"/{name}/plotter/"
     return task
 
 
