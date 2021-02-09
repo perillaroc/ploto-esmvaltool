@@ -10,7 +10,7 @@ import typing
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import _get_default_operations
 
 
-def generate_default_preprocessor_operations() -> typing.List:
+def generate_default_operations() -> typing.List:
     default_operations = _get_default_operations()
     operations = [
         *default_operations,
@@ -60,6 +60,7 @@ def generate_default_plot_task() -> typing.Dict:
                 "script": "main",
             }
         },
+        "step_work_dir": "{work_dir}/plotter/"
     }
     return task
 
