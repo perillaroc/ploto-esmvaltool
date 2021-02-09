@@ -12,7 +12,7 @@ def run(
     variable,
     diagnostic_name
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case103/ploto/"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
 
@@ -30,7 +30,7 @@ def run(
         "variables": variables,
         "data_path": miles_config.data_path,
 
-        "output_directory": f"{work_dir}/{diagnostic_name}/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
+        "output_directory": f"{work_dir}/{diagnostic_name}/fetcher/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
         "output_data_source_file": "data_source.yml",
     }
 

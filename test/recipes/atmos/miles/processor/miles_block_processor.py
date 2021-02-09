@@ -1,46 +1,34 @@
 from pathlib import Path
+import itertools
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.miles import (
     generate_default_operations
 )
-from loguru import logger
+
+from test.recipes.atmos.miles import recipe as miles_recipe
+from test.recipes.atmos.miles import config as miles_config
 
 
 def run(
-        exp,
+        exp_dataset,
         variable,
-        recipe_dataset_index,
-        start_year,
-        end_year,
-        alias
+        diagnostic_name
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case3/ploto/processor"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case103/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     operations = generate_default_operations()
 
-    dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "mip": "day",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "day",
-        "type": "exp",  #*******************
-
-        "start_year": start_year,
-        "end_year": end_year,
+    combined_dataset = {
+        **exp_dataset,
+        **variable
     }
 
     diag_dataset = {
-        "recipe_dataset_index": recipe_dataset_index,
-        "alias": alias,
         "modeling_realm": [
             "atmos"
-        ],
-        "reference_dataset": "ERA-Interim"
+        ]
     }
 
     variable = variable
@@ -67,14 +55,14 @@ def run(
     }
 
     task = {
-        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case3/ploto/fetcher/preproc/{dataset['exp']}/{variable['short_name']}/data_source.yml",
+        "input_data_source_file": f"{work_dir}/{diagnostic_name}/fetcher/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}/data_source.yml",
         # output
-        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{variable['short_name']}",
+        "output_directory": f"{work_dir}/{diagnostic_name}/processor/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
 
         # operations
         "operations": operations,
 
-        "dataset": dataset,
+        "dataset": combined_dataset,
         "diagnostic_dataset": diag_dataset,
         "variable": variable,
         "diagnostic": diag,
@@ -89,21 +77,27 @@ def run(
 
 
 def main():
+    exp_datasets = miles_recipe.exp_datasets
+    datasets = [
+        {
+            **d,
+            "recipe_dataset_index": index,
+            "alias": d["dataset"]
+        }
+        for index, d in enumerate(exp_datasets)
+    ]
+
+    variables = miles_recipe.variables
+
     tasks = [
         {
-            "exp": "historical",
-            "variable": {
-                "short_name": "zg",
-                "variable_group": "zg",
-                "preprocessor": "preproc",
-                "reference_dataset": "ERA-Interim", #*****************
-            },
-            "recipe_dataset_index": 0,
-            "start_year": 1980,
-            "end_year": 1985,
-            "alias": "historical"
-        },
+            "exp_dataset": d,
+            "variable": v,
+            "diagnostic_name": "miles_block",
+        }
+        for d, v in itertools.product(exp_datasets, variables)
     ]
+
     for task in tasks:
         run(**task)
 
