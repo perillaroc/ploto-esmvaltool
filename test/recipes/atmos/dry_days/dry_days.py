@@ -1,8 +1,13 @@
+import itertools
+
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.dry_days import (
     generate_default_operations,
     generate_default_plot_task,
 )
 from ploto.run import run_ploto
+
+from test.recipes.atmos.dry_days import recipe as dry_days_recipe
+from test.recipes.atmos.dry_days import config as dry_days_config
 
 
 def run_dry_days():

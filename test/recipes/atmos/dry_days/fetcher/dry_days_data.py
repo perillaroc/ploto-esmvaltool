@@ -6,7 +6,7 @@ from test.recipes.atmos.dry_days import recipe as dry_days_recipe
 from test.recipes.atmos.dry_days import config as dry_days_config
 
 
-def run_processor(
+def get_fetcher(
         exp_dataset,
         variable
 ):
@@ -46,7 +46,7 @@ def main():
     variables = dry_days_recipe.variables
 
     for d, v in itertools.product(datasets, variables):
-        run_processor(d, v)
+        get_fetcher(d, v)
 
 
 if __name__ == "__main__":

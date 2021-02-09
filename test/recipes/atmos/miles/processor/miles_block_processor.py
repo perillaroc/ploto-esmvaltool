@@ -95,7 +95,7 @@ def main():
             "variable": v,
             "diagnostic_name": "miles_block",
         }
-        for d, v in itertools.product(exp_datasets, variables)
+        for d, v in itertools.product(datasets, variables)
     ]
 
     for task in tasks:
