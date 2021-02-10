@@ -29,6 +29,8 @@ def generate_default_plot_task() -> typing.Dict:
                 "script": "main"
             }
         },
+
+        "step_work_dir": "{work_dir}/plotter/"
     }
 
     return task

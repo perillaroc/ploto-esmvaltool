@@ -52,7 +52,7 @@ def get_data(
             config=config
         )
     else:
-        logger.error(f"dataset type is not supported: {dataset_type}")
+        logger.exception(f"dataset type is not supported: {dataset_type}")
 
     logger.info(f"Selected files: {len(selected_files)}")
     for f in selected_files:

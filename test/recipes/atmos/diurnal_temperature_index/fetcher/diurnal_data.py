@@ -1,51 +1,39 @@
+import itertools
+
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 
+from test.recipes.atmos.diurnal_temperature_index import (
+    config as diurnal_config,
+    recipe as diurnal_recipe,
+)
 
 def run(
-        exp,
-        short_name,
-        start_year,
-        end_year
+        exp_dataset,
+        variable
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case2/ploto/fetcher/"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case102/ploto"
 
-    dataset = {
-        "dataset": "FGOALS-g3",
-        "project": "CMIP6",
-        "mip": "day",
-        "exp": exp,
-        "ensemble": "r1i1p1f1",
-        "grid": "gn",
-        "frequency": "day",
-
-        "start_year": start_year,
-        "end_year": end_year,
+    combined_dataset = {
+        **exp_dataset,
+        **variable
     }
 
     variables = [
-        {
-            "short_name": short_name,
-        }
+        variable
     ]
 
-    data_path = {
-        "CMIP6": [
-            "/home/hujk/clusterfs/wangdp/data/CMIP6"
-        ]
-    }
+    data_path = diurnal_config.data_path
 
     task = {
-        "dataset": dataset,
+        "dataset": combined_dataset,
         "variables": variables,
         "data_path": data_path,
 
-        "output_directory": f"{work_dir}/preproc/{dataset['exp']}/{short_name}",
+        "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['alias']}/{variable['variable_group']}",
         "output_data_source_file": "data_source.yml",
     }
 
-    config = {
-
-    }
+    config = {}
 
     get_data(
         task=task,
@@ -55,32 +43,25 @@ def run(
 
 
 def main():
+    exp_datasets = diurnal_recipe.exp_datasets
+    exp_datasets = [
+        {
+            **d,
+            "alias": f"{d['dataset']}-{d['exp']}",
+            "recipe_dataset_index": index
+        }
+        for index, d in enumerate(exp_datasets)
+    ]
+    variables = diurnal_recipe.variables
+
     tasks = [
         {
-            "exp": "historical",
-            "short_name": "tasmax",
-            "start_year": 1980,
-            "end_year": 1981
-        },
-        {
-            "exp": "historical",
-            "short_name": "tasmin",
-            "start_year": 1980,
-            "end_year": 1981
-        },
-        {
-            "exp": "ssp119",
-            "short_name": "tasmax",
-            "start_year": 2030,
-            "end_year": 2031
-        },
-        {
-            "exp": "ssp119",
-            "short_name": "tasmin",
-            "start_year": 2030,
-            "end_year": 2031
+            "exp_dataset": d,
+            "variable": v,
         }
+        for d, v in itertools.product(exp_datasets, variables)
     ]
+
     for task in tasks:
         run(**task)
 
