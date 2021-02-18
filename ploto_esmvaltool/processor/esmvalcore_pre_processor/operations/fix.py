@@ -14,6 +14,7 @@ def run_fix_metadata(
     project = task["dataset"]["project"]
     dataset = task["dataset"]["dataset"]
     mip = task["dataset"]["mip"]
+    frequency = task["dataset"]["frequency"]
 
     fixed_cubes = fix_metadata(
         cube,
@@ -21,6 +22,7 @@ def run_fix_metadata(
         project=project,
         dataset=dataset,
         mip=mip,
+        frequency=frequency,
     )
 
     return fixed_cubes
