@@ -20,6 +20,27 @@ exp_datasets = [
         "start_year": 501,
         "end_year": 550
     },
+    {
+        "dataset": "CAMS-CSM1-0",
+        "project": "CMIP6",
+        "exp": "piControl",
+        "start_year": 3051,
+        "end_year": 3100
+    },
+    {
+        "dataset": "CAMS-CSM1-0",
+        "project": "CMIP6",
+        "exp": "ssp585",
+        "start_year": 2090,
+        "end_year": 2099
+    },
+    {
+        "dataset": "CAMS-CSM1-0",
+        "project": "CMIP6",
+        "exp": "abrupt-4xCO2",
+        "start_year": 3051,
+        "end_year": 3100
+    },
 ]
 
 
