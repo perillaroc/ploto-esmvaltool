@@ -5,6 +5,7 @@ from loguru import logger
 
 import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
 from .operations import (
+    run_load,
     run_save,
     run_write_metadata,
 )
@@ -32,6 +33,17 @@ def run_processor(
 
     cube = None
 
+    # load cube
+    cube = run_load(
+        operation={
+            "type": "load"
+        },
+        task=task,
+        cube=cube,
+        work_dir=work_dir,
+    )
+
+    # run steps
     for step in operations:
         op = step["type"]
         logger.info(f"run step {op}")
