@@ -6,6 +6,12 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.deangelis impor
     generate_default_operations
 )
 
+from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
+    split_derive_settings,
+    get_operations,
+    get_default_settings,
+)
+
 from test.recipes.atmos.deangelis import (
     config as deangelis_config,
     recipe as deangelis_recipe,
@@ -24,6 +30,23 @@ def get_processor_tasks(
     processor_tasks = []
 
     operations = generate_default_operations(name=variable["preprocessor"])
+
+    before_settings, after_settings = split_derive_settings(
+        deangelis_recipe.processor_settings[variable["preprocessor"]]
+    )
+
+    before_operations = get_operations({
+        **get_default_settings(),
+        **before_settings,
+    }
+
+    )
+
+    after_operations = get_operations({
+        **get_default_settings(),
+        **after_settings
+    })
+
     settings = deangelis_recipe.processor_settings[variable["preprocessor"]]
 
     diag_dataset = {
@@ -64,7 +87,7 @@ def get_processor_tasks(
                 "output_directory": "{work_dir}" + f"/processor/preproc/{v['alias']}/{v['variable_group']}",
 
                 # operations
-                "operations": operations,
+                "operations": before_operations,
 
                 "dataset": v,
                 "diagnostic_dataset": diag_dataset,

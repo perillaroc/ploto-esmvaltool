@@ -64,10 +64,29 @@ def get_default_settings():
 def get_operations(settings, order=DEFAULT_ORDER):
     operations = []
     for step in order[order.index("load") + 1: order.index("save")]:
-        if step in settings:
+        if step in settings and (settings[step] != False):
             operations.append({
                 "type": step,
                 "settings": settings[step]
             })
 
     return operations
+
+
+def split_derive_settings(settings, order=DEFAULT_ORDER):
+    before = {}
+    for step in order:
+        if step == "derive":
+            break
+        if step in settings:
+            before[step] = settings[step]
+    after = {
+        k: v
+        for k, v in settings.items() if not (k == "derive" or k in before)
+    }
+
+    after["derive"] = True
+    after['fix_file'] = False
+    after['fix_metadata'] = False
+    after['fix_data'] = False
+    return before, after
