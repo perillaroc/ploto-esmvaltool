@@ -1,4 +1,5 @@
 import typing
+import warnings
 
 from esmvalcore.preprocessor import DEFAULT_ORDER
 
@@ -21,6 +22,7 @@ def _get_settings(
 
 
 def _get_default_operations() -> typing.List:
+    warnings.warn("Please use get_default_settings() and get_operations()", DeprecationWarning)
     return [
         # {
         #     "type": "load",
@@ -53,7 +55,7 @@ def get_default_settings():
         "cmor_check_metadata": {},
         "clip_start_end_year": {},
         "fix_data": {},
-        "cmore_check_data": {},
+        "cmor_check_data": {},
     }
 
     return settings
