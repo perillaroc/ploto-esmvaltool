@@ -18,6 +18,7 @@ from test.recipes.atmos.deangelis import (
 )
 
 from esmvalcore.preprocessor._derive import get_required
+from esmvalcore._recipe import _add_cmor_info
 
 
 def get_processor_tasks(
@@ -38,9 +39,7 @@ def get_processor_tasks(
     before_operations = get_operations({
         **get_default_settings(),
         **before_settings,
-    }
-
-    )
+    })
 
     after_operations = get_operations({
         **get_default_settings(),
@@ -64,6 +63,8 @@ def get_processor_tasks(
         **exp_dataset,
         **variable,
     }
+
+    _add_cmor_info(combined_variable)
 
     if "derive" in combined_variable and combined_variable["derive"]:
         # 需要的变量，来自 ESMValCore
@@ -96,6 +97,24 @@ def get_processor_tasks(
                 "settings": settings
             }
             processor_tasks.append(task)
+        task = {
+            "input_metadata_files": [
+                "{work_dir}" + f"/processor/preproc/{v['alias']}/{v['variable_group']}/metadata.yml"
+                for v in input_variables
+            ],
+            # output
+            "output_directory": "{work_dir}" + f"/processor/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
+
+            # operations
+            "operations": after_operations,
+
+            "dataset": combined_variable,
+            "diagnostic_dataset": diag_dataset,
+            "variable": combined_variable,
+            "diagnostic": diag,
+            "settings": settings
+        }
+        processor_tasks.append(task)
     else:
         task = {
             "input_data_source_file": "{work_dir}" + f"/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}/data_source.yml",

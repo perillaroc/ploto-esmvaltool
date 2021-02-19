@@ -3,11 +3,61 @@ from pathlib import Path
 
 import iris
 import yaml
-from esmvalcore._config import get_institutes
-from esmvalcore.preprocessor import save, load, concatenate
-from esmvalcore.preprocessor._io import concatenate_callback
 from loguru import logger
 from netCDF4 import Dataset
+
+from esmvalcore.preprocessor import save, load, concatenate
+from esmvalcore.preprocessor._io import concatenate_callback
+
+from esmvalcore._config import (
+    get_institutes,
+    get_activity,
+)
+
+def run_load(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube=None,
+        work_dir=".",
+        **kwargs
+) -> iris.cube.CubeList:
+    if "input_data_source_file" in task:
+        input_meta_file = task["input_data_source_file"].format(work_dir=work_dir)
+        with open(input_meta_file, "r") as f:
+            m = yaml.safe_load(f)
+            input_files = m["input_files"]
+    elif "input_metadata_files" in task:
+        input_files = []
+        for input_metadata_file in task["input_metadata_files"]:
+            with open(input_metadata_file.format(work_dir=work_dir), "r") as f:
+                m = yaml.safe_load(f)
+                for k in m:
+                    input_files.append(k)
+    else:
+        raise ValueError("input source has not found. Please set input_files or input_data_source_file")
+
+    callback = concatenate_callback
+
+    cubes = []
+    for f in input_files:
+        logger.info(f"loading file: {f}")
+        cube = load(
+            f,
+            callback
+        )
+
+        cubes.extend(cube)
+    return iris.cube.CubeList(cubes)
+
+
+def run_concatenate(
+        operation: typing.Dict,
+        task: typing.Dict,
+        cube: iris.cube.CubeList,
+        **kwargs
+) -> iris.cube.Cube:
+    cubes = concatenate(cube)
+    return cubes
 
 
 def run_save(
@@ -97,12 +147,13 @@ def run_write_metadata(
 
     if project == "CMIP6":
         institutes = get_institutes(task_dataset)
+        activity = get_activity(task_dataset)
         exp = task_dataset["exp"]
         if isinstance(exp, typing.List):
             exp = "-".join(exp)
 
         dataset = {
-            "activity": d.activity_id,
+            "activity": activity,
             "institute": institutes,
             **task_dataset,
             "exp": exp
@@ -118,12 +169,10 @@ def run_write_metadata(
     else:
         raise ValueError(f"project is not supported: {project}")
 
-
-
     variable = {
         **task_variable,
         "long_name": field.long_name,
-        "standard_name": field.standard_name,
+        "standard_name": getattr(field, "standard_name", ''),
         "units": field.units,
     }
 
@@ -149,39 +198,3 @@ def run_write_metadata(
         }, f)
 
     return meta_data_path
-
-
-def run_load(
-        operation: typing.Dict,
-        task: typing.Dict,
-        cube=None,
-        work_dir=".",
-        **kwargs
-) -> iris.cube.CubeList:
-    input_meta_file = task["input_data_source_file"].format(work_dir=work_dir)
-    with open(input_meta_file, "r") as f:
-        m = yaml.safe_load(f)
-        input_files = m["input_files"]
-
-    callback = concatenate_callback
-
-    cubes = []
-    for f in input_files:
-        logger.info(f"loading file: {f}")
-        cube = load(
-            f,
-            callback
-        )
-
-        cubes.extend(cube)
-    return iris.cube.CubeList(cubes)
-
-
-def run_concatenate(
-        operation: typing.Dict,
-        task: typing.Dict,
-        cube: iris.cube.CubeList,
-        **kwargs
-) -> iris.cube.Cube:
-    cubes = concatenate(cube)
-    return cubes
