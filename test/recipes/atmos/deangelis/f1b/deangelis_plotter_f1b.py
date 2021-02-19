@@ -11,14 +11,16 @@ from test.recipes.atmos.deangelis import (
     recipe as deangelis_recipe,
 )
 
+diagnostic_name = "f1b"
+
 
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    variables = deangelis_recipe.variables
+    variables = deangelis_recipe.f1b.variables
 
-    plot_task = generate_default_plot_task("deangelisf1b")
+    plot_task = generate_default_plot_task(diagnostic_name)
 
     task = {
         "step_type": "plotter",
@@ -26,7 +28,7 @@ def main():
         **plot_task,
         "config": deangelis_config.plot_config,
         "input_files": [
-            "{work_dir}" + f"/processor/preproc/{v['variable_group']}/metadata.yml"
+            "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{v['variable_group']}/metadata.yml"
             for v in variables
         ],
     }

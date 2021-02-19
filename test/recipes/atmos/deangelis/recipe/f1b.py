@@ -93,13 +93,3 @@ variables = [
         "force_derivation": False,
     },
 ]
-
-
-processor_settings = {
-    "spatial_mean": {
-        "area_statistics": {
-            "operator": "mean"
-        },
-
-    }
-}

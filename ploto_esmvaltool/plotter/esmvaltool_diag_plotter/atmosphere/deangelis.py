@@ -33,7 +33,7 @@ def generate_spatial_mean_operations(settings=None) -> typing.List:
 
 def generate_default_plot_task(name) -> typing.Dict:
     mapper = {
-        "deangelisf1b": generate_plot_task_f1b,
+        "f1b": generate_plot_task_f1b,
     }
 
     task = mapper[name]()

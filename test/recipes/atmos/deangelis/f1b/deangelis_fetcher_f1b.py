@@ -10,7 +10,7 @@ from test.recipes.atmos.deangelis import (
     recipe as deangelis_recipe,
 )
 
-
+diagnostic_name = "f1b"
 
 def get_fetcher_tasks(
         exp_dataset,
@@ -29,7 +29,7 @@ def get_fetcher_tasks(
             "variables": [variable],
             "data_path": deangelis_config.data_path,
 
-            "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
             "output_data_source_file": "data_source.yml",
         })
     else:
@@ -54,7 +54,7 @@ def get_fetcher_tasks(
                 "variables": [v],
                 "data_path": data_path,
 
-                "output_directory": "{work_dir}" + f"/fetcher/preproc/{v['alias']}/{v['variable_group']}",
+                "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{v['alias']}/{v['variable_group']}",
                 "output_data_source_file": "data_source.yml",
             }
 
@@ -67,12 +67,12 @@ def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    exp_datasets = deangelis_recipe.exp_datasets
+    exp_datasets = deangelis_recipe.f1b.exp_datasets
     exp_datasets = [{
         **d,
         "alias": f"{d['dataset']}-{d['exp']}",
     } for d in exp_datasets]
-    variables = deangelis_recipe.variables
+    variables = deangelis_recipe.f1b.variables
 
     tasks = [
         {

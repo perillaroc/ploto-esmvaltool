@@ -9,6 +9,9 @@ from test.recipes.atmos.deangelis import (
 )
 
 
+diagnostic_name = "f1b"
+
+
 def get_combined_task(
         exp_datasets,
         variable,
@@ -16,16 +19,14 @@ def get_combined_task(
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    processor_tasks = []
-
     variable_group = variable["variable_group"]
     task = {
         "util_type": "combine_metadata",
         "metadata_files": [
-            "{work_dir}" + f"/processor/preproc/{d['alias']}/{variable_group}/metadata.yml"
+            "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{d['alias']}/{variable_group}/metadata.yml"
             for d in exp_datasets
         ],
-        "output_directory": "{work_dir}" + f"/processor/preproc/{variable_group}"
+        "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{variable_group}"
     }
     return task
 
@@ -34,12 +35,12 @@ def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    exp_datasets = deangelis_recipe.exp_datasets
+    exp_datasets = deangelis_recipe.f1b.exp_datasets
     exp_datasets = [{
         **d,
         "alias": f"{d['dataset']}-{d['exp']}",
     } for d in exp_datasets]
-    variables = deangelis_recipe.variables
+    variables = deangelis_recipe.f1b.variables
 
     tasks = [
         {

@@ -21,6 +21,9 @@ from esmvalcore.preprocessor._derive import get_required
 from esmvalcore._recipe import _add_cmor_info
 
 
+diagnostic_name = "f1b"
+
+
 def get_processor_tasks(
         exp_dataset,
         variable,
@@ -83,9 +86,9 @@ def get_processor_tasks(
 
         for v in input_variables:
             task = {
-                "input_data_source_file": "{work_dir}" + f"/fetcher/preproc/{v['alias']}/{v['variable_group']}/data_source.yml",
+                "input_data_source_file": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{v['alias']}/{v['variable_group']}/data_source.yml",
                 # output
-                "output_directory": "{work_dir}" + f"/processor/preproc/{v['alias']}/{v['variable_group']}",
+                "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{v['alias']}/{v['variable_group']}",
 
                 # operations
                 "operations": before_operations,
@@ -99,11 +102,11 @@ def get_processor_tasks(
             processor_tasks.append(task)
         task = {
             "input_metadata_files": [
-                "{work_dir}" + f"/processor/preproc/{v['alias']}/{v['variable_group']}/metadata.yml"
+                "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{v['alias']}/{v['variable_group']}/metadata.yml"
                 for v in input_variables
             ],
             # output
-            "output_directory": "{work_dir}" + f"/processor/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
 
             # operations
             "operations": after_operations,
@@ -117,9 +120,9 @@ def get_processor_tasks(
         processor_tasks.append(task)
     else:
         task = {
-            "input_data_source_file": "{work_dir}" + f"/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}/data_source.yml",
+            "input_data_source_file": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}/data_source.yml",
             # output
-            "output_directory": "{work_dir}" + f"/processor/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
 
             # operations
             "operations": operations,
@@ -139,12 +142,12 @@ def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    exp_datasets = deangelis_recipe.exp_datasets
+    exp_datasets = deangelis_recipe.f1b.exp_datasets
     exp_datasets = [{
         **d,
         "alias": f"{d['dataset']}-{d['exp']}",
     } for d in exp_datasets]
-    variables = deangelis_recipe.variables
+    variables = deangelis_recipe.f1b.variables
 
     tasks = [
         {
