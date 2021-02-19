@@ -34,6 +34,7 @@ def generate_spatial_mean_operations(settings=None) -> typing.List:
 def generate_default_plot_task(name) -> typing.Dict:
     mapper = {
         "f1b": generate_plot_task_f1b,
+        "f2ext": generate_plot_task_f2ext,
     }
 
     task = mapper[name]()
@@ -58,6 +59,28 @@ def generate_plot_task_f1b():
             },
             "settings": {
                 "script": "deangelisf1b",
+            }
+        },
+    }
+
+
+def generate_plot_task_f2ext():
+    return {
+        "diagnostic": {
+            "recipe": "recipe_deangelisf2ext.yml",
+            "name": "deangelisf2ext"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "deangelis15nat/deangelisf2ext.py",
+            },
+            "settings": {
+                "script": "deangelisf2ext",
             }
         },
     }
