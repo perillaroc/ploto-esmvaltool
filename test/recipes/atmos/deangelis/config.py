@@ -32,9 +32,12 @@ data_path = {
     ],
     "OBS6": [
         #"/home/hujk/clusterfs/wangdp/data/obs"
-        "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210119_071639"
+        "/data/brick/b2/OBS/esmvaltool_output/cmorize_obs_20210202_083242"
     ],
     "native6": [
         "/home/hujk/clusterfs/wangdp/data/rawobs"
+    ],
+    "obs4mips": [
+        "/home/hujk/clusterfs/wangdp/data/obs4mips"
     ]
 }

@@ -13,7 +13,8 @@ from ploto.logger import get_logger
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher._util import (
     get_exp_data,
     get_obs6_data,
-    get_native6_data
+    get_native6_data,
+    get_obs4mips_data
 )
 
 logger = get_logger()
@@ -33,7 +34,7 @@ def get_data(
 
     project = dataset["project"]
 
-    if dataset_type == "exp":
+    if dataset_type == "exp" and project == "CMIP6":
         selected_files = get_exp_data(
             task=task,
             work_dir=work_dir,
@@ -51,8 +52,14 @@ def get_data(
             work_dir=work_dir,
             config=config
         )
+    elif project == "obs4mips":
+        selected_files = get_obs4mips_data(
+            task=task,
+            work_dir=work_dir,
+            config=config
+        )
     else:
-        logger.exception(f"dataset type is not supported: {dataset_type}")
+        logger.exception(f"dataset type is not supported: {dataset}")
 
     logger.info(f"Selected files: {len(selected_files)}")
     for f in selected_files:

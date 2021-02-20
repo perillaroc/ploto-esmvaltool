@@ -87,6 +87,7 @@ def get_obs6_data(
             **dataset,
             **v,
         }
+        logger.info(f"checking for variable {combined_variable}")
         filenames = [
             input_file.format(**combined_variable)
         ]
@@ -115,6 +116,45 @@ def get_native6_data(
 ) -> typing.List:
     input_dir = "Tier{tier}/{dataset}/{version}/{frequency}/{short_name}"
     input_file = "*.nc"
+
+    dataset = task["dataset"]
+    project = dataset["project"]
+
+    variables = task["variables"]
+
+    selected_files = []
+    for v in variables:
+        combined_variable = {
+            **dataset,
+            **v
+        }
+        directories = [pathlib.Path(d, input_dir.format(**combined_variable)) for d in task["data_path"][project]]
+        filenames = input_file.format(**combined_variable)
+
+        current_files = find_files(
+            directories,
+            filenames
+        )
+
+        logger.info(f"Found files: {len(current_files)}")
+
+        current_selected_files = select_files(
+            current_files,
+            start_year=dataset["start_year"],
+            end_year=dataset["end_year"]
+        )
+        selected_files.extend(current_selected_files)
+
+    return selected_files
+
+
+def get_obs4mips_data(
+        task,
+        work_dir,
+        config
+) -> typing.List:
+    input_dir = "Tier{tier}/{dataset}"
+    input_file = "{short_name}_{dataset}_{level}_{version}_*.nc"
 
     dataset = task["dataset"]
     project = dataset["project"]
