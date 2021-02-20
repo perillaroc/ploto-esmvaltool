@@ -13,7 +13,14 @@ def run_mask_landsea(
 ):
     settings = _get_settings(operation, task)
 
-    fx_variables = settings["fx_variables"]
+    fx_variables = getattr(
+        settings,
+        "fx_variables",
+        {
+            "sftlf": [],
+            "sftof": []
+        }
+    )
     mask_out = settings["mask_out"]
     always_use_ne_mask = settings.get("always_use_ne_mask", False)
 
