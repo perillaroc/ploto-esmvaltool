@@ -15,7 +15,8 @@ from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import 
 
 def generate_default_operations(name, settings=None) -> typing.List:
     mapper = {
-        "spatial_mean": generate_spatial_mean_operations
+        "spatial_mean": generate_spatial_mean_operations,
+        "tropical_ocean": generate_tropical_ocean_operations,
     }
     return mapper[name](settings)
 
@@ -35,6 +36,38 @@ def generate_spatial_mean_operations(settings=None) -> typing.List:
 
     operations = get_operations(settings)
     return operations
+
+
+def generate_tropical_ocean_operations(settings=None) -> typing.List:
+    if settings is None:
+        settings = {
+            "mask_landsea": {
+                "mask_out": "land",
+                "fx_variables": {
+                    "sftlf": [],
+                    "sftof": []
+                },
+            },
+            "regrid": {
+                "target_grid": "2.5x2.5",
+                "scheme": "linear"
+            },
+            "extract_region": {
+                "start_latitude": -30,
+                "end_latitude": 30,
+                "start_longitude": 0,
+                "end_longitude": 360,
+            }
+        }
+
+    settings = {
+        **get_default_settings(),
+        **settings
+    }
+
+    operations = get_operations(settings)
+    return operations
+
 
 
 def generate_default_plot_task(name) -> typing.Dict:
