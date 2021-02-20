@@ -1,4 +1,10 @@
-#
+"""
+Evaluate water vapor short wave radiance absorption schemes of ESMs with the observations.
+
+References
+----------
+https://docs.esmvaltool.org/en/latest/recipes/recipe_deangelis15nat.html
+"""
 import typing
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
