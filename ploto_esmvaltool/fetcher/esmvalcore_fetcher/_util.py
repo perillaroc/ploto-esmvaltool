@@ -129,7 +129,7 @@ def get_native6_data(
             **v
         }
         directories = [pathlib.Path(d, input_dir.format(**combined_variable)) for d in task["data_path"][project]]
-        filenames = input_file.format(**combined_variable)
+        filenames = [input_file.format(**combined_variable)]
 
         current_files = find_files(
             directories,
@@ -168,7 +168,7 @@ def get_obs4mips_data(
             **v
         }
         directories = [pathlib.Path(d, input_dir.format(**combined_variable)) for d in task["data_path"][project]]
-        filenames = input_file.format(**combined_variable)
+        filenames = [input_file.format(**combined_variable)]
 
         current_files = find_files(
             directories,
