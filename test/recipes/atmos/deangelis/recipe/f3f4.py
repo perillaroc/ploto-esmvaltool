@@ -40,6 +40,16 @@ spatial_mean_variable = {
     "frequency": "mon",
 }
 
+tropical_variable = {
+    "preprocessor": "tropical_ocean",
+
+    "project": "CMIP6",
+    "ensemble": "r1i1p1f1",
+    "mip": "Amon",
+    "grid": "gn",
+    "frequency": "mon",
+}
+
 
 variables = [
     {
@@ -55,8 +65,7 @@ variables = [
         "short_name": "rsnstcsnorm",
         "variable_group": "rsnstcsnorm",
 
-        **spatial_mean_variable,
-        "preprocessor": "tropical_ocean",
+        **tropical_variable,
 
         "derive": True,
         "force_derivation": False,
@@ -74,7 +83,7 @@ variables = [
         "short_name": "prw",
         "variable_group": "prw",
 
-        **spatial_mean_variable,
+        **tropical_variable,
 
         "derive": False,
         "force_derivation": False,
@@ -104,6 +113,16 @@ variable_additional_datasets = {
             "start_year": 2003,
             "end_year": 2008,
             "tier": 3
+        },
+        {
+            "dataset": "SSMI-MERIS",
+            "project": "obs4mips",
+            "type": "satellite",
+            "level": "L3",
+            "version": "v1-00",
+            "start_year": 2003,
+            "end_year": 2008,
+            "tier": 1
         }
     ]
 }

@@ -40,7 +40,7 @@ def get_processor_tasks(
     }
 
     diag = {
-        "diagnostic": "deangelisf1b",
+        "diagnostic": "deangelisf3f4",
     }
 
 
@@ -145,7 +145,10 @@ def main():
     exp_datasets = [{
         **d,
         "alias": f"{d['dataset']}-{d['exp']}",
-    } for d in exp_datasets]
+        "recipe_dataset_index": index
+    } for index, d in enumerate(exp_datasets)]
+    current_index = len(exp_datasets)
+
     variables = deangelis_recipe.f3f4.variables
 
     tasks = [
@@ -168,7 +171,9 @@ def main():
                 additional_datasets = [{
                     **d,
                     "alias": f"{d['dataset']}-{d['project']}",
-                } for d in additional_datasets]
+                    "recipe_dataset_index": current_index + index
+                } for index, d in enumerate(additional_datasets)]
+                current_index += len(additional_datasets)
                 tasks = [
                     {
                         "exp_dataset": {

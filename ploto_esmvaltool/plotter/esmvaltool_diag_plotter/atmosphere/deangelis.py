@@ -74,6 +74,7 @@ def generate_default_plot_task(name) -> typing.Dict:
     mapper = {
         "f1b": generate_plot_task_f1b,
         "f2ext": generate_plot_task_f2ext,
+        "f3f4": generate_plot_task_f3f4,
     }
 
     task = mapper[name]()
@@ -120,6 +121,28 @@ def generate_plot_task_f2ext():
             },
             "settings": {
                 "script": "deangelisf2ext",
+            }
+        },
+    }
+
+
+def generate_plot_task_f3f4():
+    return {
+        "diagnostic": {
+            "recipe": "recipe_deangelisf3f4.yml",
+            "name": "deangelisf3f4"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "deangelis15nat/deangelisf3f4.py",
+            },
+            "settings": {
+                "script": "deangelisf3f4",
             }
         },
     }
