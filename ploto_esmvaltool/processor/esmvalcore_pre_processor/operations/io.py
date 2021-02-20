@@ -99,15 +99,7 @@ def _get_file_path(task, output_dir):
             output_dir,
             f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc"
         )
-    elif project == "OBS6":
-        version = task_dataset["version"]
-        mip = task_dataset["mip"]
-        data_type = task_dataset["type"]
-        file_path = Path(
-            output_dir,
-            f"{project}_{dataset}_{data_type}_{version}_{mip}_{short_name}_{start_year}-{end_year}.nc"
-        )
-    elif project == "native6":
+    elif project in ("OBS6", "obs4mips", "native6"):
         version = task_dataset["version"]
         mip = task_dataset["mip"]
         data_type = task_dataset["type"]
@@ -163,6 +155,10 @@ def run_write_metadata(
             **task_dataset,
         }
     elif project == "native6":
+        dataset = {
+            **task_dataset
+        }
+    elif project == "obs4mips":
         dataset = {
             **task_dataset
         }
