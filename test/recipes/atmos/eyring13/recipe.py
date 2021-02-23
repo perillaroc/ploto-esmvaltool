@@ -1,7 +1,7 @@
 exp_datasets = [
     {
         "dataset": "BCC-ESM1",
-        "grid": "gn"
+        "grid": "gn",
     },
     {
         "dataset": "CAS-ESM2-0",
@@ -38,6 +38,8 @@ variables = [
         "mip": "Amon",
         "exp": "historical",
         "ensemble": "r1i1p1f1",
+        "frequency": "mon",
+
         "start_year": 1995,
         "end_year": 2014
     }
