@@ -1,7 +1,10 @@
 import typing
 import warnings
 
-from esmvalcore.preprocessor import DEFAULT_ORDER
+from esmvalcore.preprocessor import (
+    DEFAULT_ORDER,
+    MULTI_MODEL_FUNCTIONS
+)
 
 
 def _get_settings(
@@ -61,18 +64,6 @@ def get_default_settings():
     return settings
 
 
-def get_operations(settings, order=DEFAULT_ORDER):
-    operations = []
-    for step in order[order.index("load") + 1: order.index("save")]:
-        if step in settings and (settings[step] != False):
-            operations.append({
-                "type": step,
-                "settings": settings[step]
-            })
-
-    return operations
-
-
 def split_derive_settings(settings, order=DEFAULT_ORDER):
     before = {}
     for step in order:
@@ -90,3 +81,34 @@ def split_derive_settings(settings, order=DEFAULT_ORDER):
     after['fix_metadata'] = False
     after['fix_data'] = False
     return before, after
+
+
+def get_operations(settings, order=DEFAULT_ORDER):
+    warnings.warn("Please use get_operation_blocks() function", PendingDeprecationWarning)
+    operations = []
+    for step in order[order.index("load") + 1: order.index("save")]:
+        if step in settings and (settings[step] != False):
+            operations.append({
+                "type": step,
+                "settings": settings[step]
+            })
+
+    return operations
+
+
+def get_operation_blocks(settings, order=DEFAULT_ORDER) -> typing.List:
+    blocks = []
+    previous_step_type = None
+    for step in order[order.index("load") + 1: order.index("save")]:
+        if step in settings and (settings[step] != False):
+            step_type = step in MULTI_MODEL_FUNCTIONS
+            if step_type is not previous_step_type:
+                block = []
+                blocks.append(block)
+            previous_step_type = step_type
+            block.append({
+                "type": step,
+                "settings": settings[step]
+            })
+
+    return blocks
