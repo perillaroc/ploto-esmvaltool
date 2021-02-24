@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.eyring13 import (
-    generate_default_operations
+    generate_default_operation_blocks
 )
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
@@ -44,10 +44,18 @@ def main():
         for v, d in itertools.product(variables, exp_datasets)
     ]
 
-    blocks = get_operation_blocks(
+    blocks = generate_default_operation_blocks(
+        "zonal",
         {
             **get_default_settings(),
-            **eyring13_recipe.processor_settings["zonal"]
+            "regrid": {
+                "target_grid": "1x1",
+                "scheme": "linear"
+            },
+            "extract_levels": {
+                "scheme": "linear",
+                "levels": "reference_dataset"
+            },
         }
     )
     for block in blocks:
