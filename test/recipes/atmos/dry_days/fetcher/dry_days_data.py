@@ -1,6 +1,7 @@
 import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
+from ploto_esmvaltool.util.esmvaltool import add_variable_info
 
 from test.recipes.atmos.dry_days import recipe as dry_days_recipe
 from test.recipes.atmos.dry_days import config as dry_days_config
@@ -12,24 +13,31 @@ def get_fetcher(
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case101/ploto"
 
-    combined_dataset = {
+    combined_variable = {
         **exp_dataset,
         **variable
     }
-
-    variables = [
-        variable
-    ]
+    add_variable_info(combined_variable)
 
     data_path = dry_days_config.data_path
 
     task = {
-        "dataset": combined_dataset,
-        "variables": variables,
-        "data_path": data_path,
+        "products": [
+            {
+                "variable": combined_variable,
+                "output": {
+                    "output_directory": "{dataset}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
+        "output": {
+            "output_directory": "{work_dir}/fetcher/preproc",
+        },
 
-        "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['dataset']}/{variable['variable_group']}",
-        "output_data_source_file": "data_source.yml",
+        "config": {
+            "data_path": data_path,
+        },
     }
 
     config = {}
