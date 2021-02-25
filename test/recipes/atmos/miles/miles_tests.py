@@ -4,6 +4,8 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.miles import (
     generate_default_plot_task,
     generate_default_operations,
 )
+from ploto_esmvaltool.util.esmvaltool import add_variable_info
+
 from ploto.run import run_ploto
 
 from test.recipes.atmos.miles import recipe as miles_recipe
@@ -19,22 +21,30 @@ def get_fetcher(
         **exp_dataset,
         **variable
     }
-
-    variables = [
-        variable
-    ]
+    add_variable_info(combined_dataset)
 
     task = {
-        "dataset": combined_dataset,
-        "variables": variables,
-        "data_path": miles_config.data_path,
+        "products": [
+            {
+                "variable": combined_dataset,
+                "output": {
+                    "output_directory": "{dataset}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
 
-        "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
-        "output_data_source_file": "data_source.yml",
+        ],
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
+        },
+        "config": {
+            "data_path": miles_config.data_path,
+        },
 
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
     }
+
     return task
 
 
