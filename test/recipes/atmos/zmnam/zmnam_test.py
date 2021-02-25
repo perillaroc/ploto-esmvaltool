@@ -7,6 +7,7 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.zmnam import (
     generate_default_plot_task,
     generate_default_operations,
 )
+from ploto_esmvaltool.util.esmvaltool import add_variable_info
 from ploto.run import run_ploto
 
 from test.recipes.atmos.zmnam import recipe as zmnam_recipe
@@ -21,25 +22,32 @@ def get_fetcher(
         **exp_dataset,
         **variable
     }
-
-    variables = [
-        variable
-    ]
+    add_variable_info(combined_dataset)
 
     data_path = zmnam_config.data_path
 
     task = {
-        "dataset": combined_dataset,
-        "variables": variables,
-        "data_path": data_path,
+        "products": [
+            {
+                "variable": combined_dataset,
+                "output": {
+                    "output_directory": "{alias}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
 
-        "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['alias']}/{variable['variable_group']}",
-        "output_data_source_file": "data_source.yml",
+        "output": {
+            "output_directory": "{work_dir}/fetcher/preproc/",
+        },
+
+        "config": {
+            "data_path": data_path,
+        },
 
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
     }
-
 
     return task
 
