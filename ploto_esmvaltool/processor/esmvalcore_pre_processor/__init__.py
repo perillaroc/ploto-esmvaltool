@@ -21,6 +21,50 @@ def run_processor(
     Parameters
     ----------
     task: dict
+        {
+            "products": [
+                {
+                    "variable": {
+
+                    }
+                    "input": {
+                        "input_data_source_file": ...
+                        # or
+                        "input_metadata_files": [
+
+                        ]
+                    },
+                    "output": {
+                        "output_file": "",
+                    }
+                }
+            ],
+            "generated_products": {
+                "multi_model_statistic.mean": {
+                    "output": {
+                        "output_file": "",
+                    }
+                }
+            },
+
+            "output": {
+                "output_directory": ""
+            },
+
+            "operations" : [
+                {
+                    "type": "operation_type",
+                    "settings": {
+                        "key": "value"
+                    }
+                }
+            ],
+
+            "diagnostic": {
+                "diagnostic": "name"
+            }
+        }
+
 
     work_dir: str
 
