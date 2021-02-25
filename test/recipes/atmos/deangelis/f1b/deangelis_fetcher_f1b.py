@@ -24,11 +24,11 @@ def get_fetcher_tasks(
         dataset=exp_dataset,
         variable=variable,
     )
+    add_variable_info(combined_variable)
 
     tasks = []
 
     if not combined_variable["derive"]:
-        add_variable_info(combined_variable)
         tasks.append({
             "products": [
                 {
