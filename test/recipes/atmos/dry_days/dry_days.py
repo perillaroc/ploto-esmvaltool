@@ -11,7 +11,10 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.dry_days import
     generate_default_operations,
     generate_default_plot_task,
 )
-from ploto_esmvaltool.util.esmvaltool import add_variable_info
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 
 from ploto.run import run_ploto
 
@@ -61,38 +64,42 @@ def get_processor(
 ):
     operations = generate_default_operations()
 
-    combined_dataset = {
-        **exp_dataset,
-        **variable
-    }
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable
+    )
+    add_variable_info(combined_dataset)
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ],
-    }
-
-    diag = {
+    diagnostic = {
         "diagnostic": "dry_days",
     }
 
     task = {
-        # input files
-        "input_data_source_file": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}/data_source.yml",
-        # output
-        "output_directory": "{work_dir}" + f"/processor/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
+        "products": [
+            {
+                "variable": combined_dataset,
+                "input": {
+                    "input_data_source_file": "{work_dir}/fetcher/preproc/{dataset}/{variable_group}/data_source.yml",
+                },
+                "output": {
+                    "output_directory": "{dataset}/{variable_group}"
+                }
+            }
+        ],
 
         # operations
         "operations": operations,
 
-        "dataset": combined_dataset,
-        "diagnostic_dataset": diag_dataset,
-        "variable": variable,
-        "diagnostic": diag,
+        "diagnostic": diagnostic,
+
+        "output": {
+            "output_directory": "{work_dir}/processor/preproc",
+        },
 
         "step_type": "processor",
         "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
     }
+
     return task
 
 
