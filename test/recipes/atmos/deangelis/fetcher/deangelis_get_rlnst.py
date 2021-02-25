@@ -4,6 +4,10 @@ import itertools
 from esmvalcore.preprocessor._derive import get_required
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 
 from test.recipes.atmos.deangelis import (
     config as deangelis_config,
@@ -37,10 +41,11 @@ def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    combined_variable = {
-        **dataset,
-        **variable,
-    }
+    combined_variable = combine_variable(
+        dataset=dataset,
+        variable=variable,
+    )
+    # add_variable_info(combined_variable)
 
     # 需要的变量，来自 ESMValCore
     required_variables = get_required(
@@ -58,14 +63,24 @@ def main():
 
     for v in input_variables:
         data_path = deangelis_config.data_path
+        add_variable_info(v, override=True)
 
         task = {
-            "dataset": v,
-            "variables": [v],
-            "data_path": data_path,
-
-            "output_directory": "{work_dir}" + f"/fetcher/preproc/{v['alias']}/{v['variable_group']}",
-            "output_data_source_file": "data_source.yml",
+            "products": [
+                {
+                    "variable": v,
+                    "output": {
+                        "output_directory": "{alias}/{variable_group}",
+                        "output_data_source_file": "data_source.yml",
+                    }
+                }
+            ],
+            "config": {
+                "data_path": data_path,
+            },
+            "output": {
+                "output_directory": "{work_dir}/fetcher/preproc",
+            }
         }
 
         config = {}

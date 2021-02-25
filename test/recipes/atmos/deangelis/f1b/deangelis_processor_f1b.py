@@ -94,7 +94,7 @@ def get_processor_tasks(
                 "operations": before_operations,
 
                 "dataset": v,
-                "diagnostic_dataset": diag_dataset,
+                "diagnostic_dataset": diag_dataset, # TODO: using _add_cmor_info() function to get model_realm
                 "variable": v,
                 "diagnostic": diag,
                 "settings": settings

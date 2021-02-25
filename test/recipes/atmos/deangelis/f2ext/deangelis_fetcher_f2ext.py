@@ -4,6 +4,11 @@ import itertools
 from esmvalcore.preprocessor._derive import get_required
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
+
 
 from test.recipes.atmos.deangelis import (
     config as deangelis_config,
@@ -16,21 +21,33 @@ def get_fetcher_tasks(
         exp_dataset,
         variable,
 ):
-    combined_variable = {
-        **exp_dataset,
-        **variable,
-    }
+    combined_variable = combine_variable(
+        dataset=exp_dataset,
+        variable=variable,
+    )
 
     tasks = []
 
     if not combined_variable["derive"]:
+        add_variable_info(combined_variable)
         tasks.append({
-            "dataset": combined_variable,
-            "variables": [variable],
-            "data_path": deangelis_config.data_path,
+            "products": [
+                {
+                    "variable": combined_variable,
+                    "output": {
+                        "output_directory": "{alias}/{variable_group}",
+                        "output_data_source_file": "data_source.yml",
+                    }
+                }
+            ],
 
-            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
-            "output_data_source_file": "data_source.yml",
+            "config": {
+                "data_path": deangelis_config.data_path,
+            },
+
+            "output": {
+                "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
+            }
         })
     else:
         # 需要的变量，来自 ESMValCore
@@ -47,15 +64,26 @@ def get_fetcher_tasks(
         } for v in required_variables]
 
         for v in input_variables:
-            data_path = deangelis_config.data_path
+            add_variable_info(v, override=True)
 
             task = {
-                "dataset": v,
-                "variables": [v],
-                "data_path": data_path,
+                "products": [
+                    {
+                        "variable": v,
+                        "output": {
+                            "output_directory": "{alias}/{variable_group}",
+                            "output_data_source_file": "data_source.yml",
+                        }
+                    }
+                ],
 
-                "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{v['alias']}/{v['variable_group']}",
-                "output_data_source_file": "data_source.yml",
+                "config": {
+                    "data_path": deangelis_config.data_path,
+                },
+
+                "output": {
+                    "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
+                }
             }
 
             tasks.append(task)
