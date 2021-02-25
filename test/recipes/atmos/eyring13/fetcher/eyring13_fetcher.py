@@ -4,6 +4,10 @@ import itertools
 from esmvalcore.preprocessor._derive import get_required
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 
 from test.recipes.atmos.eyring13 import (
     config as eyring13_config,
@@ -18,22 +22,33 @@ def get_fetcher_tasks(
 ):
     # TODO: alias should use a function.
     #   dataset and exp may be in exp_dataset or variable.
-    combined_variable = {
-        **exp_dataset,
-        **variable,
-    }
-
+    combined_variable = combine_variable(
+        dataset=exp_dataset,
+        variable=variable,
+    )
     combined_variable["alias"] = f"{combined_variable['dataset']}-{combined_variable['exp']}"
+    add_variable_info(combined_variable)
 
     tasks = []
 
     tasks.append({
-            "dataset": combined_variable,
-            "variables": [variable],
-            "data_path": eyring13_config.data_path,
-
-            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
+        "products": [
+            {
+                "variable": combined_variable,
+                "output": {
+                    "output_directory": "{alias}/{variable_group}",
             "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
+
+        "config": {
+            "data_path": eyring13_config.data_path,
+        },
+
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
+        }
     })
     return tasks
 
