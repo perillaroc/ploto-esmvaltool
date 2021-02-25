@@ -9,17 +9,17 @@ from esmvalcore.preprocessor import (
 
 def _get_settings(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
 ) -> typing.Dict:
     settings = {}
     if "settings" in operation:
         settings = operation["settings"]
 
     operation_type = operation["type"]
-    if operation_type in task["settings"]:
+    if operation_type in product["settings"]:
         settings = {
             **settings,
-            **task["settings"][operation_type],
+            **product["settings"][operation_type],
         }
     return settings
 

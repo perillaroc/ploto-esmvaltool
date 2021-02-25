@@ -10,11 +10,11 @@ from .util import _get_settings
 
 def run_extract_levels(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube,
         **kwargs,
 ):
-    settings = _get_settings(operation, task)
+    settings = _get_settings(operation, product)
 
     levels = settings["levels"]
     scheme = settings["scheme"]
@@ -29,11 +29,11 @@ def run_extract_levels(
 
 def run_regrid(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube,
         **kwargs,
 ):
-    settings = _get_settings(operation, task)
+    settings = _get_settings(operation, product)
 
     target_grid = settings["target_grid"]
     scheme = settings["scheme"]

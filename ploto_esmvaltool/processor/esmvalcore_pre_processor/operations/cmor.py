@@ -6,14 +6,15 @@ from esmvalcore.cmor.check import cmor_check_metadata, cmor_check_data
 
 def run_cmor_check_metadata(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube: iris.cube.Cube,
         **kwargs
 ) -> iris.cube.Cube:
-    short_name = task["variable"]["short_name"]
-    project = task["dataset"]["project"]
-    mip = task["dataset"]["mip"]
-    frequency = task["dataset"]["frequency"]
+    product_variable = product["variable"]
+    short_name = product_variable["short_name"]
+    project = product_variable["project"]
+    mip = product_variable["mip"]
+    frequency = product_variable["frequency"]
 
     cubes = cmor_check_metadata(
         cube,
@@ -27,14 +28,15 @@ def run_cmor_check_metadata(
 
 def run_cmor_check_data(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube: iris.cube.Cube,
         **kwargs
 ) -> iris.cube.Cube:
-    short_name = task["variable"]["short_name"]
-    frequency = task["dataset"]["frequency"]
-    mip = task["dataset"]["mip"]
-    project = task["dataset"]["project"]
+    product_variable = product["variable"]
+    short_name = product_variable["short_name"]
+    frequency = product_variable["frequency"]
+    mip = product_variable["mip"]
+    project = product_variable["project"]
 
     cubes = cmor_check_data(
         cube,

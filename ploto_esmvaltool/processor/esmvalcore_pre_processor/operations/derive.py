@@ -5,13 +5,14 @@ from esmvalcore.preprocessor import derive
 
 def run_derive(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube,
         **kwargs,
 ):
-    short_name = task["variable"]["short_name"]
-    long_name = task["variable"]["long_name"]
-    units = task["variable"]["units"]
+    product_variable = product["variable"]
+    short_name = product_variable["short_name"]
+    long_name = product_variable["long_name"]
+    units = product_variable["units"]
     cubes = derive(
         cube,
         short_name=short_name,

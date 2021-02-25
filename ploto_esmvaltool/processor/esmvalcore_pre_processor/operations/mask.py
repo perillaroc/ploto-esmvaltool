@@ -10,11 +10,11 @@ from .util import _get_settings
 
 def run_mask_landsea(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube,
         **kwargs
 ):
-    settings = _get_settings(operation, task)
+    settings = _get_settings(operation, product)
 
     fx_variables = getattr(
         settings,
@@ -38,11 +38,11 @@ def run_mask_landsea(
 
 def run_mask_fillvalues(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube,
         **kwargs
 ):
-    settings = _get_settings(operation, task)
+    settings = _get_settings(operation, product)
     threshold_fraction = settings["threshold_fraction"]
     min_value = settings.get("min_value", None)
     time_window = settings.get("time_window", 1)

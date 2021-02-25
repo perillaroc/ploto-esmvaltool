@@ -44,6 +44,13 @@ def run_processor(
                     },
                     "output": {
                         "output_file": "",
+                    },
+
+                    # operation settings
+                    "settings": {
+                        "extract_levels": {
+                            #...
+                        }
                     }
                 }
             ],
@@ -122,7 +129,7 @@ def run_operation_block(
         fun = getattr(esmvalcore_operations, f"run_{op}")
         cube = fun(
             operation=step,
-            task=product,
+            product=product,
             cube=cube,
             work_dir=work_dir,
         )
@@ -130,18 +137,20 @@ def run_operation_block(
     # save to workdir
     file_path = run_save(
         operation={},
-        task=product,
+        product=product,
         cubes=[cube],
         work_dir=work_dir,
     )
     logger.info(f"write file to {file_path}")
 
-    output_metadata_file_name = product["output"].get("output_metadata_file_name", "metadata.yml")
+    output_metadata_file_name = product["output"].get(
+        "output_metadata_file_name", "metadata.yml"
+    )
 
     # write metadata
     metadata = run_write_metadata(
         operation={},
-        task=product,
+        product=product,
         work_dir=work_dir,
         file_path=file_path,
         metadata_file_name=output_metadata_file_name,
