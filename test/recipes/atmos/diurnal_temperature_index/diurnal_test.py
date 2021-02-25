@@ -4,6 +4,7 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.diurnal_tempera
     generate_default_plot_task,
     generate_default_preprocessor_operations
 )
+from ploto_esmvaltool.util.esmvaltool import add_variable_info
 
 from ploto.run import run_ploto
 
@@ -34,29 +35,36 @@ def get_fetcher(
         exp_dataset,
         variable
 ):
-    combined_dataset = {
+    combined_variable = {
         **exp_dataset,
         **variable
     }
-
-    variables = [
-        variable
-    ]
+    add_variable_info(combined_variable)
 
     data_path = diurnal_config.data_path
 
     task = {
-        "dataset": combined_dataset,
-        "variables": variables,
-        "data_path": data_path,
-
-        "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['alias']}/{variable['variable_group']}",
-        "output_data_source_file": "data_source.yml",
+        "products": [
+            {
+                "variable": combined_variable,
+                "output": {
+                    "output_directory": "{alias}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
+        "config": {
+            "data_path": data_path,
+        },
+        "output": {
+            "output_directory": "{work_dir}/fetcher/preproc",
+        },
 
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher"
     }
     return task
+
 
 def get_fetcher_tasks():
     exp_datasets = diurnal_recipe.exp_datasets

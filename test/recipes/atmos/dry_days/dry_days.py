@@ -11,6 +11,8 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.dry_days import
     generate_default_operations,
     generate_default_plot_task,
 )
+from ploto_esmvaltool.util.esmvaltool import add_variable_info
+
 from ploto.run import run_ploto
 
 from test.recipes.atmos.dry_days import recipe as dry_days_recipe
@@ -21,24 +23,31 @@ def get_fetcher(
         exp_dataset,
         variable
 ):
-    combined_dataset = {
+    combined_variable = {
         **exp_dataset,
         **variable
     }
-
-    variables = [
-        variable
-    ]
+    add_variable_info(combined_variable)
 
     data_path = dry_days_config.data_path
 
     task = {
-        "dataset": combined_dataset,
-        "variables": variables,
-        "data_path": data_path,
+        "products": [
+            {
+                "variable": combined_variable,
+                "output": {
+                    "output_directory": "{dataset}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
+        "output": {
+            "output_directory": "{work_dir}/fetcher/preproc",
+        },
 
-        "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['dataset']}/{variable['variable_group']}",
-        "output_data_source_file": "data_source.yml",
+        "config": {
+            "data_path": data_path,
+        },
 
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",

@@ -1,6 +1,7 @@
 import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
+from ploto_esmvaltool.util.esmvaltool import add_variable_info
 
 from test.recipes.atmos.diurnal_temperature_index import (
     config as diurnal_config,
@@ -13,24 +14,30 @@ def run(
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case102/ploto"
 
-    combined_dataset = {
+    combined_variable = {
         **exp_dataset,
         **variable
     }
-
-    variables = [
-        variable
-    ]
+    add_variable_info(combined_variable)
 
     data_path = diurnal_config.data_path
 
     task = {
-        "dataset": combined_dataset,
-        "variables": variables,
-        "data_path": data_path,
-
-        "output_directory": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['alias']}/{variable['variable_group']}",
-        "output_data_source_file": "data_source.yml",
+        "products": [
+            {
+                "variable": combined_variable,
+                "output": {
+                    "output_directory": "{alias}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
+        "config": {
+            "data_path": data_path,
+        },
+        "output": {
+            "output_directory": "{work_dir}/fetcher/preproc",
+        }
     }
 
     config = {}
