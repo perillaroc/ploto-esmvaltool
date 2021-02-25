@@ -1,14 +1,22 @@
 import typing
 from pathlib import Path
 
-from loguru import logger
+from ploto.logger import get_logger
 
 import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
-from .operations import (
+from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations import (
     run_load,
     run_save,
     run_write_metadata,
 )
+
+from ._product import (
+    _add_diagnostic,
+    _update_product_output
+)
+
+
+logger = get_logger()
 
 
 def run_processor(
@@ -73,8 +81,28 @@ def run_processor(
     """
     logger.info("running processor: esmvalcore_pre_processor")
 
+    task_products = task["products"]
     operations = task["operations"]
+    task_output = task["output"]
+    task_diagnostic = task["diagnostic"]
 
+    for product in task_products:
+        product = _add_diagnostic(product, task_diagnostic)
+        product = _update_product_output(product, task_output)
+        run_operation_block(
+            product=product,
+            operations=operations,
+            work_dir=work_dir
+        )
+
+    logger.info("running processor done: esmvalcore_pre_processor")
+
+
+def run_operation_block(
+        product,
+        operations,
+        work_dir
+):
     cube = None
 
     # load cube
@@ -82,7 +110,7 @@ def run_processor(
         operation={
             "type": "load"
         },
-        task=task,
+        product=product,
         cube=cube,
         work_dir=work_dir,
     )
@@ -94,7 +122,7 @@ def run_processor(
         fun = getattr(esmvalcore_operations, f"run_{op}")
         cube = fun(
             operation=step,
-            task=task,
+            task=product,
             cube=cube,
             work_dir=work_dir,
         )
@@ -102,22 +130,20 @@ def run_processor(
     # save to workdir
     file_path = run_save(
         operation={},
-        task=task,
+        task=product,
         cubes=[cube],
         work_dir=work_dir,
     )
     logger.info(f"write file to {file_path}")
 
-    output_metadata_file_name = task.get("output_metadata_file_name", "metadata.yml")
+    output_metadata_file_name = product["output"].get("output_metadata_file_name", "metadata.yml")
 
     # write metadata
     metadata = run_write_metadata(
         operation={},
-        task=task,
+        task=product,
         work_dir=work_dir,
         file_path=file_path,
         metadata_file_name=output_metadata_file_name,
     )
     logger.info(f"write metadata to {metadata.absolute()}")
-
-    logger.info("running processor done: esmvalcore_pre_processor")

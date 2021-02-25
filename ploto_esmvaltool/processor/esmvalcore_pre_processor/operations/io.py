@@ -16,20 +16,29 @@ from esmvalcore._config import (
 
 def run_load(
         operation: typing.Dict,
-        task: typing.Dict,
+        product: typing.Dict,
         cube=None,
         work_dir=".",
         **kwargs
 ) -> iris.cube.CubeList:
-    if "input_data_source_file" in task:
-        input_meta_file = task["input_data_source_file"].format(work_dir=work_dir)
+    product_input = product["input"]
+    product_variable = product["variable"
+    ]
+    if "input_data_source_file" in product_input:
+        input_meta_file = product_input["input_data_source_file"].format(
+            work_dir=work_dir,
+            **product_variable
+        )
         with open(input_meta_file, "r") as f:
             m = yaml.safe_load(f)
             input_files = m["input_files"]
-    elif "input_metadata_files" in task:
+    elif "input_metadata_files" in product_input:
         input_files = []
-        for input_metadata_file in task["input_metadata_files"]:
-            with open(input_metadata_file.format(work_dir=work_dir), "r") as f:
+        for input_metadata_file in product_input["input_metadata_files"]:
+            with open(input_metadata_file.format(
+                    work_dir=work_dir,
+                    **product_variable
+            ), "r") as f:
                 m = yaml.safe_load(f)
                 for k in m:
                     input_files.append(k)
