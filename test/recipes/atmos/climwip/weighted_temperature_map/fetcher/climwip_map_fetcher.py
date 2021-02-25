@@ -2,8 +2,15 @@ from pathlib import Path
 import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 
-from test.recipes.atmos.climwip import recipe as climwip_recipe
+from test.recipes.atmos.climwip import (
+    recipe as climwip_recipe,
+    config as climwip_config,
+)
 
 
 def run(
@@ -13,36 +20,35 @@ def run(
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/map/fetcher/"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
+    variable = combine_variable(
+        variable=variable,
+        dataset=exp_dataset,
+    )
+    add_variable_info(variable)
 
-    dataset = {
-        **exp_dataset,
-        **variable
-    }
-
-    variables = [
-        variable
-    ]
-
-    data_path = {
-        "CMIP6": [
-            "/home/hujk/clusterfs/wangdp/data/CMIP6"
-        ]
-    }
-
-    variable_group = dataset["variable_group"]
+    data_path = climwip_config.data_path
 
     task = {
-        "dataset": dataset,
-        "variables": variables,
-        "data_path": data_path,
+        "products": [
+            {
+                "variable": variable,
+                "output": {
+                    "output_directory": "{dataset}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
 
-        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{variable_group}",
-        "output_data_source_file": "data_source.yml",
+        "output": {
+            "output_directory": "{work_dir}/preproc/",
+        },
+
+        "config": {
+            "data_path": data_path,
+        },
     }
 
-    config = {
-
-    }
+    config = {}
 
     get_data(
         task=task,

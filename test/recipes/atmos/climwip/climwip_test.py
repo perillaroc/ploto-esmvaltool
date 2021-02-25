@@ -5,12 +5,17 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import 
     generate_default_operations,
     generate_default_plot_task
 )
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 from ploto.run import run_ploto
 
 
-from test.recipes.atmos.climwip import recipe as climwip_recipe
-from test.recipes.atmos.climwip import config as climwip_config
-
+from test.recipes.atmos.climwip import (
+    recipe as climwip_recipe,
+    config as climwip_config
+)
 
 
 def get_fetcher(
@@ -18,24 +23,30 @@ def get_fetcher(
         variable,
         diagnostic_name,
 ):
-    dataset = {
-        **exp_dataset,
-        **variable
-    }
-
-    variables = [
-        variable
-    ]
-
-    variable_group = variable["variable_group"]
+    combined_variable = combine_variable(
+        variable=variable,
+        dataset=exp_dataset,
+    )
+    add_variable_info(combined_variable)
 
     task = {
-        "dataset": dataset,
-        "variables": variables,
-        "data_path": climwip_config.data_path,
+        "products": [
+            {
+                "variable": combined_variable,
+                "output": {
+                    "output_directory": "{dataset}/{variable_group}",
+                    "output_data_source_file": "data_source.yml",
+                }
+            }
+        ],
 
-        "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{dataset['dataset']}/{variable_group}",
-        "output_data_source_file": "data_source.yml",
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc"
+        },
+
+        "config": {
+            "data_path": climwip_config.data_path,
+        },
 
         "step_type": "fetcher",
         "type": "ploto_esmvaltool.fetcher.esmvalcore_fetcher",
