@@ -21,33 +21,34 @@ def run(
         **variable
     }
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ],
-    }
-
-    variable = variable
-
-    diag = {
+    diagnostic = {
         "diagnostic": "diurnal_temperature_indicator",
     }
 
     settings = diurnal_recipe.processor_settings[variable["preprocessor"]]
 
     task = {
-        "input_data_source_file": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['alias']}/{variable['variable_group']}/data_source.yml",
-        # output
-        "output_directory": "{work_dir}" + f"/processor/preproc/{combined_dataset['alias']}/{variable['variable_group']}",
+        "products": [
+            {
+                "variable": combined_dataset,
+                "input": {
+                    "input_data_source_file": "{work_dir}/fetcher/preproc/{alias}/{variable_group}/data_source.yml",
+                },
+                "output": {
+                    "output_directory": "{alias}/{variable_group}"
+                },
+                "settings": settings
+            }
+        ],
 
         # operations
         "operations": operations,
 
-        "dataset": combined_dataset,
-        "diagnostic_dataset": diag_dataset,
-        "variable": variable,
-        "diagnostic": diag,
-        "settings": settings
+        "diagnostic": diagnostic,
+
+        "output": {
+            "output_directory": "{work_dir}/processor/preproc",
+        },
     }
 
     run_processor(
