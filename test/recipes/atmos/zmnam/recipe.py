@@ -37,18 +37,20 @@ variables = [
 ]
 
 processor_settings = {
-    "extract_region": {
-        "start_longitude": 0,
-        "end_longitude": 360,
-        "start_latitude": 20,
-        "end_latitude": 90,
-    },
-    "extract_levels": {
-        "levels": [85000., 50000., 25000., 5000.],
-        "scheme": "nearest"
-    },
-    "regrid": {
-        "target_grid": "3x3",
-        "scheme": "area_weighted"
+    "preproc": {
+        "extract_region": {
+            "start_longitude": 0,
+            "end_longitude": 360,
+            "start_latitude": 20,
+            "end_latitude": 90,
+        },
+        "extract_levels": {
+            "levels": [85000., 50000., 25000., 5000.],
+            "scheme": "nearest"
+        },
+        "regrid": {
+            "target_grid": "3x3",
+            "scheme": "area_weighted"
+        }
     }
 }

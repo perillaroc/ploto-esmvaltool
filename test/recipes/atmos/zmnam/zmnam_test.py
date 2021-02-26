@@ -7,7 +7,10 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.zmnam import (
     generate_default_plot_task,
     generate_default_operations,
 )
-from ploto_esmvaltool.util.esmvaltool import add_variable_info
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 from ploto.run import run_ploto
 
 from test.recipes.atmos.zmnam import recipe as zmnam_recipe
@@ -18,10 +21,10 @@ def get_fetcher(
         exp_dataset,
         variable
 ):
-    combined_dataset = {
-        **exp_dataset,
-        **variable
-    }
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable
+    )
     add_variable_info(combined_dataset)
 
     data_path = zmnam_config.data_path
@@ -85,36 +88,43 @@ def get_processor(
 ):
     operations = generate_default_operations()
 
-    combined_dataset = {
-        **exp_dataset,
-        **variable,
-    }
 
-    diagnostic_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ],
-    }
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable
+    )
+    add_variable_info(combined_dataset)
 
     diagnostic = {
         "diagnostic": "diurnal_temperature_indicator",
     }
 
-    processor_settings = zmnam_recipe.processor_settings
+    settings = zmnam_recipe.processor_settings[combined_dataset["preprocessor"]]
 
     task = {
-        "input_data_source_file": "{work_dir}" + f"/fetcher/preproc/{combined_dataset['alias']}/{variable['variable_group']}/data_source.yml",
-        # output
-        "output_directory": "{work_dir}" + f"/processor/preproc/{combined_dataset['alias']}/{variable['variable_group']}",
+        "products": [
+            {
+                "variable": combined_dataset,
+                "input": {
+                    "input_data_source_file": (
+                        "{work_dir}/fetcher/preproc/{alias}/{variable_group}/data_source.yml"
+                    ),
+                },
+                "output": {
+                    "output_directory": "{alias}/{variable_group}"
+                },
+                "settings": settings
+            }
+        ],
 
         # operations
         "operations": operations,
 
-        "dataset": combined_dataset,
-        "diagnostic_dataset": diagnostic_dataset,
-        "variable": variable,
         "diagnostic": diagnostic,
-        "settings": processor_settings,
+
+        "output": {
+            "output_directory": "{work_dir}/processor/preproc",
+        },
 
         "step_type": "processor",
         "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
