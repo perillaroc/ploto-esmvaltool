@@ -15,6 +15,8 @@ from ._product import (
     _update_product_output
 )
 
+from .operations.util import is_multi_model_operation
+
 
 logger = get_logger()
 
@@ -93,16 +95,27 @@ def run_processor(
     task_output = task["output"]
     task_diagnostic = task["diagnostic"]
 
-    for product in task_products:
-        product = _add_diagnostic(product, task_diagnostic)
-        product = _update_product_output(product, task_output)
-        run_operation_block(
-            product=product,
-            operations=operations,
-            work_dir=work_dir
-        )
+    if is_multi_model_operation(operations[0]):
+        raise NotImplementedError("Multi Model Operations are not implemented")
+    else:
+        for product in task_products:
+            product = _add_diagnostic(product, task_diagnostic)
+            product = _update_product_output(product, task_output)
+            run_operation_block(
+                product=product,
+                operations=operations,
+                work_dir=work_dir
+            )
 
     logger.info("running processor done: esmvalcore_pre_processor")
+
+
+def run_multi_model_operation_block(
+        products,
+        operations,
+        work_dir
+):
+    pass
 
 
 def run_operation_block(

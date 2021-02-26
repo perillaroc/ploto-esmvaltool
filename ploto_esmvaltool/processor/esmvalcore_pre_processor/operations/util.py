@@ -112,3 +112,7 @@ def get_operation_blocks(settings, order=DEFAULT_ORDER) -> typing.List:
             })
 
     return blocks
+
+
+def is_multi_model_operation(operation):
+    return operation["type"] in MULTI_MODEL_FUNCTIONS
