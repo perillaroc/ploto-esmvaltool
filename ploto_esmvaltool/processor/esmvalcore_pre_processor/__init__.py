@@ -4,16 +4,12 @@ from pathlib import Path
 from ploto.logger import get_logger
 
 import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
-from .operations import (
-    run_load,
-    run_save,
-    run_write_metadata,
+
+from .operations.util import (
+    _get_settings,
+    is_multi_model_operation
 )
-from .operations.util import _get_settings
-
 from ._product import Product
-
-from .operations.util import is_multi_model_operation
 
 
 logger = get_logger()
