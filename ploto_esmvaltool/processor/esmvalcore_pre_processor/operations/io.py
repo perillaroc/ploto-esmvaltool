@@ -10,15 +10,11 @@ from esmvalcore.preprocessor._io import concatenate_callback
 
 
 def run_load(
-        operation: typing.Dict,
-        product: typing.Dict,
-        cube=None,
+        product_input,
+        product_variable,
         work_dir=".",
         **kwargs
 ) -> iris.cube.CubeList:
-    product_input = product["input"]
-    product_variable = product["variable"
-    ]
     if "input_data_source_file" in product_input:
         input_meta_file = product_input["input_data_source_file"].format(
             work_dir=work_dir,
@@ -56,8 +52,6 @@ def run_load(
 
 
 def run_concatenate(
-        operation: typing.Dict,
-        product: typing.Dict,
         cube: iris.cube.CubeList,
         **kwargs
 ) -> iris.cube.Cube:
@@ -66,16 +60,13 @@ def run_concatenate(
 
 
 def run_save(
-        operation: typing.Dict,
-        product: typing.Dict,
         cubes,
+        product_variable: typing.Dict,
+        product_output: typing.Dict,
         work_dir: str = ".",
         file_path: typing.Union[str, Path] = None,
         **kwargs
 ) -> str:
-    product_output = product["output"]
-    product_variable = product["variable"]
-
     output_dir = Path(product_output["output_directory"].format(
         work_dir=work_dir,
         **product_variable,
@@ -83,7 +74,7 @@ def run_save(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if file_path is None:
-        file_path = _get_file_path(product, output_dir)
+        file_path = _get_file_path(product_variable, output_dir)
 
     return save(
         cubes=cubes,
@@ -92,13 +83,12 @@ def run_save(
     )
 
 
-def _get_file_path(product, output_dir):
-    variable = product["variable"]
+def _get_file_path(variable, output_dir):
     project = variable["project"]
     dataset = variable["dataset"]
     start_year = variable["start_year"]
     end_year = variable["end_year"]
-    short_name = product["variable"]["short_name"]
+    short_name = variable["short_name"]
 
     if project == "CMIP6":
         exp = variable["exp"]
@@ -126,16 +116,13 @@ def _get_file_path(product, output_dir):
 
 
 def run_write_metadata(
-        operation,
-        product: typing.Dict,
+        product_variable: typing.Dict,
+        product_output: typing.Dict,
         work_dir: typing.Union[Path, str],
         file_path: typing.Union[Path, str],
         metadata_file_name: typing.Union[Path, str]="metadata.yml",
         **kwargs,
 ) -> Path:
-    product_output = product["output"]
-    product_variable = product["variable"]
-
     output_dir = Path(product_output["output_directory"].format(
         work_dir=work_dir,
         **product_variable,

@@ -4,16 +4,14 @@ from pathlib import Path
 from ploto.logger import get_logger
 
 import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
-from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations import (
+from .operations import (
     run_load,
     run_save,
     run_write_metadata,
 )
+from .operations.util import _get_settings
 
-from ._product import (
-    _add_diagnostic,
-    _update_product_output
-)
+from ._product import Product
 
 from .operations.util import is_multi_model_operation
 
@@ -95,15 +93,17 @@ def run_processor(
     task_output = task["output"]
     task_diagnostic = task["diagnostic"]
 
+    products = [Product(**task_product) for task_product in task_products]
+
+
     if is_multi_model_operation(operations[0]):
         raise NotImplementedError("Multi Model Operations are not implemented")
     else:
-        for product in task_products:
-            product = _add_diagnostic(product, task_diagnostic)
-            product = _update_product_output(product, task_output)
-            run_operation_block(
-                product=product,
-                operations=operations,
+        for product in products:
+            product.add_diagnostic(task_diagnostic)
+            product.update_output(task_output)
+            product.run_operation_block(
+                operation_block=operations,
                 work_dir=work_dir
             )
 
@@ -111,61 +111,39 @@ def run_processor(
 
 
 def run_multi_model_operation_block(
-        products,
-        operations,
-        work_dir
+        products: typing.List[Product],
+        operation_block: typing.Dict,
+        work_dir: typing.Union[str, Path]
 ):
     pass
 
 
 def run_operation_block(
-        product,
-        operations,
-        work_dir
+        product: Product,
+        operation_block: typing.Dict,
+        work_dir: typing.Union[str, Path]
 ):
-    cube = None
-
-    # load cube
-    cube = run_load(
-        operation={
-            "type": "load"
-        },
-        product=product,
-        cube=cube,
-        work_dir=work_dir,
-    )
+    if product.cubes is None:
+        product.cubes = product.load(work_dir=work_dir)
 
     # run steps
-    for step in operations:
+    for step in operation_block:
         op = step["type"]
         logger.info(f"run step {op}")
         fun = getattr(esmvalcore_operations, f"run_{op}")
-        cube = fun(
+        settings = _get_settings(step, product.settings)
+        product.cubes = fun(
             operation=step,
-            product=product,
-            cube=cube,
+            cube=product.cubes,
+            variable=product.variable,
+            settings=settings,
             work_dir=work_dir,
         )
 
     # save to workdir
-    file_path = run_save(
-        operation={},
-        product=product,
-        cubes=[cube],
-        work_dir=work_dir,
-    )
+    file_path = product.save(work_dir=work_dir)
     logger.info(f"write file to {file_path}")
 
-    output_metadata_file_name = product["output"].get(
-        "output_metadata_file_name", "metadata.yml"
-    )
-
     # write metadata
-    metadata = run_write_metadata(
-        operation={},
-        product=product,
-        work_dir=work_dir,
-        file_path=file_path,
-        metadata_file_name=output_metadata_file_name,
-    )
+    metadata = product.write_metadata(file_path, work_dir=work_dir)
     logger.info(f"write metadata to {metadata.absolute()}")

@@ -25,9 +25,11 @@ setup(
     zip_safe=False,
 
     install_requires=[
-        'click',
-        'pyyaml',
-        'loguru',
+        "attrs",
+        "click",
+        "pyyaml",
+        "loguru",
+        "esmvalcore",
     ],
 
     extras_require={

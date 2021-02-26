@@ -13,13 +13,12 @@ from .util import _get_settings
 
 def run_clip_start_end_year(
         operation: typing.Dict,
-        product: typing.Dict,
         cube: iris.cube.Cube,
+        variable: typing.Dict,
         **kwargs
 ) -> iris.cube.Cube:
-    product_variable = product["variable"]
-    start_year = product_variable["start_year"]
-    end_year = product_variable["end_year"]
+    start_year = variable["start_year"]
+    end_year = variable["end_year"]
     cube = clip_start_end_year(
         cube,
         start_year=start_year,
@@ -30,12 +29,10 @@ def run_clip_start_end_year(
 
 def run_climate_statistics(
         operation: typing.Dict,
-        product: typing.Dict,
         cube: iris.cube.Cube,
+        settings: typing.Dict,
         **kwargs
 ):
-    settings = _get_settings(operation, product)
-
     # operator = settings["operator"]
     # period = settings["period"]
     # seasons = settings["seasons"]
@@ -53,11 +50,10 @@ def run_climate_statistics(
 
 def run_annual_statistics(
         operation: typing.Dict,
-        product: typing.Dict,
         cube: iris.cube.Cube,
+        settings: typing.Dict,
         **kwargs
 ):
-    settings = _get_settings(operation, product)
     operator = settings["operator"]
 
     cubes = annual_statistics(
@@ -69,12 +65,10 @@ def run_annual_statistics(
 
 def run_anomalies(
         operation: typing.Dict,
-        product: typing.Dict,
         cube: iris.cube.Cube,
+        settings: typing.Dict,
         **kwargs
 ):
-    settings = _get_settings(operation, product)
-
     period = settings["period"]
     reference = settings.get("reference", None)
     standardize = settings.get("standardize", False)

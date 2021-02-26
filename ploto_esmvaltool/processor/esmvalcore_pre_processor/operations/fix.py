@@ -6,16 +6,15 @@ from esmvalcore.cmor.fix import fix_metadata, fix_data
 
 def run_fix_metadata(
         operation: typing.Dict,
-        product: typing.Dict,
         cube: iris.cube.CubeList,
+        variable: typing.Dict,
         **kwargs
 ) -> iris.cube.CubeList:
-    product_variable = product["variable"]
-    short_name = product_variable["short_name"]
-    project = product_variable["project"]
-    dataset = product_variable["dataset"]
-    mip = product_variable["mip"]
-    frequency = product_variable["frequency"]
+    short_name = variable["short_name"]
+    project = variable["project"]
+    dataset = variable["dataset"]
+    mip = variable["mip"]
+    frequency = variable["frequency"]
 
     fixed_cubes = fix_metadata(
         cube,
@@ -31,15 +30,14 @@ def run_fix_metadata(
 
 def run_fix_data(
         operation: typing.Dict,
-        product: typing.Dict,
         cube: iris.cube.Cube,
+        variable: typing.Dict,
         **kwargs
 ) -> iris.cube.Cube:
-    product_variable = product["variable"]
-    short_name = product_variable["short_name"]
-    project = product_variable["project"]
-    dataset = product_variable["dataset"]
-    mip = product_variable["mip"]
+    short_name = variable["short_name"]
+    project = variable["project"]
+    dataset = variable["dataset"]
+    mip = variable["mip"]
 
     cubes = fix_data(
         cube,

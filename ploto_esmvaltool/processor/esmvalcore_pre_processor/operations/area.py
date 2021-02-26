@@ -5,16 +5,13 @@ from esmvalcore.preprocessor import (
     area_statistics,
 )
 
-from .util import _get_settings
-
 
 def run_extract_region(
         operation: typing.Dict,
-        product: typing.Dict,
         cube,
+        settings: typing.Dict,
         **kwargs,
 ):
-    settings = _get_settings(operation, product)
     start_longitude = settings["start_longitude"]
     end_longitude = settings["end_longitude"]
     start_latitude = settings["start_latitude"]
@@ -32,11 +29,10 @@ def run_extract_region(
 
 def run_area_statistics(
         operation: typing.Dict,
-        product: typing.Dict,
         cube,
+        settings: typing.Dict,
         **kwargs,
 ):
-    settings = _get_settings(operation, product)
     operator = settings["operator"]
     fx_variables = None
 

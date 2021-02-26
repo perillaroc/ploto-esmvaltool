@@ -9,19 +9,19 @@ from esmvalcore.preprocessor import (
 
 def _get_settings(
         operation: typing.Dict,
-        product: typing.Dict,
+        settings: typing.Dict,
 ) -> typing.Dict:
-    settings = {}
+    new_settings = {}
     if "settings" in operation:
-        settings = operation["settings"]
+        new_settings = operation["settings"]
 
     operation_type = operation["type"]
-    if operation_type in product["settings"]:
-        settings = {
-            **settings,
-            **product["settings"][operation_type],
+    if settings is not None and operation_type in settings:
+        new_settings = {
+            **new_settings,
+            **settings[operation_type],
         }
-    return settings
+    return new_settings
 
 
 def _get_default_operations() -> typing.List:
