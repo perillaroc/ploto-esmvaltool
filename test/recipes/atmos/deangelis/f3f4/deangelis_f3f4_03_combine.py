@@ -1,4 +1,3 @@
-import itertools
 from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvaltool_util_processor import run_processor
@@ -65,7 +64,6 @@ def main():
                 "exp_datasets": exp_datasets,
                 "variable": variable,
             })
-
 
     processor_tasks = []
     for task in tasks:

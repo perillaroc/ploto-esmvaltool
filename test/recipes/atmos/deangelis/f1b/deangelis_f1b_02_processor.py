@@ -11,6 +11,10 @@ from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import 
     get_operations,
     get_default_settings,
 )
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 
 from test.recipes.atmos.deangelis import (
     config as deangelis_config,
@@ -18,7 +22,6 @@ from test.recipes.atmos.deangelis import (
 )
 
 from esmvalcore.preprocessor._derive import get_required
-from esmvalcore._recipe import _add_cmor_info
 
 
 diagnostic_name = "f1b"
@@ -51,23 +54,15 @@ def get_processor_tasks(
 
     settings = deangelis_recipe.processor_settings[variable["preprocessor"]]
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ],
-    }
-
-    diag = {
+    diagnostic = {
         "diagnostic": "deangelisf1b",
     }
 
-
-    combined_variable = {
-        **exp_dataset,
-        **variable,
-    }
-
-    _add_cmor_info(combined_variable)
+    combined_variable = combine_variable(
+        dataset=exp_dataset,
+        variable=variable,
+    )
+    add_variable_info(combined_variable)
 
     if "derive" in combined_variable and combined_variable["derive"]:
         # 需要的变量，来自 ESMValCore
@@ -85,54 +80,107 @@ def get_processor_tasks(
         } for v in required_variables]
 
         for v in input_variables:
+            add_variable_info(v, override=True)
             task = {
-                "input_data_source_file": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{v['alias']}/{v['variable_group']}/data_source.yml",
-                # output
-                "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{v['alias']}/{v['variable_group']}",
+                "products": [
+                    {
+                        "variable": v,
+                        "input": {
+                            "input_data_source_file": (
+                                "{work_dir}"
+                                f"/{diagnostic_name}/fetcher/preproc"
+                                "/{alias}/{variable_group}/data_source.yml"
+                            ),
+                        },
+                        "output": {
+                            "output_directory": "{alias}/{variable_group}"
+                        },
+                        "settings": settings
+                    }
+                ],
 
                 # operations
                 "operations": before_operations,
 
-                "dataset": v,
-                "diagnostic_dataset": diag_dataset, # TODO: using _add_cmor_info() function to get model_realm
-                "variable": v,
-                "diagnostic": diag,
-                "settings": settings
+                "diagnostic": diagnostic,
+
+                "output": {
+                    "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+                },
+
+                "step_type": "processor",
+                "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
             }
+
             processor_tasks.append(task)
+
         task = {
-            "input_metadata_files": [
-                "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{v['alias']}/{v['variable_group']}/metadata.yml"
-                for v in input_variables
+            "products": [
+                {
+                    "variable": combined_variable,
+                    "input": {
+                        "input_metadata_files": [
+                            (
+                                "{work_dir}"
+                                f"/{diagnostic_name}/processor/preproc"
+                                f"/{v['alias']}/{v['variable_group']}/metadata.yml"
+                            )
+                            for v in input_variables
+                        ],
+                    },
+                    "output": {
+                        "output_directory": "{alias}/{variable_group}"
+                    },
+                    "settings": settings
+                }
             ],
-            # output
-            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
 
             # operations
             "operations": after_operations,
 
-            "dataset": combined_variable,
-            "diagnostic_dataset": diag_dataset,
-            "variable": combined_variable,
-            "diagnostic": diag,
-            "settings": settings
+            "diagnostic": diagnostic,
+
+            "output": {
+                "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+            },
+
+            "step_type": "processor",
+            "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
         }
+
         processor_tasks.append(task)
     else:
         task = {
-            "input_data_source_file": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}/data_source.yml",
-            # output
-            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
+            "products": [
+                {
+                    "variable": combined_variable,
+                    "input": {
+                        "input_data_source_file": (
+                            "{work_dir}"
+                            f"/{diagnostic_name}/fetcher/preproc"
+                            "/{alias}/{variable_group}/data_source.yml"
+                        ),
+                    },
+                    "output": {
+                        "output_directory": "{alias}/{variable_group}"
+                    },
+                    "settings": settings
+                }
+            ],
 
             # operations
             "operations": operations,
 
-            "dataset": combined_variable,
-            "diagnostic_dataset": diag_dataset,
-            "variable": combined_variable,
-            "diagnostic": diag,
-            "settings": settings
+            "diagnostic": diagnostic,
+
+            "output": {
+                "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+            },
+
+            "step_type": "processor",
+            "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
         }
+
         processor_tasks.append(task)
 
     return processor_tasks
