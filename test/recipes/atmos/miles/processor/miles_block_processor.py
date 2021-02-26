@@ -5,9 +5,15 @@ from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.miles import (
     generate_default_operations
 )
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info,
+)
 
-from test.recipes.atmos.miles import recipe as miles_recipe
-from test.recipes.atmos.miles import config as miles_config
+from test.recipes.atmos.miles import (
+    recipe as miles_recipe,
+    config as miles_config,
+)
 
 
 def run(
@@ -20,53 +26,45 @@ def run(
 
     operations = generate_default_operations()
 
-    combined_dataset = {
-        **exp_dataset,
-        **variable
-    }
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable,
+    )
+    add_variable_info(combined_dataset)
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ]
-    }
 
-    variable = variable
-
-    diag = {
+    diagnostic = {
         "diagnostic": "diurnal_temperature_indicator",
     }
 
-    settings = {
-        "extract_region": {
-            "start_longitude": 0,
-            "end_longitude": 360,
-            "start_latitude": -1.25,
-            "end_latitude": 90,
-        },
-        "extract_levels": {
-            "levels": 50000,
-            "scheme": "linear"
-        },
-        "regrid": {
-            "target_grid": "2.5x2.5",
-            "scheme": "linear_extrapolate"
-        }
-    }
+    settings = miles_recipe.processor_settings[combined_dataset["preprocessor"]]
 
     task = {
-        "input_data_source_file": f"{work_dir}/{diagnostic_name}/fetcher/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}/data_source.yml",
-        # output
-        "output_directory": f"{work_dir}/{diagnostic_name}/processor/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
+        "products": [
+            {
+                "variable": combined_dataset,
+                "input": {
+                    "input_data_source_file": (
+                        "{work_dir}"
+                        f"/{diagnostic_name}/fetcher/preproc"
+                        "/{dataset}/{variable_group}/data_source.yml"
+                    ),
+                },
+                "output": {
+                    "output_directory": "{dataset}/{variable_group}"
+                },
+                "settings": settings
+            }
+        ],
 
         # operations
         "operations": operations,
 
-        "dataset": combined_dataset,
-        "diagnostic_dataset": diag_dataset,
-        "variable": variable,
-        "diagnostic": diag,
-        "settings": settings
+        "diagnostic": diagnostic,
+
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+        },
     }
 
     run_processor(

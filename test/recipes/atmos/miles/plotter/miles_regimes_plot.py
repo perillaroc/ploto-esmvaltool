@@ -1,13 +1,15 @@
+import os
+from pathlib import Path
+
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.miles import (
     generate_default_plot_task,
 )
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter import run_plotter
 
-from test.recipes.atmos.miles import recipe as miles_recipe
-from test.recipes.atmos.miles import config as miles_config
-
-import os
-from pathlib import Path
+from test.recipes.atmos.miles import (
+    recipe as miles_recipe,
+    config as miles_config,
+)
 
 
 def run_miles_regimes():

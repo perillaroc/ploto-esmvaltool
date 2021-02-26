@@ -34,3 +34,22 @@ variables = [
         "reference_dataset": "ERA-Interim"
     }
 ]
+
+processor_settings = {
+    "preproc1": {
+        "extract_region": {
+            "start_longitude": 0,
+            "end_longitude": 360,
+            "start_latitude": -1.25,
+            "end_latitude": 90,
+        },
+        "extract_levels": {
+            "levels": 50000,
+            "scheme": "linear"
+        },
+        "regrid": {
+            "target_grid": "2.5x2.5",
+            "scheme": "linear_extrapolate"
+        }
+    }
+}

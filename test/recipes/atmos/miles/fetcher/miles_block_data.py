@@ -2,10 +2,16 @@ from pathlib import Path
 import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
-from ploto_esmvaltool.util.esmvaltool import add_variable_info
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info,
+)
 
-from test.recipes.atmos.miles import recipe as miles_recipe
-from test.recipes.atmos.miles import config as miles_config
+from test.recipes.atmos.miles import (
+    recipe as miles_recipe,
+    config as miles_config,
+)
+
 
 
 def run(
@@ -17,10 +23,10 @@ def run(
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
 
-    combined_dataset = {
-        **exp_dataset,
-        **variable
-    }
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable,
+    )
     add_variable_info(combined_dataset)
 
     task = {
