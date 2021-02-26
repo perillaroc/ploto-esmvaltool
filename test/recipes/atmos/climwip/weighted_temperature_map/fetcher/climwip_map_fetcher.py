@@ -13,11 +13,14 @@ from test.recipes.atmos.climwip import (
 )
 
 
+diagnostic_name = "map"
+
+
 def run(
         exp_dataset,
         variable
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/map/fetcher/"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     variable = combine_variable(
@@ -40,7 +43,7 @@ def run(
         ],
 
         "output": {
-            "output_directory": "{work_dir}/preproc/",
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
         },
 
         "config": {

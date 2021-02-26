@@ -3,52 +3,67 @@ import itertools
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import generate_default_operations
+from ploto_esmvaltool.util.esmvaltool import (
+    add_variable_info,
+    combine_variable,
+)
 
-from test.recipes.atmos.climwip import recipe as climwip_recipe
+from test.recipes.atmos.climwip import (
+    recipe as climwip_recipe,
+    config as climwip_config,
+)
+
+
+diagnostic_name = "graph"
 
 
 def run(
         exp_dataset,
         variable
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/graph/processor"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    operations = generate_default_operations("temperature_anomalies")
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable,
+    )
+    add_variable_info(combined_dataset)
 
-    dataset = {
-        **exp_dataset,
-        **variable
-    }
+    settings = climwip_recipe.processor_settings[combined_dataset["preprocessor"]]
+    operations = generate_default_operations("temperature_anomalies", settings=settings)
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ]
-    }
-
-    variable = variable
-
-    diag = {
+    diagnostic = {
         "diagnostic": "weighted_temperature_graph",
     }
 
-    settings = {}
-
     task = {
-        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/graph/fetcher/preproc/"
-                                  f"{dataset['dataset']}/{variable['short_name']}/data_source.yml",
-        # output
-        "output_directory": f"{work_dir}/preproc/{dataset['dataset']}/{variable['short_name']}",
+        "products": [
+            {
+                "variable": combined_dataset,
+                "input": {
+                    "input_data_source_file": (
+                            "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc" + "/{dataset}/{variable_group}/data_source.yml"
+                    ),
+                },
+                "output": {
+                    "output_directory": "{alias}/{variable_group}"
+                },
+                "settings": settings
+            }
+        ],
 
         # operations
         "operations": operations,
 
-        "dataset": dataset,
-        "diagnostic_dataset": diag_dataset,
-        "variable": variable,
-        "diagnostic": diag,
-        "settings": settings
+        "diagnostic": diagnostic,
+
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+        },
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
     }
 
     run_processor(

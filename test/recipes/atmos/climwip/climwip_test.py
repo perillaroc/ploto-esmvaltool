@@ -111,44 +111,51 @@ def get_fetcher_steps():
 def get_processor(
         exp_dataset,
         variable,
-        settings,
         diagnostic_name,
         diagnostic,
-        preprocessor_name,
 ):
-    operations = generate_default_operations(preprocessor_name)
 
-    combined_dataset = {
-        **exp_dataset,
-        **variable
-    }
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable
+    )
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ]
-    }
+    settings = climwip_recipe.processor_settings[combined_dataset["preprocessor"]]
+    operations = generate_default_operations(
+        combined_dataset["preprocessor"],
+        settings=settings
+    )
 
-    variable = variable
-
-    diag = {
+    diagnostic = {
         "diagnostic": diagnostic,
     }
 
     task = {
-        "input_data_source_file": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/"
-                                                 f"{combined_dataset['dataset']}/{combined_dataset['variable_group']}/data_source.yml",
-        # output
-        "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
+        "products": [
+            {
+                "variable": combined_dataset,
+                "input": {
+                    "input_data_source_file": (
+                        "{work_dir}"
+                        f"/{diagnostic_name}/fetcher/preproc"
+                        "/{dataset}/{variable_group}/data_source.yml"
+                    ),
+                },
+                "output": {
+                    "output_directory": "{alias}/{variable_group}"
+                },
+                "settings": settings
+            }
+        ],
 
         # operations
         "operations": operations,
 
-        "dataset": combined_dataset,
-        "diagnostic_dataset": diag_dataset,
-        "variable": variable,
-        "diagnostic": diag,
-        "settings": settings,
+        "diagnostic": diagnostic,
+
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+        },
 
         "step_type": "processor",
         "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
@@ -200,27 +207,12 @@ def get_processor_steps():
         for index, d in enumerate(obs_datasets)
     ]
 
-    weights_settings = {
-        "mask_landsea": {
-            "mask_out": "sea",
-        },
-        "regrid": {
-            "target_grid": "2.5x2.5",
-            "scheme": "linear"
-        },
-        "climate_statistics": {
-            "operator": "mean"
-        }
-    }
-
     tasks = [
         {
             "exp_dataset": d,
             "variable": v,
-            "settings": weights_settings,
             "diagnostic_name": "weights",
             "diagnostic": "calculate_weights_climwip",
-            "preprocessor_name": "climatological_mean",
         }
         for v, d in itertools.product(weights_variables, exp_datasets)
     ]
@@ -230,10 +222,8 @@ def get_processor_steps():
         {
             "exp_dataset": d,
             "variable": v,
-            "settings": weights_settings,
             "diagnostic_name": "weights",
             "diagnostic": "calculate_weights_climwip",
-            "preprocessor_name": "climatological_mean",
         }
         for v, d in itertools.product(weights_variables, obs_datasets)
     ]
@@ -259,10 +249,8 @@ def get_processor_steps():
         {
             "exp_dataset": d,
             "variable": v,
-            "settings": weights_settings,
             "diagnostic_name": "graph",
             "diagnostic": "weighted_temperature_graph",
-            "preprocessor_name": "temperature_anomalies",
         }
         for v, d in itertools.product(graph_variables, exp_datasets)
     ]
@@ -288,10 +276,8 @@ def get_processor_steps():
         {
             "exp_dataset": d,
             "variable": v,
-            "settings": weights_settings,
             "diagnostic_name": "map",
             "diagnostic": "weighted_temperature_map",
-            "preprocessor_name": "climatological_mean",
         }
         for v, d in itertools.product(map_variables, exp_datasets)
     ]

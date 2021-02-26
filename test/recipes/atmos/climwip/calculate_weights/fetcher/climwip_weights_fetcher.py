@@ -12,11 +12,14 @@ from test.recipes.atmos.climwip import (
     config as climwip_config,
 )
 
+
+diagnostic_name = "weights"
+
 def run(
         exp_dataset,
         variable
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/fetcher/"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     combined_variable = combine_variable(
@@ -32,14 +35,14 @@ def run(
             {
                 "variable": combined_variable,
                 "output": {
-                    "output_directory": "{dataset}/{short_name}",
-                    "output_data_source_file": "data_source.yml",
+                    "output_directory": "{dataset}/{variable_group}",
+            "output_data_source_file": "data_source.yml",
                 }
             }
         ],
 
         "output": {
-            "output_directory": "{work_dir}/preproc"
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc"
         },
 
         "config": {
@@ -58,7 +61,10 @@ def run(
 
 def main():
     variables = climwip_recipe.weights_variables
-    datasets = climwip_recipe.exp_datasets
+    datasets = [
+        *climwip_recipe.exp_datasets,
+        *climwip_recipe.obs_datasets
+    ]
 
     tasks = [
         {

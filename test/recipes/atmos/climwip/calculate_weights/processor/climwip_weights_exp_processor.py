@@ -3,63 +3,67 @@ import itertools
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import generate_default_operations
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 
-from test.recipes.atmos.climwip import recipe as climwip_recipe
+from test.recipes.atmos.climwip import (
+    recipe as climwip_recipe,
+    config as climwip_config
+)
+
+diagnostic_name = "weights"
 
 
 def run(
         exp_dataset,
         variable,
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/processor"
+    work_dir = "/home/hujk/ploto/esmvaltool/cases/case105/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     operations = generate_default_operations("climatological_mean")
 
-    combined_dataset = {
-        **exp_dataset,
-        **variable
-    }
+    combined_dataset = combine_variable(
+        dataset=exp_dataset,
+        variable=variable
+    )
+    add_variable_info(combined_dataset)
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ]
-    }
-
-    variable = variable
-
-    diag = {
+    diagnostic = {
         "diagnostic": "calculate_weights_climwip",
     }
 
-    settings = {
-        "mask_landsea": {
-            "mask_out": "sea",
-        },
-        "regrid": {
-            "target_grid": "2.5x2.5",
-            "scheme": "linear"
-        },
-        "climate_statistics": {
-            "operator": "mean"
-        }
-    }
+    settings = climwip_recipe.processor_settings[combined_dataset["preprocessor"]]
 
     task = {
-        "input_data_source_file": f"/home/hujk/ploto/esmvaltool/cases/case105/ploto/weights/fetcher/preproc/"
-                                  f"{combined_dataset['dataset']}/{combined_dataset['short_name']}/data_source.yml",
-        # output
-        "output_directory": f"{work_dir}/preproc/{combined_dataset['dataset']}/{combined_dataset['variable_group']}",
+        "products": [
+            {
+                "variable": combined_dataset,
+                "input": {
+                    "input_data_source_file": (
+                            "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc" + "/{dataset}/{variable_group}/data_source.yml"
+                    ),
+                },
+                "output": {
+                    "output_directory": "{alias}/{variable_group}"
+                },
+                "settings": settings
+            }
+        ],
 
         # operations
         "operations": operations,
 
-        "dataset": combined_dataset,
-        "diagnostic_dataset": diag_dataset,
-        "variable": variable,
-        "diagnostic": diag,
-        "settings": settings
+        "diagnostic": diagnostic,
+
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+        },
+
+        "step_type": "processor",
+        "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
     }
 
     run_processor(
@@ -71,7 +75,10 @@ def run(
 
 def main():
     variables = climwip_recipe.weights_variables
-    datasets = climwip_recipe.exp_datasets
+    datasets = [
+        *climwip_recipe.exp_datasets,
+        *climwip_recipe.obs_datasets
+    ]
     datasets = [
         {
             **d,

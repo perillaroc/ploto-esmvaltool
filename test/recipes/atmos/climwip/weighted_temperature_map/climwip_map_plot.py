@@ -6,8 +6,10 @@ from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.climwip import 
 )
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter import run_plotter
 
-from test.recipes.atmos.climwip import recipe as climwip_recipe
-from test.recipes.atmos.climwip import config as climwip_config
+from test.recipes.atmos.climwip import (
+    recipe as climwip_recipe,
+    config as climwip_config,
+)
 
 
 def run_dry_days():

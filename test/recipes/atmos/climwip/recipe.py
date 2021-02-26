@@ -88,3 +88,38 @@ map_variables = [
         "end_year": 2014,
     }
 ]
+
+processor_settings = {
+    "climatological_mean" : {
+        "mask_landsea": {
+            "mask_out": "sea",
+        },
+        "regrid": {
+            "target_grid": "2.5x2.5",
+            "scheme": "linear"
+        },
+        "climate_statistics": {
+            "operator": "mean"
+        }
+    },
+    "temperature_anomalies": {
+        "area_statistics": {
+            "operator": "mean"
+        },
+        "annual_statistics": {
+            "operator": "mean"
+        },
+        "anomalies": {
+            "period": "full",
+            "standardize": False,
+            "reference": {
+                "start_year": 1981,
+                "start_month": 1,
+                "start_day": 1,
+                "end_year": 2010,
+                "end_month": 12,
+                "end_day": 31,
+            }
+        }
+    }
+}
