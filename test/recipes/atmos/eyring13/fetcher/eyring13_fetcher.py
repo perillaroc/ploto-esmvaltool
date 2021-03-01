@@ -37,7 +37,7 @@ def get_fetcher_tasks(
                 "variable": combined_variable,
                 "output": {
                     "output_directory": "{alias}/{variable_group}",
-            "output_data_source_file": "data_source.yml",
+                    "output_data_source_file": "data_source.yml",
                 }
             }
         ],

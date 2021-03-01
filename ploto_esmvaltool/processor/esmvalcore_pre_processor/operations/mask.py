@@ -5,6 +5,8 @@ from esmvalcore.preprocessor import (
     mask_fillvalues,
 )
 
+from ploto_esmvaltool.processor.esmvalcore_pre_processor._product import Product
+
 from .util import _get_settings
 
 
@@ -35,19 +37,17 @@ def run_mask_landsea(
 
 
 def run_mask_fillvalues(
-        operation: typing.Dict,
-        cube,
-        settings: typing.Dict,
+        products: typing.List[Product],
+        threshold_fraction,
+        min_value=None,
+        time_window=1,
         **kwargs
 ):
-    threshold_fraction = settings["threshold_fraction"]
-    min_value = settings.get("min_value", None)
-    time_window = settings.get("time_window", 1)
 
-    cubes = mask_fillvalues(
-        cube,
+    products = mask_fillvalues(
+        products,
         threshold_fraction=threshold_fraction,
         min_value=min_value,
         time_window=time_window
     )
-    return cubes
+    return products

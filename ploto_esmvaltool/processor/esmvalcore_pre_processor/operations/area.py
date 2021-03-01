@@ -3,6 +3,7 @@ import typing
 from esmvalcore.preprocessor import (
     extract_region,
     area_statistics,
+    zonal_statistics,
 )
 
 
@@ -42,3 +43,16 @@ def run_area_statistics(
         fx_variables=fx_variables
     )
     return cubes
+
+
+def run_zonal_statistics(
+        operation: typing.Dict,
+        cube,
+        settings,
+        **kwargs
+):
+    operator = settings["operator"]
+    return zonal_statistics(
+        cube=cube,
+        operator=operator,
+    )

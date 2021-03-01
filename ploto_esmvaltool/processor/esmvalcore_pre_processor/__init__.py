@@ -93,7 +93,14 @@ def run_processor(
 
 
     if is_multi_model_operation(operations[0]):
-        raise NotImplementedError("Multi Model Operations are not implemented")
+        for product in products:
+            product.add_diagnostic(task_diagnostic)
+            product.update_output(task_output)
+        run_multi_model_operation_block(
+            products=products,
+            operation_block=operations,
+            work_dir=work_dir
+        )
     else:
         for product in products:
             product.add_diagnostic(task_diagnostic)
@@ -104,14 +111,6 @@ def run_processor(
             )
 
     logger.info("running processor done: esmvalcore_pre_processor")
-
-
-def run_multi_model_operation_block(
-        products: typing.List[Product],
-        operation_block: typing.Dict,
-        work_dir: typing.Union[str, Path]
-):
-    pass
 
 
 def run_operation_block(
@@ -143,3 +142,53 @@ def run_operation_block(
     # write metadata
     metadata = product.write_metadata(file_path, work_dir=work_dir)
     logger.info(f"write metadata to {metadata.absolute()}")
+
+
+def run_multi_model_operation_block(
+        products: typing.List[Product],
+        operation_block: typing.Dict,
+        work_dir: typing.Union[str, Path]
+):
+    # load all product
+    for product in products:
+        if product.cubes is None:
+            product.cubes = product.load(work_dir=work_dir)
+
+    for step in operation_block:
+        # multi model operation uses settings in operation.
+
+        # check exclude
+
+        # run operation step
+
+        products = apply_multi_model_step(
+            operation=step,
+            products=products,
+            work_dir=work_dir
+        )
+
+    for product in products:
+        # save to workdir
+        file_path = product.save(work_dir=work_dir)
+        logger.info(f"write file to {file_path}")
+
+        # write metadata
+        metadata = product.write_metadata(file_path, work_dir=work_dir)
+        logger.info(f"write metadata to {metadata.absolute()}")
+
+
+def apply_multi_model_step(
+        operation,
+        products,
+        work_dir,
+):
+    op = operation["type"]
+    logger.info(f"run step {op}")
+    fun = getattr(esmvalcore_operations, f"run_{op}")
+    settings = operation["settings"]
+    products = fun(
+        products=products,
+        **settings,
+        work_dir=work_dir,
+    )
+    return products

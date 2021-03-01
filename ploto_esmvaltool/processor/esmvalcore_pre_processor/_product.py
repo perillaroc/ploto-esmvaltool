@@ -11,10 +11,12 @@ from .operations.util import _get_settings
 
 from ploto.logger import get_logger
 
+import iris
+
 logger = get_logger()
 
 
-@attr.s
+@attr.s(eq=False)
 class Product(object):
     variable = attr.ib(default=None)
     input = attr.ib(default=None)
@@ -80,8 +82,12 @@ class Product(object):
         return cubes
 
     def save(self, work_dir):
+        # TODO: use cubes in Product!
+        cubes = self.cubes
+        if isinstance(cubes, iris.cube.Cube):
+            cubes = [cubes]
         file_path = run_save(
-            cubes=[self.cubes],
+            cubes=cubes,
             product_variable=self.variable,
             product_output=self.output,
             work_dir=work_dir,
@@ -100,3 +106,16 @@ class Product(object):
             metadata_file_name=output_metadata_file_name,
         )
         return metadata
+
+    def wasderivedfrom(self, product):
+        """
+        For PreprocessorFile in ESMValCore.
+        """
+        pass
+
+    def copy_provenance(self):
+        return self
+
+    @property
+    def filename(self):
+        return None

@@ -36,34 +36,27 @@ def get_processor_levels(work_dir, config):
     }
     combined_variable["alias"] = f"{combined_variable['dataset']}-{combined_variable['exp']}"
 
-    task = {
-        "dataset": combined_variable,
-        "variables": [combined_variable],
-
-        "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
-        "data_path": eyring13_config.data_path
-    }
     return get_levels(
-        task,
-        work_dir,
-        config
+        combined_variable,
+        output_directory="{work_dir}" + f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}/{combined_variable['variable_group']}",
+        work_dir=work_dir,
+        config=config
     )
 
 
-def get_levels(task, work_dir, config):
+def get_levels(variable, output_directory, work_dir, config):
     selected_files = get_selected_files(
-        task, work_dir, config
+        variable, config
     )
     reference_file = selected_files[0]
 
-    combined_variable = task["dataset"]
     levels = get_reference_levels(
         reference_file,
-        project=combined_variable["project"],
-        dataset=combined_variable["dataset"],
-        short_name=combined_variable["short_name"],
-        mip=combined_variable["mip"],
-        frequency=combined_variable["frequency"],
-        fix_dir=task["output_directory"]
+        project=variable["project"],
+        dataset=variable["dataset"],
+        short_name=variable["short_name"],
+        mip=variable["mip"],
+        frequency=variable["frequency"],
+        fix_dir=output_directory
     )
     return levels

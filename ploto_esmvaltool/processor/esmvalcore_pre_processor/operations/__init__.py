@@ -16,7 +16,8 @@ from .cmor import (
 )
 
 from .mask import (
-    run_mask_landsea
+    run_mask_landsea,
+    run_mask_fillvalues
 )
 
 from .time import (
@@ -28,7 +29,8 @@ from .time import (
 
 from .area import (
     run_extract_region,
-    run_area_statistics
+    run_area_statistics,
+    run_zonal_statistics,
 )
 
 from .regrid import (
@@ -38,3 +40,5 @@ from .regrid import (
 
 
 from .derive import run_derive
+
+from .multi_model import run_multi_model_statistics

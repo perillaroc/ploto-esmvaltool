@@ -54,7 +54,9 @@ def get_processor_tasks(
         **settings,
     }
 
-    settings = update_levels(settings, work_dir, eyring13_config.config)
+    settings = update_levels(settings, work_dir, {
+        "data_path": eyring13_config.data_path
+    })
 
     task = {
         "input_data_source_file":
@@ -139,7 +141,9 @@ def get_tasks_for_variable(
         **get_default_settings(),
         **settings,
     }
-    settings = update_levels(settings, work_dir, eyring13_config.config)
+    settings = update_levels(settings, work_dir, {
+        "data_path": eyring13_config.data_path
+    })
 
     operation_blocks = generate_default_operation_blocks(
         variable["preprocessor"],

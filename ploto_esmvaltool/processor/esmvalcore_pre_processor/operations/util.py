@@ -11,6 +11,19 @@ def _get_settings(
         operation: typing.Dict,
         settings: typing.Dict,
 ) -> typing.Dict:
+    """
+    Update operation["settings"] using settings.
+
+    Parameters
+    ----------
+    operation: typing.Dict
+    settings: typing.Dict
+
+    Returns
+    -------
+    typing.Dict:
+        Combined settings.
+    """
     new_settings = {}
     if "settings" in operation:
         new_settings = operation["settings"]

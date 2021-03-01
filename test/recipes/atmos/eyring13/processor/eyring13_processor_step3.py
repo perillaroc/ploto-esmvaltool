@@ -2,15 +2,12 @@ import itertools
 from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
-
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
     get_default_settings,
     get_operation_blocks,
     MULTI_MODEL_FUNCTIONS
 )
-
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.eyring13 import generate_default_operation_blocks
-
 from ploto_esmvaltool.util.esmvaltool import (
     combine_variable,
     add_variable_info
@@ -27,7 +24,7 @@ diagnostic_name = "fig12"
 
 
 def get_processor_tasks(
-        exp_dataset,
+        exp_datasets,
         variable,
 ):
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case107/ploto"
@@ -39,20 +36,20 @@ def get_processor_tasks(
         "diagnostic": diagnostic_name,
     }
 
-
-    combined_variable = combine_variable(
-        dataset=exp_dataset,
-        variable=variable,
-    )
-    combined_variable["alias"] = f"{combined_variable['dataset']}-{combined_variable['exp']}"
-    add_variable_info(combined_variable)
-
+    def get_variable(exp_dataset, variable):
+        combined_variable = combine_variable(
+            dataset=exp_dataset,
+            variable=variable,
+        )
+        combined_variable["alias"] = f"{combined_variable['dataset']}-{combined_variable['exp']}"
+        add_variable_info(combined_variable)
+        return combined_variable
 
     # get operation blocks
-    settings = eyring13_recipe.processor_settings[combined_variable["preprocessor"]]
+    settings = eyring13_recipe.processor_settings[variable["preprocessor"]]
     settings = {
         **get_default_settings(),
-       **settings,
+        **settings,
     }
     settings = update_levels(settings, work_dir, {
         "data_path": eyring13_config.data_path
@@ -63,32 +60,41 @@ def get_processor_tasks(
         settings,
     )
 
+    def get_product(d, variable):
+        v = get_variable(
+            exp_dataset=d,
+            variable=variable,
+        )
+        return {
+            "variable": v,
+            "input": {
+                "input_metadata_files": [
+                    "{work_dir}"
+                    f"/{diagnostic_name}/processor/preproc/{v['alias']}"
+                    f"/{v['variable_group']}/step-02/metadata.yml"
+                ]
+            },
+            "output": {
+                "output_directory": "{alias}/{variable_group}/step-03",
+            }
+        }
+
     task = {
         "products": [
-            {
-                "variable": combined_variable,
-                "input": {
-                    "input_data_source_file":
-                        "{work_dir}"
-                        f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}"
-                        f"/{combined_variable['variable_group']}/data_source.yml",
-                },
-                "output": {
-                    "output_directory": "{alias}/{variable_group}/step-01",
-                }
-            }
+            get_product(d, variable) for d in exp_datasets
         ],
 
         # output
         "output": {
             "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc"
         },
+
         # operations
-        "operations": blocks[0],
+        "operations": blocks[2],
 
         "diagnostic": diag,
 
-        "settings": settings,
+        "settings": settings
     }
     processor_tasks.append(task)
 
@@ -180,30 +186,18 @@ def main():
     processor_tasks = []
 
     for variable in variables:
-        tasks = [
-            {
-                "exp_dataset": d,
-                "variable": variable,
-            }
-            for d in exp_datasets
-        ]
+        datasets = []
+        datasets.extend(exp_datasets)
 
         if variable["variable_group"] in variable_additional_datasets:
             additional_datasets = variable_additional_datasets[variable["variable_group"]]
-            tasks.extend([
-                {
-                    "exp_dataset": {
-                        **variable,
-                        **d,
-                    },
-                    "variable": {},
-                }
-                for d in additional_datasets
-            ])
+            datasets.extend(additional_datasets)
 
         # operations
-        for task in tasks:
-            processor_tasks.extend(get_processor_tasks(**task))
+        processor_tasks.extend(get_processor_tasks(
+            exp_datasets=datasets,
+            variable=variable
+        ))
 
     for task in processor_tasks:
         run_processor(
