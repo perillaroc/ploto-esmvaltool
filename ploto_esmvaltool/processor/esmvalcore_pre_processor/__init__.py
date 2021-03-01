@@ -128,7 +128,7 @@ def run_operation_block(
         fun = getattr(esmvalcore_operations, f"run_{op}")
         settings = _get_settings(step, product.settings)
         product.cubes = fun(
-            operation=step,
+            # operation=step,
             cube=product.cubes,
             variable=product.variable,
             settings=settings,

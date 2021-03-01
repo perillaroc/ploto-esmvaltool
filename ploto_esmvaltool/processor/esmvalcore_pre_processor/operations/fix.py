@@ -5,7 +5,6 @@ from esmvalcore.cmor.fix import fix_metadata, fix_data
 
 
 def run_fix_metadata(
-        operation: typing.Dict,
         cube: iris.cube.CubeList,
         variable: typing.Dict,
         **kwargs
@@ -29,7 +28,6 @@ def run_fix_metadata(
 
 
 def run_fix_data(
-        operation: typing.Dict,
         cube: iris.cube.Cube,
         variable: typing.Dict,
         **kwargs

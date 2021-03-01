@@ -11,7 +11,6 @@ from .util import _get_settings
 
 
 def run_mask_landsea(
-        operation: typing.Dict,
         cube,
         settings: typing.Dict,
         **kwargs

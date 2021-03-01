@@ -58,7 +58,7 @@ class Product(object):
             fun = getattr(esmvalcore_operations, f"run_{op}")
             settings = _get_settings(step, self.settings)
             self.cubes = fun(
-                operation=step,
+                # operation=step,
                 cube=self.cubes,
                 variable=self.variable,
                 settings=settings,

@@ -8,7 +8,6 @@ from esmvalcore.preprocessor import (
 
 
 def run_extract_region(
-        operation: typing.Dict,
         cube,
         settings: typing.Dict,
         **kwargs,
@@ -29,7 +28,6 @@ def run_extract_region(
     return cubes
 
 def run_area_statistics(
-        operation: typing.Dict,
         cube,
         settings: typing.Dict,
         **kwargs,
@@ -46,7 +44,6 @@ def run_area_statistics(
 
 
 def run_zonal_statistics(
-        operation: typing.Dict,
         cube,
         settings,
         **kwargs

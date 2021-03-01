@@ -9,7 +9,6 @@ from .util import _get_settings
 
 
 def run_extract_levels(
-        operation: typing.Dict,
         cube,
         settings: typing.Dict,
         **kwargs,
@@ -26,7 +25,6 @@ def run_extract_levels(
 
 
 def run_regrid(
-        operation: typing.Dict,
         cube,
         settings: typing.Dict,
         **kwargs,

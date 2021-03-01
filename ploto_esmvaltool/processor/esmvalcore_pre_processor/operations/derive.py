@@ -4,7 +4,6 @@ from esmvalcore.preprocessor import derive
 
 
 def run_derive(
-        operation: typing.Dict,
         cube,
         variable: typing.Dict,
         **kwargs,

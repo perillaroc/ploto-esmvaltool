@@ -12,7 +12,6 @@ from .util import _get_settings
 
 
 def run_clip_start_end_year(
-        operation: typing.Dict,
         cube: iris.cube.Cube,
         variable: typing.Dict,
         **kwargs
@@ -28,7 +27,6 @@ def run_clip_start_end_year(
 
 
 def run_climate_statistics(
-        operation: typing.Dict,
         cube: iris.cube.Cube,
         settings: typing.Dict,
         **kwargs
@@ -49,7 +47,6 @@ def run_climate_statistics(
 
 
 def run_annual_statistics(
-        operation: typing.Dict,
         cube: iris.cube.Cube,
         settings: typing.Dict,
         **kwargs
@@ -64,7 +61,6 @@ def run_annual_statistics(
 
 
 def run_anomalies(
-        operation: typing.Dict,
         cube: iris.cube.Cube,
         settings: typing.Dict,
         **kwargs

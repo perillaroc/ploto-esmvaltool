@@ -5,7 +5,6 @@ from esmvalcore.cmor.check import cmor_check_metadata, cmor_check_data
 
 
 def run_cmor_check_metadata(
-        operation: typing.Dict,
         cube: iris.cube.Cube,
         variable: typing.Dict,
         **kwargs
@@ -26,7 +25,6 @@ def run_cmor_check_metadata(
 
 
 def run_cmor_check_data(
-        operation: typing.Dict,
         cube: iris.cube.Cube,
         variable: typing.Dict,
         **kwargs
