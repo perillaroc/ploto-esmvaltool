@@ -113,35 +113,35 @@ def run_processor(
     logger.info("running processor done: esmvalcore_pre_processor")
 
 
-def run_operation_block(
-        product: Product,
-        operation_block: typing.Dict,
-        work_dir: typing.Union[str, Path]
-):
-    if product.cubes is None:
-        product.cubes = product.load(work_dir=work_dir)
-
-    # run steps
-    for step in operation_block:
-        op = step["type"]
-        logger.info(f"run step {op}")
-        fun = getattr(esmvalcore_operations, f"run_{op}")
-        settings = _get_settings(step, product.settings)
-        product.cubes = fun(
-            # operation=step,
-            cube=product.cubes,
-            variable=product.variable,
-            settings=settings,
-            work_dir=work_dir,
-        )
-
-    # save to workdir
-    file_path = product.save(work_dir=work_dir)
-    logger.info(f"write file to {file_path}")
-
-    # write metadata
-    metadata = product.write_metadata(file_path, work_dir=work_dir)
-    logger.info(f"write metadata to {metadata.absolute()}")
+# def run_operation_block(
+#         product: Product,
+#         operation_block: typing.Dict,
+#         work_dir: typing.Union[str, Path]
+# ):
+#     if product.cubes is None:
+#         product.cubes = product.load(work_dir=work_dir)
+#
+#     # run steps
+#     for step in operation_block:
+#         op = step["type"]
+#         logger.info(f"run step {op}")
+#         fun = getattr(esmvalcore_operations, f"run_{op}")
+#         settings = _get_settings(step, product.settings)
+#         product.cubes = fun(
+#             # operation=step,
+#             cube=product.cubes,
+#             variable=product.variable,
+#             settings=settings,
+#             work_dir=work_dir,
+#         )
+#
+#     # save to workdir
+#     file_path = product.save(work_dir=work_dir)
+#     logger.info(f"write file to {file_path}")
+#
+#     # write metadata
+#     metadata = product.write_metadata(file_path, work_dir=work_dir)
+#     logger.info(f"write metadata to {metadata.absolute()}")
 
 
 def run_multi_model_operation_block(

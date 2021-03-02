@@ -5,7 +5,7 @@ from esmvalcore.cmor.fix import fix_metadata, fix_data
 
 
 def run_fix_metadata(
-        cube: iris.cube.CubeList,
+        cubes: iris.cube.CubeList,
         variable: typing.Dict,
         **kwargs
 ) -> iris.cube.CubeList:
@@ -16,7 +16,7 @@ def run_fix_metadata(
     frequency = variable["frequency"]
 
     fixed_cubes = fix_metadata(
-        cube,
+        cubes,
         short_name=short_name,
         project=project,
         dataset=dataset,

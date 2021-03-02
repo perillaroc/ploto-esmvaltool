@@ -1,16 +1,16 @@
 from pathlib import Path
-import attr
+import inspect
 
 import ploto_esmvaltool.processor.esmvalcore_pre_processor.operations as esmvalcore_operations
+from .operations.util import _get_settings
 from .operations import (
     run_load,
     run_save,
     run_write_metadata,
 )
-from .operations.util import _get_settings
-
 from ploto.logger import get_logger
 
+import attr
 import iris
 
 logger = get_logger()
@@ -55,15 +55,37 @@ class Product(object):
         for step in operation_block:
             op = step["type"]
             logger.info(f"run step {op}")
-            fun = getattr(esmvalcore_operations, f"run_{op}")
             settings = _get_settings(step, self.settings)
-            self.cubes = fun(
-                # operation=step,
-                cube=self.cubes,
-                variable=self.variable,
-                settings=settings,
-                work_dir=work_dir,
-            )
+
+            fun = getattr(esmvalcore_operations, f"run_{op}")
+            first_argument = inspect.getfullargspec(fun).args[0]
+            result = []
+            if first_argument.endswith("s"):
+                result.append(fun(
+                    # operation=step,
+                    self.cubes,
+                    variable=self.variable,
+                    settings=settings,
+                    work_dir=work_dir,
+                ))
+            else:
+                for cube in self.cubes:
+                    result.append(
+                        fun(
+                            cube,
+                            variable=self.variable,
+                            settings=settings,
+                            work_dir=work_dir,
+                        )
+                    )
+
+            cubes = []
+            for item in result:
+                if isinstance(item, (iris.cube.Cube)):
+                    cubes.append(item)
+                else:
+                    cubes.extend(item)
+            self.cubes = cubes
 
         # save to workdir
         file_path = self.save(work_dir=work_dir)

@@ -52,11 +52,11 @@ def run_load(
 
 
 def run_concatenate(
-        cube: iris.cube.CubeList,
+        cubes: iris.cube.CubeList,
         **kwargs
 ) -> iris.cube.Cube:
-    cube = concatenate(cube)
-    return cube
+    result = concatenate(cubes)
+    return result
 
 
 def run_save(
