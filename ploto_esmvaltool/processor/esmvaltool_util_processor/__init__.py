@@ -1,13 +1,16 @@
 import typing
 from pathlib import Path
 
-from loguru import logger
+from .metadata import combine_metadata
+from .ncl import write_ncl_metadata
 
-from ploto_esmvaltool.processor.esmvaltool_util_processor.metadata import combine_metadata
+from ploto.logger import get_logger
+logger = get_logger()
 
 
 util_mapper = {
-    "combine_metadata": combine_metadata
+    "combine_metadata": combine_metadata,
+    "write_ncl_metadata": write_ncl_metadata,
 }
 
 

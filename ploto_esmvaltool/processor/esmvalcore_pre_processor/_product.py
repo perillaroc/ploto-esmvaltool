@@ -28,6 +28,7 @@ class Product(object):
             self,
             output,
     ):
+        # TODO: use update_product_output()
         output_directory = output.get("output_directory", "")
         product_output_directory = self.output.get("output_directory", "")
         output_directory = str(Path(
@@ -141,3 +142,19 @@ class Product(object):
     @property
     def filename(self):
         return None
+
+
+
+def update_product_output(
+        product_output,
+        output,
+):
+    output_directory = output.get("output_directory", "")
+    product_output_directory = product_output.get("output_directory", "")
+    output_directory = str(Path(
+        output_directory,
+        product_output_directory
+    ))
+
+    product_output["output_directory"] = output_directory
+    return product_output
