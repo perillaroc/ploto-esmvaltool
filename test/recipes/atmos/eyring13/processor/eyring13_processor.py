@@ -2,14 +2,15 @@ import itertools
 from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
-
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
     get_default_settings,
-    get_operation_blocks,
-    MULTI_MODEL_FUNCTIONS
+    is_multi_model_operation
 )
-
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.eyring13 import generate_default_operation_blocks
+from ploto_esmvaltool.util.esmvaltool import (
+    combine_variable,
+    add_variable_info
+)
 
 from test.recipes.atmos.eyring13 import (
     config as eyring13_config,
@@ -21,62 +22,104 @@ from test.recipes.atmos.eyring13.util import update_levels
 diagnostic_name = "fig12"
 
 
-def get_processor_tasks(
-        exp_dataset,
-        variable,
-):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case107/ploto"
-    Path(work_dir).mkdir(parents=True, exist_ok=True)
+def _get_input_section(block_index, variable):
+    if block_index == 0:
+        return {
+            "input_data_source_file":
+                "{work_dir}"
+                f"/{diagnostic_name}/fetcher/preproc/{variable['alias']}"
+                f"/{variable['variable_group']}/data_source.yml",
+        }
+    else:
+        return {
+            "input_metadata_files": [
+                "{work_dir}"
+                f"/{diagnostic_name}/processor/preproc/step-{block_index-1:02}/{variable['alias']}"
+                f"/{variable['variable_group']}/metadata.yml"
+            ]
+        }
 
-    processor_tasks = []
 
-    diag_dataset = {
-        "modeling_realm": [
-            "atmos"
-        ],
+def _get_output_section(block_index, variable):
+    return {
+        "output_directory": f"step-{block_index:02}" + "/{alias}/{variable_group}",
     }
+
+def get_processor_tasks(
+        variable,
+        operation_block,
+        block_index,
+        settings,
+):
+    processor_tasks = []
 
     diag = {
         "diagnostic": diagnostic_name,
     }
 
-
-    combined_variable = {
-        **exp_dataset,
-        **variable,
-    }
-    combined_variable["alias"] = f"{combined_variable['dataset']}-{combined_variable['exp']}"
-
-
-    settings = eyring13_recipe.processor_settings[combined_variable["preprocessor"]]
-    settings = {
-        **get_default_settings(),
-        **settings,
-    }
-
-    settings = update_levels(settings, work_dir, {
-        "data_path": eyring13_config.data_path
-    })
+    combined_variable = variable
 
     task = {
-        "input_data_source_file":
-            "{work_dir}"
-            f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}"
-            f"/{combined_variable['variable_group']}/data_source.yml",
+        "products": [
+            {
+                "variable": combined_variable,
+                "input": _get_input_section(block_index, combined_variable),
+                "output": _get_output_section(block_index, combine_variable),
+            }
+        ],
 
         # output
-        "output_directory":
-            "{work_dir}"
-            f"/{diagnostic_name}/processor/preproc/{combined_variable['alias']}"
-            f"/{combined_variable['variable_group']}",
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc"
+        },
 
         # operations
-        "operations": operations,
-        "dataset": combined_variable,
-        "diagnostic_dataset": diag_dataset,
-        "variable": combined_variable,
+        "operations": operation_block,
+
         "diagnostic": diag,
-        "settings": settings
+
+        "settings": settings,
+    }
+    processor_tasks.append(task)
+
+    return processor_tasks
+
+
+def get_multi_model_processor_tasks(
+        variables,
+        operation_block,
+        block_index,
+        settings
+):
+    processor_tasks = []
+
+    diag = {
+        "diagnostic": diagnostic_name,
+    }
+
+    def get_product(variable):
+        return {
+            "variable": variable,
+            "input": _get_input_section(block_index, variable),
+            "output": _get_output_section(block_index, variable),
+        }
+
+    task = {
+        "products": [
+            get_product(variable) for variable in variables
+        ],
+
+        # output
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc"
+        },
+
+        # operations
+        "operations": operation_block,
+
+        "diagnostic": diag,
+
+        "settings": settings,
     }
     processor_tasks.append(task)
 
@@ -92,6 +135,7 @@ def get_tasks_for_variable(
     """
     recipe_dataset_index 仅在单个变量组内计数，各个变量组之间独立
     """
+    # get recipe dataset index
     exp_datasets = [{
         **d,
         "recipe_dataset_index": index
@@ -104,33 +148,48 @@ def get_tasks_for_variable(
         "recipe_dataset_index": current_index + index
     } for index, d in enumerate(additional_datasets)]
 
+    # get exp variables
+    def generate_exp_variable(
+            variable,
+            dataset,
+    ):
+        v = combine_variable(
+            variable=variable,
+            dataset=dataset
+        )
+        add_variable_info(v)
+        v["alias"] = f"{v['dataset']}-{v['exp']}"
+        return v
 
-    # get all tasks
-    exp_tasks = [
-        {
-            **variable,
-            **d,
-        }
+    exp_variables = [
+        generate_exp_variable(variable=variable, dataset=d)
         for d in exp_datasets
     ]
-    exp_tasks = [
-        {
-            **t,
-            "alias": f"{t['dataset']}-{t['project']}",
-        } for t in exp_tasks
-    ]
 
-    additional_tasks = [
-        {
-            **variable,
-            **d,
-        }
+    # get additional variables
+    def generate_reference_variable(
+            variable,
+            dataset,
+    ):
+        v = combine_variable(
+            variable=variable,
+            dataset=dataset
+        )
+        add_variable_info(v)
+        v["alias"] = f"{v['dataset']}-{v['project']}"
+        return v
+
+    additional_variables = [
+        generate_reference_variable(
+            variable=variable,
+            dataset=d
+        )
         for d in additional_datasets
     ]
 
     tasks = [
-        *exp_tasks,
-        *additional_tasks,
+        *exp_variables,
+        *additional_variables,
     ]
 
     processor_tasks = []
@@ -139,117 +198,46 @@ def get_tasks_for_variable(
     settings = eyring13_recipe.processor_settings[variable["preprocessor"]]
     settings = {
         **get_default_settings(),
-        **settings,
+       **settings,
     }
     settings = update_levels(settings, work_dir, {
         "data_path": eyring13_config.data_path
     })
 
-    operation_blocks = generate_default_operation_blocks(
-        variable["preprocessor"],
-        settings
+    blocks = generate_default_operation_blocks(
+        "zonal",
+        settings,
     )
 
-    # input section
-    for block_index, operations in operation_blocks:
-        if block_index == 0:
+    # get processor tasks
+    for block_index, operation_block in enumerate(blocks):
+        if is_multi_model_operation(operation_block[0]):
+            processor_tasks.extend(get_multi_model_processor_tasks(
+                tasks,
+                operation_block=operation_block,
+                block_index=block_index,
+                settings=settings
+            ))
+        else:
             for task in tasks:
-                input_section = {
-                    "input_data_source_file":
-                        "{work_dir}"
-                        f"/{diagnostic_name}/fetcher/preproc/{variable['variable_group']}"
-                        f"/{task['alias']}/data_source.yml",
-                }
-        else:
-            if operations[0]["type"] in MULTI_MODEL_FUNCTIONS:
-                # check excludes
-                # WARNING: HAS BUG when two multi model steps has different excludes.
-                current_tasks = tasks
-                for step in operations:
-                    exclude_items = step["settings"].get("exclude", None)
-                    if exclude_items is None:
-                        break
-                    def replace_datasets(name):
-                        if name == "reference_dataset":
-                            return variable["reference_dataset"]
-                        else:
-                            return name
-                    exclude_datasets = map(replace_datasets, exclude_items)
-                    current_tasks = [
-                        t for t in current_tasks if t not in exclude_datasets
-                    ]
+                processor_tasks.extend(get_processor_tasks(
+                    task,
+                    operation_block=operation_block,
+                    block_index=block_index,
+                    settings=settings
+                ))
 
-                input_section = {
-                    "input_metadata_files": [
-                        (
-                            "{work_dir}"
-                            f"/{diagnostic_name}/processor/preproc/{variable['variable_group']}"
-                            f"/{task['alias']}/block-{block_index}/metadata.yml"
-                        ) for task in current_tasks
-                    ]
-                }
-            else:
-                for task in tasks:
-                    input_section = {
-                        "input_metadata_files": [
-                            (
-                                "{work_dir}"
-                                f"/{diagnostic_name}/processor/preproc/{variable['variable_group']}"
-                                f"/{task['alias']}/block-{block_index}/metadata.yml"
-                            )
-                        ]
-                    }
-
-
-
-    for block_index, operations in operation_blocks:
-        if block_index == 0:
-            input_section = {
-                "input_data_source_file":
-                    "{work_dir}"
-                    f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}"
-                    f"/{combined_variable['variable_group']}/data_source.yml",
-            }
-            output_section = {
-                "output_directory":
-                    "{work_dir}"
-                    f"/{diagnostic_name}/processor/preproc/{combined_variable['alias']}"
-                    f"/{combined_variable['variable_group']}",
-            }
-        elif block_index == len(operations) - 1:
-            input_section = {
-                "input_meta_data":
-                    "{work_dir}"
-                    f"/{diagnostic_name}/fetcher/preproc/{combined_variable['alias']}"
-                    f"/{combined_variable['variable_group']}/data_source.yml",
-            }
-            output_section = {
-                "output_directory":
-                    "{work_dir}"
-                    f"/{diagnostic_name}/processor/preproc/{combined_variable['alias']}"
-                    f"/{combined_variable['variable_group']}",
-            }
-        else:
-            pass
-
-
-
-    # operations
-    for task in tasks:
-        processor_tasks.extend(get_processor_tasks(**task))
+    return processor_tasks
 
 
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case107/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    exp_datasets = eyring13_recipe.exp_datasets
-    exp_datasets = [{
-        **d,
-        "recipe_dataset_index": index
-    } for index, d in enumerate(exp_datasets)]
-    current_index = len(exp_datasets)
+    processor_tasks = []
 
+    # add recipe_dataset_index
+    exp_datasets = eyring13_recipe.exp_datasets
     variables = eyring13_recipe.variables
 
     # 观测数据
@@ -257,43 +245,16 @@ def main():
     for variable in variables:
         if variable["variable_group"] in variable_additional_datasets:
             additional_datasets = variable_additional_datasets[variable["variable_group"]]
-            variable_additional_datasets[variable["variable_group"]] = [{
-                **d,
-                "alias": f"{d['dataset']}-{d['project']}",
-                "recipe_dataset_index": current_index + index
-            } for index, d in enumerate(additional_datasets)]
-            current_index += len(additional_datasets)
-
-    processor_tasks = []
-
-    for variable in variables:
-        tasks = [
-            {
-                "exp_dataset": d,
-                "variable": variable,
-            }
-            for d in exp_datasets
-        ]
-
-        if variable["variable_group"] in variable_additional_datasets:
-            additional_datasets = variable_additional_datasets[variable["variable_group"]]
-            tasks.extend([
-                {
-                    "exp_dataset": {
-                        **variable,
-                        **d,
-                    },
-                    "variable": {},
-                }
-                for d in additional_datasets
-            ])
-
-        # operations
-
-
-
-        for task in tasks:
-            processor_tasks.extend(get_processor_tasks(**task))
+        else:
+            additional_datasets = []
+        processor_tasks.extend(
+            get_tasks_for_variable(
+                variable=variable,
+                datasets=exp_datasets,
+                additional_datasets=additional_datasets,
+                work_dir=work_dir
+            )
+        )
 
     for task in processor_tasks:
         run_processor(

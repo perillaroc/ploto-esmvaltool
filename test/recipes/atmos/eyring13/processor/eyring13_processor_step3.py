@@ -70,12 +70,12 @@ def get_processor_tasks(
             "input": {
                 "input_metadata_files": [
                     "{work_dir}"
-                    f"/{diagnostic_name}/processor/preproc/{v['alias']}"
-                    f"/{v['variable_group']}/step-02/metadata.yml"
+                    f"/{diagnostic_name}/processor/preproc/step-02/{v['alias']}"
+                    f"/{v['variable_group']}/metadata.yml"
                 ]
             },
             "output": {
-                "output_directory": "{alias}/{variable_group}/step-03",
+                "output_directory": "step-03/{alias}/{variable_group}",
             }
         }
 
