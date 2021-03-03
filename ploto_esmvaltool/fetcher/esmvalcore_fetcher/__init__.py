@@ -14,7 +14,8 @@ from ploto_esmvaltool.fetcher.esmvalcore_fetcher._util import (
     get_exp_data,
     get_obs6_data,
     get_native6_data,
-    get_obs4mips_data
+    get_obs4mips_data,
+    get_obs_data,
 )
 
 logger = get_logger()
@@ -141,6 +142,11 @@ def get_selected_files(
         )
     elif project == "obs4mips":
         selected_files = get_obs4mips_data(
+            variable=variable,
+            config=config,
+        )
+    elif project == "OBS":
+        selected_files = get_obs_data(
             variable=variable,
             config=config,
         )

@@ -154,3 +154,34 @@ def get_obs4mips_data(
     selected_files.extend(current_selected_files)
 
     return selected_files
+
+
+def get_obs_data(
+        variable,
+        config
+) -> typing.List:
+    input_dir = "Tier{tier}/{dataset}"
+    input_file = "{project}_{dataset}_{type}_{version}_{mip}_{short_name}[_.]*nc"
+
+    project = variable["project"]
+
+    selected_files = []
+
+    directories = [pathlib.Path(d, input_dir.format(**variable)) for d in config["data_path"][project]]
+    filenames = [input_file.format(**variable)]
+
+    current_files = find_files(
+        directories,
+        filenames
+    )
+
+    logger.info(f"Found files: {len(current_files)}")
+
+    current_selected_files = select_files(
+        current_files,
+        start_year=variable["start_year"],
+        end_year=variable["end_year"]
+    )
+    selected_files.extend(current_selected_files)
+
+    return selected_files
