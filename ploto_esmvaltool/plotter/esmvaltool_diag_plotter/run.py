@@ -84,7 +84,51 @@ def run_r_script(
 
     envs = get_r_env(diag_scripts)
 
-    logger.info(f"python command: {cmd}")
+    logger.info(f"r command: {cmd}")
+    result = subprocess.run(
+        cmd,
+        env=envs,
+        # start_new_session=True,
+        # shell=True,
+    )
+
+    return result
+
+
+def get_ncl_cmd(
+        diag_script_path,
+        config
+):
+    executable = config["esmvaltool"]["executables"]["ncl"]
+
+    cmd = [
+        executable,
+        "-n",
+        "-p",
+        str(diag_script_path),
+    ]
+
+    return cmd
+
+
+def get_ncl_env(diag_scripts, settings_file):
+    envs = os.environ.copy()
+    envs["diag_scripts"] = diag_scripts
+    envs["settings"] = settings_file
+    return envs
+
+
+def run_ncl_script(
+        diag_script_path,
+        settings_file_path,
+        diag_scripts,
+        config,
+):
+
+    cmd = get_ncl_cmd(diag_script_path, config)
+    envs = get_ncl_env(diag_scripts, settings_file_path)
+
+    logger.info(f"ncl command: {cmd}")
     result = subprocess.run(
         cmd,
         env=envs,

@@ -6,7 +6,8 @@ from pathlib import Path
 def add_input_files(
         settings: typing.Dict,
         input_files: typing.List,
-        work_dir: str
+        work_dir: str,
+        suffix: str = ".yml"
 ) -> typing.Dict:
     """
     Add input files, only yaml files are supported.
@@ -18,6 +19,7 @@ def add_input_files(
     input_files: list
         input file list
     work_dir: str
+    suffix: str
 
     Returns
     -------
@@ -27,7 +29,7 @@ def add_input_files(
     input_files = [f.format(work_dir=work_dir) for f in input_files]
     settings['input_files'] = [
         f for f in input_files
-        if f.endswith('.yml') or os.path.isdir(f)
+        if f.endswith(suffix) or os.path.isdir(f)
     ]
     return settings
 

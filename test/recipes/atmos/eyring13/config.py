@@ -2,7 +2,8 @@ config = {
     "esmvaltool": {
         "executables": {
             "py": "/home/hujk/anaconda3/envs/wangdp-esm/bin/python",
-            "r": "/home/hujk/anaconda3/envs/wangdp-esm/bin/Rscript"
+            "r": "/home/hujk/anaconda3/envs/wangdp-esm/bin/Rscript",
+            "ncl": "/home/hujk/anaconda3/envs/wangdp-esm/bin/ncl",
         },
         "recipes": {
             "base": "/home/hujk/ploto/esmvaltool/study/esmvaltool/ESMValTool/esmvaltool/recipes",

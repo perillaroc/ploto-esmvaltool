@@ -39,3 +39,28 @@ def generate_zonal_operation_blocks(settings=None) -> typing.List:
 
     blocks = get_operation_blocks(settings)
     return blocks
+
+
+def generate_default_plot_task(name=None) -> typing.Dict:
+    return {
+        "diagnostic": {
+            "recipe": "recipe_eyring13jgr.yml",
+            "name": "eyring13jgr_fig12"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "eyring13jgr/eyring13jgr_fig12.ncl",
+            },
+            "settings": {
+                "script": "eyring13jgr_fig12",
+                "e13fig12_exp_MMM": "historical",
+                "e13fig12_season": "DJF",
+                "e13fig12_multimean": True,
+            }
+        },
+    }
