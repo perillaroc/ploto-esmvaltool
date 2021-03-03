@@ -1,19 +1,25 @@
-from esmvalcore.preprocessor._multimodel import _multiproduct_statistics
+import typing
+
+from esmvalcore.preprocessor._multimodel import (
+    _multicube_statistics
+)
+
+from ploto_esmvaltool.processor.esmvalcore_pre_processor._product import Product
 
 
 def run_multi_model_statistics(
-        products,
+        products: typing.List[Product],
         span,
         statistics,
         output_products=None,
         keep_input_datasets=True,
         **kwargs,
 ):
-    products = _multiproduct_statistics(
-        products=products,
+    cubes = [product.cubes for product in products]
+    statistics_cubes = _multicube_statistics(
+        cubes=cubes,
         span=span,
         statistics=statistics,
-        output_products=output_products,
-        keep_input_datasets=keep_input_datasets,
     )
+
     return products
