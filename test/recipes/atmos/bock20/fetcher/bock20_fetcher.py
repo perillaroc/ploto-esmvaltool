@@ -12,7 +12,7 @@ from test.recipes.atmos.bock20 import (
 )
 
 
-diagnostic_name = "fig12"
+diagnostic_name = "fig_1_cmip6"
 
 
 def get_fetcher_task(
