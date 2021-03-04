@@ -14,7 +14,7 @@ def run_load(
         product_variable,
         work_dir=".",
         **kwargs
-) -> iris.cube.CubeList:
+) -> iris.cube.CubeList or typing.List[iris.cube.Cube]:
     if "input_data_source_file" in product_input:
         input_meta_file = product_input["input_data_source_file"].format(
             work_dir=work_dir,
@@ -52,7 +52,7 @@ def run_load(
 
 
 def run_concatenate(
-        cubes: iris.cube.CubeList,
+        cubes: typing.Union[iris.cube.CubeList, typing.List[iris.cube.Cube]],
         **kwargs
 ) -> iris.cube.Cube:
     result = concatenate(cubes)
@@ -100,7 +100,7 @@ def _get_file_path(variable, output_dir):
             output_dir,
             f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc"
         )
-    elif project in ("OBS6", "obs4mips", "native6"):
+    elif project in ("OBS6", "obs4mips", "native6", "OBS"):
         version = variable["version"]
         mip = variable["mip"]
         data_type = variable["type"]
@@ -138,11 +138,7 @@ def run_write_metadata(
         if isinstance(exp, typing.List):
             exp = "-".join(exp)
         product_variable["exp"] = exp
-    elif project == "OBS6":
-        pass
-    elif project == "native6":
-        pass
-    elif project == "obs4mips":
+    elif project in ("OBS6", "native6", "obs4mips", "OBS"):
         pass
     else:
         raise ValueError(f"project is not supported: {project}")
