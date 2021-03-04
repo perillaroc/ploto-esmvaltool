@@ -10,9 +10,9 @@ from esmvalcore.preprocessor import (
 def _get_settings(
         operation: typing.Dict,
         settings: typing.Dict,
-) -> typing.Dict:
+) -> typing.Optional[typing.Dict]:
     """
-    Update operation["settings"] using settings.
+    Update settings using operation["settings"].
 
     Parameters
     ----------
@@ -24,15 +24,21 @@ def _get_settings(
     typing.Dict:
         Combined settings.
     """
-    new_settings = {}
-    if "settings" in operation:
-        new_settings = operation["settings"]
-
     operation_type = operation["type"]
-    if settings is not None and operation_type in settings:
+
+    new_settings = settings.get(operation_type, {})
+    if new_settings is None:
+        return new_settings
+
+    new_settings = new_settings.copy()
+    if "settings" not in operation:
+        return new_settings
+
+    operation_settings = operation["settings"]
+    if operation_type in operation_settings:
         new_settings = {
             **new_settings,
-            **settings[operation_type],
+            **operation_settings[operation_type],
         }
     return new_settings
 

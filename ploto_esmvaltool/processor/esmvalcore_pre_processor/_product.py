@@ -58,6 +58,9 @@ class Product(object):
             logger.info(f"run step {op}")
             settings = _get_settings(step, self.settings)
 
+            if settings is None:
+                continue
+
             fun = getattr(esmvalcore_operations, f"run_{op}")
             first_argument = inspect.getfullargspec(fun).args[0]
             result = []
