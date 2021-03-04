@@ -64,17 +64,26 @@ def run_save(
         product_variable: typing.Dict,
         product_output: typing.Dict,
         work_dir: str = ".",
-        file_path: typing.Union[str, Path] = None,
+        # file_path: typing.Union[str, Path] = None,
         **kwargs
 ) -> str:
     output_dir = Path(product_output["output_directory"].format(
         work_dir=work_dir,
         **product_variable,
     ))
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # output_dir.mkdir(parents=True, exist_ok=True)
+
+    file_path = product_output.get("output_file", None)
 
     if file_path is None:
         file_path = _get_file_path(product_variable, output_dir)
+    else:
+        file_path = str(Path(output_dir, file_path)).format(
+            work_dir=work_dir,
+            **product_variable
+        )
+
+    Path(file_path).parent.mkdir(parents=True, exist_ok=True)
 
     return save(
         cubes=cubes,

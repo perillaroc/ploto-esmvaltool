@@ -9,7 +9,10 @@ from .operations.util import (
     _get_settings,
     is_multi_model_operation
 )
-from ._product import Product
+from ._product import (
+    Product,
+    update_product_output
+)
 
 
 logger = get_logger()
@@ -42,21 +45,15 @@ def run_processor(
                         "output_file": "",
                     },
 
-                    # operation settings
+                    # operation settings, replace operation's settings with same key.
                     "settings": {
                         "extract_levels": {
                             #...
-                        }
+                        },
+                        "operation_type": None,  # close some operation
                     }
                 }
             ],
-            "generated_products": {
-                "multi_model_statistic.mean": {
-                    "output": {
-                        "output_file": "",
-                    }
-                }
-            },
 
             "output": {
                 "output_directory": ""
@@ -90,21 +87,25 @@ def run_processor(
     task_diagnostic = task["diagnostic"]
 
     products = [Product(**task_product) for task_product in task_products]
+    for product in products:
+        product.add_diagnostic(task_diagnostic)
+        product.update_output(task_output)
 
+    for operation in operations:
+        if "settings" in operation and "output" in operation["settings"]:
+            operation["settings"]["output"] = update_product_output(
+                operation["settings"]["output"],
+                task_output
+            )
 
     if is_multi_model_operation(operations[0]):
-        for product in products:
-            product.add_diagnostic(task_diagnostic)
-            product.update_output(task_output)
         run_multi_model_operation_block(
             products=products,
             operation_block=operations,
-            work_dir=work_dir
+            work_dir=work_dir,
         )
     else:
         for product in products:
-            product.add_diagnostic(task_diagnostic)
-            product.update_output(task_output)
             product.run_operation_block(
                 operation_block=operations,
                 work_dir=work_dir
@@ -181,14 +182,30 @@ def apply_multi_model_step(
         operation,
         products,
         work_dir,
-):
+) -> typing.List:
+    excludes = set()
+    products_set = set(products)
+    step_type = operation["type"]
+    for product in products:
+        if step_type in product.settings:
+            product_settings = product.settings[step_type]
+        else:
+            excludes.add(product)
+
+    step_products = products_set - excludes
+
     op = operation["type"]
     logger.info(f"run step {op}")
     fun = getattr(esmvalcore_operations, f"run_{op}")
+
     settings = operation["settings"]
-    products = fun(
-        products=products,
+
+    results = fun(
+        products=step_products,
         **settings,
         work_dir=work_dir,
     )
+
+    products = list(results | excludes)
+
     return products
