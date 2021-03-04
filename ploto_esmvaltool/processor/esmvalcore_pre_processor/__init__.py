@@ -187,7 +187,7 @@ def apply_multi_model_step(
     products_set = set(products)
     step_type = operation["type"]
     for product in products:
-        if step_type in product.settings:
+        if step_type in product.settings and product.settings[step_type] is not None:
             product_settings = product.settings[step_type]
         else:
             excludes.add(product)
