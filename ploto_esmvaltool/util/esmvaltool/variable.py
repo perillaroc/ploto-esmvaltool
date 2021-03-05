@@ -4,6 +4,18 @@ from esmvalcore._config import get_institutes, get_activity
 from esmvalcore._recipe import _add_cmor_info
 
 
+def generate_variable(
+        variable: typing.Dict,
+        dataset: typing.Dict,
+):
+    v = combine_variable(
+        variable=variable,
+        dataset=dataset
+    )
+    add_variable_info(v)
+    return v
+
+
 def add_variable_info(
         variable: typing.Dict,
         override: bool=False

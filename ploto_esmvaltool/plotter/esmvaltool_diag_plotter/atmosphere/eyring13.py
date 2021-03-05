@@ -1,3 +1,10 @@
+"""
+Ozone and associated climate impacts
+
+References
+----------
+https://docs.esmvaltool.org/en/latest/recipes/recipe_eyring13jgr.html
+"""
 import typing
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (

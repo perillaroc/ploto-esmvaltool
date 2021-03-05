@@ -1,11 +1,16 @@
+"""
+Quantifying progress across different CMIP phases
+
+References
+----------
+https://docs.esmvaltool.org/en/latest/recipes/recipe_bock20jgr.html
+"""
 import typing
 
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
     get_default_settings,
     get_operation_blocks
 )
-from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_selected_files
-
 
 
 def generate_default_operation_blocks(name, settings=None) -> typing.List:
@@ -28,6 +33,7 @@ def generate_clim_ref_operation_blocks(settings) -> typing.List:
                 "exclude": ["reference_dataset"]
             }
         }
+
     settings = {
         **get_default_settings(),
         **settings
@@ -41,7 +47,7 @@ def generate_default_plot_task(name=None) -> typing.Dict:
     return {
         "diagnostic": {
             "recipe": "recipe_bock20.yml",
-            "name": "tsline_anom"
+            "name": "fig_1_cmip6"
         },
 
         "input_files": [
