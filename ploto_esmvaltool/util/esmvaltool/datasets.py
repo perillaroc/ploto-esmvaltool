@@ -1,5 +1,7 @@
 import typing
 
+from .variable import generate_variable
+
 
 INFO_KEYS = (
     'project',
@@ -9,6 +11,103 @@ INFO_KEYS = (
     'ensemble',
     'version'
 )
+
+
+def get_datasets(
+        datasets: typing.List,
+        variables: typing.List,
+        variable_additional_datasets: typing.Dict
+) -> typing.Dict:
+    """
+
+    Parameters
+    ----------
+    datasets: typing.List
+        From recipe datasets.
+        [
+            {
+                "dataset": "FGOALS-g3",
+                "grid": "gn"
+            },
+            {
+                "dataset": "NESM3",
+                "grid": "gn"
+            },
+        ]
+    variables: typing.List
+        From recipe variables.
+        [
+            {
+                "variable_group": "tas",
+                "short_name": "tas",
+
+                "preprocessor": "clim_ref",
+                "reference_dataset": "HadCRUT4",
+
+                "project": "CMIP6",
+                "mip": "Amon",
+                "exp": "historical",
+                "ensemble": "r1i1p1f1",
+                "frequency": "mon",
+
+                "start_year": 1850,
+                "end_year": 2014
+            }
+        ]
+    variable_additional_datasets: typing.Dict
+        A dictionary with variable_group as key.
+        From recipe additional_datasets.
+        {
+            "tas": [
+                {
+                    "dataset": "HadCRUT4",
+                    "project": "OBS",
+                    "type": "ground",
+                    "version": "1",
+                    "tier": 2,
+                    "end_year": 2017,
+                }
+            ],
+        }
+
+    Returns
+    -------
+    typing.Dict
+        {
+            "tas": [
+                {
+                    # combined_variable with alias and index
+
+                    "alias": "...",
+                    "recipe_dataset_index": 0,  # 1, 2, 3, ...
+                }
+            ]
+        }
+    """
+    ds = {}
+    for variable in variables:
+        group_variables = []
+        if variable["variable_group"] in variable_additional_datasets:
+            additional_datasets = variable_additional_datasets[variable["variable_group"]]
+        else:
+            additional_datasets = []
+        recipe_dataset_index = 0
+        for d in [
+            *datasets,
+            *additional_datasets
+        ]:
+            v = generate_variable(
+                variable=variable,
+                dataset=d,
+            )
+            v["recipe_dataset_index"] = recipe_dataset_index
+            recipe_dataset_index += 1
+            group_variables.append(v)
+        ds[variable["variable_group"]] = group_variables
+
+    set_alias(ds)
+
+    return ds
 
 
 def set_alias(

@@ -2,9 +2,8 @@ from pathlib import Path
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 from ploto_esmvaltool.util.esmvaltool import (
-    generate_variable
+    get_datasets
 )
-from ploto_esmvaltool.util.esmvaltool.datasets import set_alias
 
 from test.recipes.atmos.bock20 import (
     config as bock20_config,
@@ -69,28 +68,11 @@ def main():
     variable_additional_datasets = bock20_recipe.variable_additional_datasets
 
     # get all datasets
-    datasets = {}
-    for variable in variables:
-        group_variables = []
-        if variable["variable_group"] in variable_additional_datasets:
-            additional_datasets = variable_additional_datasets[variable["variable_group"]]
-        else:
-            additional_datasets = []
-        recipe_dataset_index = 0
-        for d in [
-            *exp_datasets,
-            *additional_datasets
-        ]:
-            v = generate_variable(
-                variable=variable,
-                dataset=d,
-            )
-            v["recipe_dataset_index"] = recipe_dataset_index
-            recipe_dataset_index += 1
-            group_variables.append(v)
-        datasets[variable["variable_group"]] = group_variables
-
-    set_alias(datasets)
+    datasets = get_datasets(
+        datasets=exp_datasets,
+        variables=variables,
+        variable_additional_datasets=variable_additional_datasets
+    )
 
     # generate fetcher tasks
     fetcher_tasks = []

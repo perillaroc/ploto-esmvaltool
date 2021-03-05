@@ -4,4 +4,6 @@ from .variable import (
     generate_variable,
 )
 
-from .datasets import set_alias
+from .datasets import get_datasets
+
+from .operation import update_variable_settings

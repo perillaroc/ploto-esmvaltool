@@ -2,8 +2,6 @@ import itertools
 from pathlib import Path
 import copy
 
-from loguru import logger
-
 from ploto_esmvaltool.processor.esmvalcore_pre_processor import run_processor
 from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
     get_default_settings,
@@ -11,18 +9,9 @@ from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import 
 )
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.bock20 import generate_default_operation_blocks
 from ploto_esmvaltool.util.esmvaltool import (
-    combine_variable,
-    add_variable_info
+    get_datasets,
+    update_variable_settings
 )
-
-from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_selected_files
-
-from esmvalcore._recipe import (
-    _special_name_to_dataset,
-    _get_dataset_info,
-    _exclude_dataset
-)
-from esmvalcore.preprocessor import MULTI_MODEL_FUNCTIONS
 
 from test.recipes.atmos.bock20 import (
     config as bock20_config,
@@ -57,11 +46,12 @@ def _get_output_section(block_index, variable):
     }
 
 def get_processor_tasks(
-        variable,
+        variable_product,
         operation_block,
         block_index,
-        settings,
 ):
+    variable = variable_product["variable"]
+    settings = variable_product["settings"]
     processor_tasks = []
 
     diag = {
@@ -75,7 +65,7 @@ def get_processor_tasks(
             {
                 "variable": combined_variable,
                 "input": _get_input_section(block_index, combined_variable),
-                "output": _get_output_section(block_index, combine_variable),
+                "output": _get_output_section(block_index, combined_variable),
                 "settings": settings,
             }
         ],
@@ -99,7 +89,6 @@ def get_multi_model_processor_tasks(
         variable_products,
         operation_block,
         block_index,
-        # settings
 ):
     processor_tasks = []
 
@@ -145,68 +134,9 @@ def get_multi_model_processor_tasks(
 def get_tasks_for_variable(
         variable,
         datasets,
-        additional_datasets,
         work_dir,
 ):
-    """
-    recipe_dataset_index 仅在单个变量组内计数，各个变量组之间独立
-    """
-    exp_datasets = [{
-        **d,
-        "recipe_dataset_index": index
-    } for index, d in enumerate(datasets)]
-    current_index = len(exp_datasets)
-
-    additional_datasets = [{
-        **d,
-        "alias": f"{d['dataset']}-{d['project']}",
-        "recipe_dataset_index": current_index + index
-    } for index, d in enumerate(additional_datasets)]
-
-    # 试验数据集
-    def generate_exp_variable(
-            variable,
-            dataset,
-    ):
-        v = combine_variable(
-            variable=variable,
-            dataset=dataset
-        )
-        add_variable_info(v)
-        v["alias"] = f"{v['dataset']}-{v['exp']}"
-        return v
-
-    exp_variables = [
-        generate_exp_variable(variable=variable, dataset=d)
-        for d in exp_datasets
-    ]
-
-    # 附加数据集
-    def generate_reference_variable(
-            variable,
-            dataset,
-    ):
-        v = combine_variable(
-            variable=variable,
-            dataset=dataset
-        )
-        add_variable_info(v)
-        v["alias"] = f"{v['dataset']}-{v['project']}"
-        return v
-
-    additional_variables = [
-        generate_reference_variable(
-            variable=variable,
-            dataset=d
-        )
-        for d in additional_datasets
-    ]
-
-    # 合并两个数据集
-    variables = [
-        *exp_variables,
-        *additional_variables,
-    ]
+    variables = datasets
 
     processor_tasks = []
 
@@ -229,18 +159,14 @@ def get_tasks_for_variable(
         variable_products = []
         for v in variables:
             variable_settings = copy.deepcopy(settings)
-            # 更新 target_grid
-            update_target_grid(
-                v,
-                variables,
-                variable_settings,
+            variable_settings = update_variable_settings(
+                variable=v,
+                settings=variable_settings,
+                variables=variables,
                 config={
                     "data_path": bock20_config.data_path
                 }
             )
-
-            # 更新多模式步骤
-            update_multi_dataset_settings(v, variable_settings)
 
             variable_products.append({
                 "variable": v,
@@ -253,89 +179,40 @@ def get_tasks_for_variable(
                 variable_products,
                 operation_block=operation_block,
                 block_index=block_index,
-                # settings=settings
             ))
         else:
             for p in variable_products:
                 processor_tasks.extend(get_processor_tasks(
-                    variable=p["variable"],
+                    variable_product=p,
                     operation_block=operation_block,
                     block_index=block_index,
-                    settings=p["settings"]
                 ))
 
     return processor_tasks
-
-
-def update_target_grid(
-        variable,
-        variables,
-        settings,
-        config,
-):
-    """
-    更新 regrid 步骤的 target_grid 配置项
-    """
-    grid = settings.get('regrid', {}).get('target_grid')
-    if not grid:
-        return
-
-    grid = _special_name_to_dataset(variable, grid)
-
-    if variable['dataset'] == grid:
-        settings['regrid'] = None
-    elif any(grid == v['dataset'] for v in variables):
-        v = _get_dataset_info(grid, variables)
-        selected_files = get_selected_files(
-            v, config
-        )
-        settings['regrid']['target_grid'] = selected_files[0]
-    return settings
-
-
-def update_multi_dataset_settings(
-        variable,
-        settings,
-):
-    for step in MULTI_MODEL_FUNCTIONS:
-        if not settings.get(step):
-            continue
-        exclude_dataset(settings, variable, step)
-
-
-def exclude_dataset(settings, variable, step):
-    exclude = {
-        _special_name_to_dataset(variable, dataset)
-        for dataset in settings[step].pop('exclude', [])
-    }
-    if variable['dataset'] in exclude:
-        # 排除的数据集将该步骤参数设为 None
-        settings[step] = None
-        logger.info(f"Excluded dataset '{variable['dataset']}' from preprocessor step '{step}'")
 
 
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case108/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    processor_tasks = []
-
-    # add recipe_dataset_index
+    # recipe
     exp_datasets = bock20_recipe.exp_datasets
     variables = bock20_recipe.variables
-
-    # 观测数据
     variable_additional_datasets = bock20_recipe.variable_additional_datasets
+
+    # get all datasets
+    datasets = get_datasets(
+        datasets=exp_datasets,
+        variables=variables,
+        variable_additional_datasets=variable_additional_datasets
+    )
+
+    processor_tasks = []
     for variable in variables:
-        if variable["variable_group"] in variable_additional_datasets:
-            additional_datasets = variable_additional_datasets[variable["variable_group"]]
-        else:
-            additional_datasets = []
         processor_tasks.extend(
             get_tasks_for_variable(
                 variable=variable,
-                datasets=exp_datasets,
-                additional_datasets=additional_datasets,
+                datasets=datasets[variable["variable_group"]],
                 work_dir=work_dir
             )
         )
