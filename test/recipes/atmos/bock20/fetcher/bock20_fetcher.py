@@ -4,6 +4,9 @@ from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 from ploto_esmvaltool.util.esmvaltool import (
     get_datasets
 )
+from ploto_esmvaltool.util.task import (
+    get_fetcher_task
+)
 
 from test.recipes.atmos.bock20 import (
     config as bock20_config,
@@ -12,30 +15,6 @@ from test.recipes.atmos.bock20 import (
 
 
 diagnostic_name = "fig_1_cmip6"
-
-
-def get_fetcher_task(
-        variable,
-        config,
-):
-    task = {
-        "products": [
-            {
-                "variable": variable,
-                "output": {
-                    "output_directory": "{alias}/{variable_group}",
-                    "output_data_source_file": "data_source.yml",
-                }
-            }
-        ],
-
-        "config": config,
-
-        "output": {
-            "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
-        }
-    }
-    return task
 
 
 def get_tasks_for_variable(
@@ -49,6 +28,7 @@ def get_tasks_for_variable(
     for task in datasets:
         fetcher_tasks.append(
             get_fetcher_task(
+                diagnostic_name,
                 task,
                 config={
                     "data_path": bock20_config.data_path

@@ -12,6 +12,10 @@ from ploto_esmvaltool.util.esmvaltool import (
     get_datasets,
     update_variable_settings
 )
+from ploto_esmvaltool.util.task import (
+    get_processor_tasks,
+    get_multi_model_processor_tasks,
+)
 
 from test.recipes.atmos.bock20 import (
     config as bock20_config,
@@ -20,115 +24,6 @@ from test.recipes.atmos.bock20 import (
 
 
 diagnostic_name = "fig_1_cmip6"
-
-
-def _get_input_section(block_index, variable):
-    if block_index == 0:
-        return {
-            "input_data_source_file":
-                "{work_dir}"
-                f"/{diagnostic_name}/fetcher/preproc/{variable['alias']}"
-                f"/{variable['variable_group']}/data_source.yml",
-        }
-    else:
-        return {
-            "input_metadata_files": [
-                "{work_dir}"
-                f"/{diagnostic_name}/processor/preproc/step-{block_index-1:02}/{variable['alias']}"
-                f"/{variable['variable_group']}/metadata.yml"
-            ]
-        }
-
-
-def _get_output_section(block_index, variable):
-    return {
-        "output_directory": f"step-{block_index:02}" + "/{alias}/{variable_group}",
-    }
-
-def get_processor_tasks(
-        variable_product,
-        operation_block,
-        block_index,
-):
-    variable = variable_product["variable"]
-    settings = variable_product["settings"]
-    processor_tasks = []
-
-    diag = {
-        "diagnostic": diagnostic_name,
-    }
-
-    combined_variable = variable
-
-    task = {
-        "products": [
-            {
-                "variable": combined_variable,
-                "input": _get_input_section(block_index, combined_variable),
-                "output": _get_output_section(block_index, combined_variable),
-                "settings": settings,
-            }
-        ],
-
-        # output
-        "output": {
-            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc"
-        },
-
-        # operations
-        "operations": operation_block,
-
-        "diagnostic": diag,
-    }
-    processor_tasks.append(task)
-
-    return processor_tasks
-
-
-def get_multi_model_processor_tasks(
-        variable_products,
-        operation_block,
-        block_index,
-):
-    processor_tasks = []
-
-    diag = {
-        "diagnostic": diagnostic_name,
-    }
-
-    for op in operation_block:
-        if op["type"] == "multi_model_statistics":
-            op["settings"]["output"] = {
-                "output_directory": f"step-{block_index:02}" + "/multi-model-{operator}/{variable_group}",
-                "output_file": "MultiModel_{operator}_{mip}_{variable_group}_{start_year}-{end_year}.nc",
-            }
-
-    def get_product(variable, settings):
-        return {
-            "variable": variable,
-            "input": _get_input_section(block_index, variable),
-            "output": _get_output_section(block_index, variable),
-            "settings": settings
-        }
-
-    task = {
-        "products": [
-            get_product(**variable) for variable in variable_products
-        ],
-
-        # output
-        "output": {
-            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc"
-        },
-
-        # operations
-        "operations": operation_block,
-
-        "diagnostic": diag,
-    }
-    processor_tasks.append(task)
-
-    return processor_tasks
 
 
 def get_tasks_for_variable(
@@ -176,13 +71,15 @@ def get_tasks_for_variable(
         # 生成 processor 任务
         if is_multi_model_operation(operation_block[0]):
             processor_tasks.extend(get_multi_model_processor_tasks(
-                variable_products,
+                diagnostic_name=diagnostic_name,
+                variable_products=variable_products,
                 operation_block=operation_block,
                 block_index=block_index,
             ))
         else:
             for p in variable_products:
                 processor_tasks.extend(get_processor_tasks(
+                    diagnostic_name=diagnostic_name,
                     variable_product=p,
                     operation_block=operation_block,
                     block_index=block_index,
