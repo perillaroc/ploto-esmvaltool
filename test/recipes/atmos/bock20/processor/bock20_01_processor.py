@@ -13,7 +13,7 @@ from ploto_esmvaltool.util.esmvaltool import (
     update_variable_settings
 )
 from ploto_esmvaltool.util.task import (
-    get_processor_tasks,
+    get_product_processor_tasks,
     get_multi_model_processor_tasks,
 )
 
@@ -78,7 +78,7 @@ def get_tasks_for_variable(
             ))
         else:
             for p in variable_products:
-                processor_tasks.extend(get_processor_tasks(
+                processor_tasks.extend(get_product_processor_tasks(
                     diagnostic_name=diagnostic_name,
                     variable_product=p,
                     operation_block=operation_block,

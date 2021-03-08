@@ -13,7 +13,7 @@ from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import 
 )
 
 
-def generate_default_operations(name, settings=None) -> typing.List:
+def generate_default_operation_blocks(name, settings=None) -> typing.List:
     mapper = {
         "spatial_mean": generate_spatial_mean_operations,
         "tropical_ocean": generate_tropical_ocean_operations,
@@ -34,8 +34,8 @@ def generate_spatial_mean_operations(settings=None) -> typing.List:
         **settings
     }
 
-    operations = get_operations(settings)
-    return operations
+    blocks = generate_default_operation_blocks(settings)
+    return blocks
 
 
 def generate_tropical_ocean_operations(settings=None) -> typing.List:
@@ -65,8 +65,8 @@ def generate_tropical_ocean_operations(settings=None) -> typing.List:
         **settings
     }
 
-    operations = get_operations(settings)
-    return operations
+    blocks = generate_default_operation_blocks(settings)
+    return blocks
 
 
 

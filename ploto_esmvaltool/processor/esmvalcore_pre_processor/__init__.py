@@ -92,7 +92,12 @@ def run_processor(
         product.update_output(task_output)
 
     for operation in operations:
-        if "settings" in operation and "output" in operation["settings"]:
+        if (
+                "settings" in operation
+                and
+                isinstance(operation["settings"], typing.Dict)
+                and "output" in operation["settings"]
+        ):
             operation["settings"]["output"] = update_product_output(
                 operation["settings"]["output"],
                 task_output

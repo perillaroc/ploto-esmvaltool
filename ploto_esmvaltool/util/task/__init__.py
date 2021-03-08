@@ -4,6 +4,6 @@ from .fetcher import (
 )
 
 from .processor import (
-    get_processor_tasks,
+    get_product_processor_tasks,
     get_multi_model_processor_tasks,
 )

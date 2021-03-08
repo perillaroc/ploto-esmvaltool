@@ -9,8 +9,8 @@ from esmvalcore.preprocessor import (
 
 def _get_settings(
         operation: typing.Dict,
-        settings: typing.Dict,
-) -> typing.Optional[typing.Dict]:
+        settings: typing.Union[typing.Dict, bool],
+) -> typing.Optional[typing.Union[typing.Dict, bool]]:
     """
     Update settings using operation["settings"].
 
@@ -27,10 +27,12 @@ def _get_settings(
     operation_type = operation["type"]
 
     new_settings = settings.get(operation_type, {})
-    if new_settings is None:
+    # settings could be True or False or None
+    if new_settings is None or isinstance(new_settings, bool):
         return new_settings
 
     new_settings = new_settings.copy()
+
     if "settings" not in operation:
         return new_settings
 
@@ -119,7 +121,7 @@ def get_operation_blocks(settings, order=DEFAULT_ORDER) -> typing.List:
     blocks = []
     previous_step_type = None
     for step in order[order.index("load") + 1: order.index("save")]:
-        if step in settings and (settings[step] != False):
+        if step in settings and (settings[step] != False) and (settings[step] is not None):
             step_type = step in MULTI_MODEL_FUNCTIONS
             if step_type is not previous_step_type:
                 block = []

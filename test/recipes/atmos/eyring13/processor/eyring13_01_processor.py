@@ -13,7 +13,7 @@ from ploto_esmvaltool.util.esmvaltool import (
     update_variable_settings,
 )
 from ploto_esmvaltool.util.task import (
-    get_processor_tasks,
+    get_product_processor_tasks,
     get_multi_model_processor_tasks,
 )
 
@@ -40,7 +40,6 @@ def get_tasks_for_variable(
         **settings,
     }
 
-
     blocks = generate_default_operation_blocks(
         variable["preprocessor"],
         settings,
@@ -63,7 +62,6 @@ def get_tasks_for_variable(
                 "settings": variable_settings
             })
 
-
         if is_multi_model_operation(operation_block[0]):
             processor_tasks.extend(get_multi_model_processor_tasks(
                 "fig12",
@@ -73,7 +71,7 @@ def get_tasks_for_variable(
             ))
         else:
             for p in variable_products:
-                processor_tasks.extend(get_processor_tasks(
+                processor_tasks.extend(get_product_processor_tasks(
                     "fig12",
                     variable_product=p,
                     operation_block=operation_block,
