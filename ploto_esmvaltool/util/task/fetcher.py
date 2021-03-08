@@ -1,5 +1,7 @@
 import typing
 
+from ploto_esmvaltool.util.esmvaltool import get_derive_input_variables
+
 
 def get_fetcher_task(
         diagnostic_name: str,
@@ -24,3 +26,33 @@ def get_fetcher_task(
         }
     }
     return task
+
+
+def get_fetcher_tasks(
+        diagnostic_name,
+        variable,
+        config,
+):
+    tasks = []
+
+    if not variable["derive"]:
+        tasks.append(get_fetcher_task(
+            diagnostic_name=diagnostic_name,
+            variable=variable,
+            config=config,
+        ))
+    else:
+        input_variables = get_derive_input_variables(
+            variable=variable
+        )
+
+        for v in input_variables:
+            task = get_fetcher_task(
+                diagnostic_name=diagnostic_name,
+                variable=v,
+                config=config
+            )
+
+            tasks.append(task)
+
+    return tasks

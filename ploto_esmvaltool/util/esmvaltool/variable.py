@@ -2,6 +2,7 @@ import typing
 
 from esmvalcore._config import get_institutes, get_activity
 from esmvalcore._recipe import _add_cmor_info
+from esmvalcore.preprocessor._derive import get_required
 
 
 def generate_variable(
@@ -52,3 +53,26 @@ def replace_variable_tag(
         **kwargs
     )
     return r
+
+
+def get_derive_input_variables(
+        variable,
+):
+    required_variables = get_required(
+        short_name=variable["short_name"],
+        project=variable["project"]
+    )
+
+    def get_variable(v):
+        r = {
+            **variable,
+            **v,
+            "variable_group": f"{variable['short_name']}_derive_input_{v['short_name']}",
+        }
+        add_variable_info(r, override=True)
+        return r
+
+    # 输入变量
+    input_variables = [get_variable(v) for v in required_variables]
+    return input_variables
+

@@ -16,7 +16,7 @@ INFO_KEYS = (
 def get_datasets(
         datasets: typing.List,
         variables: typing.List,
-        variable_additional_datasets: typing.Dict
+        variable_additional_datasets: typing.Optional[typing.Dict] = None
 ) -> typing.Dict:
     """
 
@@ -85,6 +85,8 @@ def get_datasets(
         }
     """
     ds = {}
+    if variable_additional_datasets is None:
+        variable_additional_datasets = []
     for variable in variables:
         group_variables = []
         if variable["variable_group"] in variable_additional_datasets:

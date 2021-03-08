@@ -1,4 +1,7 @@
-from .fetcher import get_fetcher_task
+from .fetcher import (
+    get_fetcher_task,
+    get_fetcher_tasks,
+)
 
 from .processor import (
     get_processor_tasks,
