@@ -2,21 +2,14 @@ import itertools
 from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvaltool_util_processor import run_processor
-from ploto_esmvaltool.processor.esmvalcore_pre_processor.operations.util import (
-    get_default_settings,
-    is_multi_model_operation
-)
-from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.eyring13 import generate_default_operation_blocks
 from ploto_esmvaltool.util.esmvaltool import (
-    combine_variable,
-    add_variable_info
+    get_datasets
 )
 
 from test.recipes.atmos.eyring13 import (
     config as eyring13_config,
     recipe as eyring13_recipe,
 )
-from test.recipes.atmos.eyring13.util import update_levels
 
 
 diagnostic_name = "fig12"
@@ -49,27 +42,11 @@ def get_ncl_metadata_task(
 
 def get_tasks_for_variable(
         variable,
+        datasets,
+        config,
         work_dir,
 ):
     processor_tasks = []
-
-    # get operation blocks
-    settings = eyring13_recipe.processor_settings[variable["preprocessor"]]
-    settings = {
-        **get_default_settings(),
-       **settings,
-    }
-    settings = update_levels(settings, work_dir, {
-        "data_path": eyring13_config.data_path
-    })
-
-    blocks = generate_default_operation_blocks(
-        "zonal",
-        settings,
-    )
-
-    total_count = len(blocks)
-
     processor_tasks.append(get_ncl_metadata_task(
         variable=variable,
     ))
@@ -81,14 +58,27 @@ def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case107/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    processor_tasks = []
-
+    exp_datasets = eyring13_recipe.exp_datasets
     variables = eyring13_recipe.variables
+    variable_additional_datasets = eyring13_recipe.variable_additional_datasets
+
+    # get all datasets
+    datasets = get_datasets(
+        datasets=exp_datasets,
+        variables=variables,
+        variable_additional_datasets=variable_additional_datasets
+    )
+
+    processor_tasks = []
     for variable in variables:
         processor_tasks.extend(
             get_tasks_for_variable(
                 variable=variable,
-                work_dir=work_dir
+                datasets=datasets[variable["variable_group"]],
+                config={
+                    "data_path": eyring13_config.data_path
+                },
+                work_dir=work_dir,
             )
         )
 
