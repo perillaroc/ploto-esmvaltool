@@ -111,7 +111,7 @@ def get_datasets(
 
 
 def set_alias(
-        datasets:typing.Dict
+        datasets: typing.Dict
 ):
     """
     see esmvalcore._recipe.Recipe.set_alias method.
@@ -126,8 +126,8 @@ def set_alias(
         except TypeError:
             return str(obj)
 
-    for variable in datasets.values():
-        for dataset in variable:
+    for variables in datasets.values():
+        for dataset in variables:
             alias = tuple(
                 _key_str(dataset.get(key, None)) for key in INFO_KEYS)
             datasets_info.add(alias)

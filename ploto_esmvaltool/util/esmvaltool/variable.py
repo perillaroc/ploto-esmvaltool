@@ -42,6 +42,13 @@ def combine_variable(
     }
 
 
-def replace_variable_tag(item: str, variable: typing.Dict) -> str:
-    r = item.format(**variable)
+def replace_variable_tag(
+        item: str,
+        variable: typing.Dict,
+        **kwargs
+) -> str:
+    r = item.format(
+        **variable,
+        **kwargs
+    )
     return r
