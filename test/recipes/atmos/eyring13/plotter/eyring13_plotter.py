@@ -32,7 +32,7 @@ def main():
             f"{work_dir}/{diagnostic_name}/processor/preproc/{v['variable_group']}/{v['variable_group']}_info.ncl"
             for v in variables
         ],
-        "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/fig12/plotter"
+        "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter"
     }
 
     config = eyring13_config.config
