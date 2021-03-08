@@ -4,10 +4,11 @@ from ploto_esmvaltool.util.esmvaltool import get_derive_input_variables
 
 
 def get_fetcher_task(
-        diagnostic_name: str,
+        diagnostic: typing.Dict,
         variable: typing.Dict,
         config: typing.Dict,
-):
+) -> typing.Dict:
+    diagnostic_name = diagnostic["diagnostic"]
     task = {
         "products": [
             {
@@ -29,7 +30,7 @@ def get_fetcher_task(
 
 
 def get_fetcher_tasks(
-        diagnostic_name,
+        diagnostic,
         variable,
         config,
 ):
@@ -37,7 +38,7 @@ def get_fetcher_tasks(
 
     if not variable["derive"]:
         tasks.append(get_fetcher_task(
-            diagnostic_name=diagnostic_name,
+            diagnostic=diagnostic,
             variable=variable,
             config=config,
         ))
@@ -48,7 +49,7 @@ def get_fetcher_tasks(
 
         for v in input_variables:
             task = get_fetcher_task(
-                diagnostic_name=diagnostic_name,
+                diagnostic=diagnostic,
                 variable=v,
                 config=config
             )

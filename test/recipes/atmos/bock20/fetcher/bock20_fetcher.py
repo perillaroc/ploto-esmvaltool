@@ -21,14 +21,14 @@ def get_tasks_for_variable(
         datasets,
         work_dir,
 ):
-    """
-    recipe_dataset_index 仅在单个变量组内计数，各个变量组之间独立
-    """
+    diagnostic = {
+        "diagnostic": diagnostic_name
+    }
     fetcher_tasks = []
     for task in datasets:
         fetcher_tasks.append(
             get_fetcher_task(
-                diagnostic_name,
+                diagnostic,
                 task,
                 config={
                     "data_path": bock20_config.data_path

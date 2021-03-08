@@ -27,11 +27,15 @@ def get_tasks_for_variable(
 ):
     tasks = datasets
 
+    diagnostic = {
+        "diagnostic": diagnostic_name
+    }
+
     fetcher_tasks = []
     for task in tasks:
         fetcher_tasks.append(
             get_fetcher_task(
-                diagnostic_name,
+                diagnostic,
                 variable=task,
                 config={
                     "data_path": eyring13_config.data_path
