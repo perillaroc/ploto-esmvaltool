@@ -303,7 +303,7 @@ def _get_output_section(
         block_index: int,
         total_blocks: int=-1
 ) -> typing.Dict:
-    if total_blocks == -1 or block_index < block_index - 1:
+    if total_blocks == -1 or block_index < total_blocks - 1:
         return {
             "output_directory": f"step-{block_index:02}" + "/{alias}/{variable_group}",
         }
