@@ -17,14 +17,11 @@ diagnostic_name = "f2ext"
 
 def get_tasks_for_variable(
         datasets,
+        diagnostic,
         config,
         work_dir,
 ):
     tasks = datasets
-
-    diagnostic = {
-        "diagnostic": diagnostic_name
-    }
 
     fetcher_tasks = []
     for task in tasks:
@@ -57,6 +54,9 @@ def main():
         fetcher_tasks.extend(
             get_tasks_for_variable(
                 datasets=datasets[variable["variable_group"]],
+                diagnostic={
+                    "diagnostic": diagnostic_name
+                },
                 config={
                     "data_path": deangelis_config.data_path
                 },

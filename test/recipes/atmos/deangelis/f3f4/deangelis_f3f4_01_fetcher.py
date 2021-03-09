@@ -1,94 +1,38 @@
 from pathlib import Path
-import itertools
-
-from esmvalcore.preprocessor._derive import get_required
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 from ploto_esmvaltool.util.esmvaltool import (
-    combine_variable,
-    add_variable_info
+    get_datasets,
 )
+from ploto_esmvaltool.util.task import get_fetcher_tasks
 
 from test.recipes.atmos.deangelis import (
     config as deangelis_config,
     recipe as deangelis_recipe,
 )
 
+
 diagnostic_name = "f3f4"
 
 
-def get_fetcher_tasks(
-        exp_dataset,
-        variable,
+def get_tasks_for_variable(
+        datasets,
+        diagnostic,
+        config,
+        work_dir,
 ):
-    combined_variable = combine_variable(
-        dataset=exp_dataset,
-        variable=variable,
-    )
-    add_variable_info(combined_variable)
+    tasks = datasets
 
-    tasks = []
-
-    if not combined_variable["derive"]:
-        tasks.append({
-            "products": [
-                {
-                    "variable": combined_variable,
-                    "output": {
-                        "output_directory": "{alias}/{variable_group}",
-                        "output_data_source_file": "data_source.yml",
-                    }
-                }
-            ],
-
-            "config": {
-                "data_path": deangelis_config.data_path,
-            },
-
-            "output": {
-                "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
-            }
-        })
-    else:
-        # 需要的变量，来自 ESMValCore
-        required_variables = get_required(
-            short_name=combined_variable["short_name"],
-            project=combined_variable["project"]
+    fetcher_tasks = []
+    for task in tasks:
+        fetcher_tasks.extend(
+            get_fetcher_tasks(
+                diagnostic,
+                variable=task,
+                config=config,
+            )
         )
-
-        # 输入变量
-        input_variables = [{
-            **combined_variable,
-            **v,
-            "variable_group": f"{combined_variable['short_name']}_derive_input_{v['short_name']}",
-        } for v in required_variables]
-
-        for v in input_variables:
-            add_variable_info(v, override=True)
-
-            task = {
-                "products": [
-                    {
-                        "variable": v,
-                        "output": {
-                            "output_directory": "{alias}/{variable_group}",
-                            "output_data_source_file": "data_source.yml",
-                        }
-                    }
-                ],
-
-                "config": {
-                    "data_path": deangelis_config.data_path,
-                },
-
-                "output": {
-                    "output_directory": "{work_dir}" + f"/{diagnostic_name}/fetcher/preproc",
-                }
-            }
-
-            tasks.append(task)
-
-    return tasks
+    return fetcher_tasks
 
 
 def main():
@@ -96,47 +40,31 @@ def main():
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     exp_datasets = deangelis_recipe.f3f4.exp_datasets
-    exp_datasets = [{
-        **d,
-        "alias": f"{d['dataset']}-{d['exp']}",
-    } for d in exp_datasets]
     variables = deangelis_recipe.f3f4.variables
-
-    # CMIP6数据
-    tasks = [
-        {
-            "exp_dataset": d,
-            "variable": v,
-        }
-        for v, d in itertools.product(variables, exp_datasets)
-    ]
-
-    fetcher_tasks = []
-    for task in tasks:
-        fetcher_tasks.extend(get_fetcher_tasks(**task))
-
-
-    # 观测数据
     variable_additional_datasets = deangelis_recipe.f3f4.variable_additional_datasets
+
+    # get all datasets
+    datasets = get_datasets(
+        datasets=exp_datasets,
+        variables=variables,
+        variable_additional_datasets=variable_additional_datasets
+    )
+
+    # generate fetcher tasks
+    fetcher_tasks = []
     for variable in variables:
-        if variable["variable_group"] in variable_additional_datasets:
-            additional_datasets = variable_additional_datasets[variable["variable_group"]]
-            additional_datasets = [{
-                **d,
-                "alias": f"{d['dataset']}-{d['project']}",
-            } for d in additional_datasets]
-            tasks = [
-                {
-                    "exp_dataset": {
-                        **variable,
-                        **d,
-                    },
-                    "variable": {},
-                }
-                for d in additional_datasets
-            ]
-            for task in tasks:
-                fetcher_tasks.extend(get_fetcher_tasks(**task))
+        fetcher_tasks.extend(
+            get_tasks_for_variable(
+                datasets=datasets[variable["variable_group"]],
+                diagnostic={
+                    "diagnostic": diagnostic_name
+                },
+                config={
+                    "data_path": deangelis_config.data_path
+                },
+                work_dir=work_dir
+            )
+        )
 
     for task in fetcher_tasks:
         get_data(

@@ -17,14 +17,11 @@ diagnostic_name = "f1b"
 
 def get_tasks_for_variable(
         datasets,
+        diagnostic,
         config,
         work_dir,
 ):
     tasks = datasets
-
-    diagnostic = {
-        "diagnostic": diagnostic_name
-    }
 
     fetcher_tasks = []
     for task in tasks:
@@ -44,11 +41,13 @@ def main():
 
     exp_datasets = deangelis_recipe.f1b.exp_datasets
     variables = deangelis_recipe.f1b.variables
+    variable_additional_datasets = deangelis_recipe.f3f4.variable_additional_datasets
 
     # get all datasets
     datasets = get_datasets(
         datasets=exp_datasets,
         variables=variables,
+        variable_additional_datasets=variable_additional_datasets
     )
 
     # generate fetcher tasks
@@ -57,6 +56,9 @@ def main():
         fetcher_tasks.extend(
             get_tasks_for_variable(
                 datasets=datasets[variable["variable_group"]],
+                diagnostic={
+                    "diagnostic": diagnostic_name
+                },
                 config={
                     "data_path": deangelis_config.data_path
                 },
