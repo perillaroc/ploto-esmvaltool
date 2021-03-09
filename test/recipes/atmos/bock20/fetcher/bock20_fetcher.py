@@ -5,7 +5,7 @@ from ploto_esmvaltool.util.esmvaltool import (
     get_datasets
 )
 from ploto_esmvaltool.util.task import (
-    get_fetcher_task
+    get_fetcher_tasks
 )
 
 from test.recipes.atmos.bock20 import (
@@ -26,8 +26,8 @@ def get_tasks_for_variable(
     }
     fetcher_tasks = []
     for task in datasets:
-        fetcher_tasks.append(
-            get_fetcher_task(
+        fetcher_tasks.extend(
+            get_fetcher_tasks(
                 diagnostic,
                 task,
                 config={
