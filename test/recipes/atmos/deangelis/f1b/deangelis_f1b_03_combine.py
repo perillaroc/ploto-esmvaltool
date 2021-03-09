@@ -21,11 +21,22 @@ def get_combine_task(
 ):
     task = {
         "util_type": "combine_metadata",
-        "metadata_files": [
-            "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{d['alias']}/{d['variable_group']}/metadata.yml"
-            for d in variables
+        "products": [
+            {
+                "input": {
+                    "input_metadata_files": [
+                        "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{d['alias']}/{d['variable_group']}/metadata.yml"
+                        for d in variables
+                    ],
+                },
+                "output": {
+                    "output_directory": f"{variable['variable_group']}"
+                }
+            }
         ],
-        "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{variable['variable_group']}",
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+        }
     }
 
     return task
