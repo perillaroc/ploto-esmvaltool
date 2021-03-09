@@ -19,7 +19,6 @@ from test.recipes.atmos.deangelis import (
 diagnostic_name = "f1b"
 
 
-
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)

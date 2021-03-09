@@ -1,7 +1,9 @@
-import itertools
 from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvaltool_util_processor import run_processor
+from ploto_esmvaltool.util.esmvaltool import (
+    get_datasets
+)
 
 from test.recipes.atmos.deangelis import (
     config as deangelis_config,
@@ -12,23 +14,52 @@ from test.recipes.atmos.deangelis import (
 diagnostic_name = "f2ext"
 
 
-def get_combined_task(
-        exp_datasets,
+def get_combine_task(
+        variables,
         variable,
+        diagnostic
 ):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
-    Path(work_dir).mkdir(parents=True, exist_ok=True)
-
-    variable_group = variable["variable_group"]
+    diagnostic_name = diagnostic["diagnostic"]
     task = {
         "util_type": "combine_metadata",
-        "metadata_files": [
-            "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{d['alias']}/{variable_group}/metadata.yml"
-            for d in exp_datasets
+        "products": [
+            {
+                "input": {
+                    "input_metadata_files": [
+                        "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{d['alias']}/{d['variable_group']}/metadata.yml"
+                        for d in variables
+                    ],
+                },
+                "output": {
+                    "output_directory": f"{variable['variable_group']}"
+                }
+            }
         ],
-        "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{variable_group}"
+        "output": {
+            "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
+        }
     }
+
     return task
+
+
+def get_tasks_for_variable(
+        variable,
+        datasets,
+        diagnostic,
+        config,
+        work_dir,
+):
+    tasks = datasets
+
+    processor_tasks = []
+    processor_tasks.append(get_combine_task(
+        variables=tasks,
+        variable=variable,
+        diagnostic=diagnostic
+    ))
+
+    return processor_tasks
 
 
 def main():
@@ -36,23 +67,29 @@ def main():
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     exp_datasets = deangelis_recipe.f2ext.exp_datasets
-    exp_datasets = [{
-        **d,
-        "alias": f"{d['dataset']}-{d['exp']}",
-    } for d in exp_datasets]
     variables = deangelis_recipe.f2ext.variables
 
-    tasks = [
-        {
-            "exp_datasets": exp_datasets,
-            "variable": v,
-        }
-        for v in variables
-    ]
+    # get all datasets
+    datasets = get_datasets(
+        datasets=exp_datasets,
+        variables=variables,
+    )
 
     processor_tasks = []
-    for task in tasks:
-        processor_tasks.append(get_combined_task(**task))
+    for variable in variables:
+        processor_tasks.extend(
+            get_tasks_for_variable(
+                variable=variable,
+                datasets=datasets[variable["variable_group"]],
+                diagnostic={
+                    "diagnostic": diagnostic_name
+                },
+                config={
+                    "data_path": deangelis_config.data_path
+                },
+                work_dir=work_dir,
+            )
+        )
 
     for task in processor_tasks:
         run_processor(

@@ -1,4 +1,3 @@
-import itertools
 from pathlib import Path
 
 from ploto_esmvaltool.processor.esmvaltool_util_processor import run_processor
@@ -18,7 +17,9 @@ diagnostic_name = "f1b"
 def get_combine_task(
         variables,
         variable,
+        diagnostic
 ):
+    diagnostic_name = diagnostic["diagnostic"]
     task = {
         "util_type": "combine_metadata",
         "products": [
@@ -45,6 +46,7 @@ def get_combine_task(
 def get_tasks_for_variable(
         variable,
         datasets,
+        diagnostic,
         config,
         work_dir,
 ):
@@ -54,6 +56,7 @@ def get_tasks_for_variable(
     processor_tasks.append(get_combine_task(
         variables=tasks,
         variable=variable,
+        diagnostic=diagnostic
     ))
 
     return processor_tasks
@@ -78,6 +81,9 @@ def main():
             get_tasks_for_variable(
                 variable=variable,
                 datasets=datasets[variable["variable_group"]],
+                diagnostic={
+                    "diagnostic": diagnostic_name
+                },
                 config={
                     "data_path": deangelis_config.data_path
                 },

@@ -1,5 +1,4 @@
 from pathlib import Path
-import itertools
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 from ploto_esmvaltool.util.esmvaltool import (
@@ -18,6 +17,7 @@ diagnostic_name = "f1b"
 
 def get_tasks_for_variable(
         datasets,
+        config,
         work_dir,
 ):
     tasks = datasets
@@ -32,13 +32,10 @@ def get_tasks_for_variable(
             get_fetcher_tasks(
                 diagnostic,
                 variable=task,
-                config={
-                    "data_path": deangelis_config.data_path
-                },
+                config=config,
             )
         )
     return fetcher_tasks
-
 
 
 def main():
@@ -60,6 +57,9 @@ def main():
         fetcher_tasks.extend(
             get_tasks_for_variable(
                 datasets=datasets[variable["variable_group"]],
+                config={
+                    "data_path": deangelis_config.data_path
+                },
                 work_dir=work_dir
             )
         )
