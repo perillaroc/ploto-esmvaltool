@@ -1,7 +1,4 @@
 from pathlib import Path
-import itertools
-
-from esmvalcore.preprocessor._derive import get_required
 
 from ploto_esmvaltool.fetcher.esmvalcore_fetcher import get_data
 from ploto_esmvaltool.util.esmvaltool import (
@@ -9,7 +6,7 @@ from ploto_esmvaltool.util.esmvaltool import (
 )
 
 from ploto_esmvaltool.util.task import (
-    get_fetcher_task
+    get_fetcher_tasks
 )
 
 from test.recipes.atmos.eyring13 import (
@@ -33,9 +30,9 @@ def get_tasks_for_variable(
 
     fetcher_tasks = []
     for task in tasks:
-        fetcher_tasks.append(
-            get_fetcher_task(
-                diagnostic,
+        fetcher_tasks.extend(
+            get_fetcher_tasks(
+                diagnostic=diagnostic,
                 variable=task,
                 config={
                     "data_path": eyring13_config.data_path

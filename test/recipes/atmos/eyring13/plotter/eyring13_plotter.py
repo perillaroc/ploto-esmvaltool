@@ -1,15 +1,14 @@
-import itertools
 import os
 from pathlib import Path
 
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter import run_plotter
-
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.atmosphere.eyring13 import generate_default_plot_task
 
 from test.recipes.atmos.eyring13 import (
     config as eyring13_config,
     recipe as eyring13_recipe,
 )
+
 
 diagnostic_name = "fig12"
 
