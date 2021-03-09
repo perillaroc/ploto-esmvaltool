@@ -30,6 +30,9 @@ def get_tasks_for_variable(
         work_dir,
 ):
     variables = datasets
+    diagnostic = {
+        "diagnostic": "fig12"
+    }
 
     processor_tasks = []
 
@@ -64,7 +67,7 @@ def get_tasks_for_variable(
 
         if is_multi_model_operation(operation_block[0]):
             processor_tasks.extend(get_multi_model_processor_tasks(
-                "fig12",
+                diagnostic=diagnostic,
                 variable_products=variable_products,
                 operation_block=operation_block,
                 block_index=block_index,
@@ -72,7 +75,7 @@ def get_tasks_for_variable(
         else:
             for p in variable_products:
                 processor_tasks.extend(get_product_processor_tasks(
-                    "fig12",
+                    diagnostic=diagnostic,
                     variable_product=p,
                     operation_block=operation_block,
                     block_index=block_index,

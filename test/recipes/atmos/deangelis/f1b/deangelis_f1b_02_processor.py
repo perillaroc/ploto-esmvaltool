@@ -37,7 +37,7 @@ diagnostic_name = "f1b"
 
 
 def get_operation_block_tasks(
-        diagnostic_name,
+        diagnostic,
         variable,
         variables,
         settings,
@@ -67,7 +67,7 @@ def get_operation_block_tasks(
 
         if is_multi_model_operation(operation_block[0]):
             processor_tasks.extend(get_multi_model_processor_tasks(
-                diagnostic_name=diagnostic_name,
+                diagnostic=diagnostic,
                 variable_products=variable_products,
                 operation_block=operation_block,
                 block_index=block_index,
@@ -76,7 +76,7 @@ def get_operation_block_tasks(
         else:
             for p in variable_products:
                 processor_tasks.extend(get_product_processor_tasks(
-                    diagnostic_name=diagnostic_name,
+                    diagnostic=diagnostic,
                     variable_product=p,
                     operation_block=operation_block,
                     block_index=block_index,
@@ -93,6 +93,9 @@ def get_tasks_for_variable(
         work_dir,
 ):
     variables = datasets
+    diagnostic = {
+        "diagnostic": diagnostic_name
+    }
 
     processor_tasks = []
     # get operation blocks
@@ -124,7 +127,7 @@ def get_tasks_for_variable(
             )
             processor_tasks.extend(
                 get_operation_block_tasks(
-                    diagnostic_name=diagnostic_name,
+                    diagnostic=diagnostic,
                     variable=dataset,
                     variables=input_variables,
                     settings=before_settings,
@@ -133,7 +136,7 @@ def get_tasks_for_variable(
             )
 
             processor_tasks.extend(get_operation_block_tasks(
-                diagnostic_name=diagnostic_name,
+                diagnostic=diagnostic,
                 variable=dataset,
                 variables=[dataset],
                 settings=after_settings,
@@ -181,7 +184,7 @@ def get_tasks_for_variable(
     else:
         processor_tasks.extend(
             get_operation_block_tasks(
-                diagnostic_name=diagnostic_name,
+                diagnostic=diagnostic,
                 variable=variable,
                 variables=variables,
                 settings=settings,
@@ -190,166 +193,6 @@ def get_tasks_for_variable(
         )
 
     return processor_tasks
-
-
-def get_processor_tasks(
-        exp_dataset,
-        variable,
-):
-    work_dir = "/home/hujk/ploto/esmvaltool/cases/case106/ploto"
-    Path(work_dir).mkdir(parents=True, exist_ok=True)
-
-    processor_tasks = []
-
-    operations = generate_default_operations(name=variable["preprocessor"])
-
-    before_settings, after_settings = split_derive_settings(
-        deangelis_recipe.processor_settings[variable["preprocessor"]]
-    )
-
-    before_operations = get_operations({
-        **get_default_settings(),
-        **before_settings,
-    })
-
-    after_operations = get_operations({
-        **get_default_settings(),
-        **after_settings
-    })
-
-    settings = deangelis_recipe.processor_settings[variable["preprocessor"]]
-
-    diagnostic = {
-        "diagnostic": "deangelisf1b",
-    }
-
-    combined_variable = combine_variable(
-        dataset=exp_dataset,
-        variable=variable,
-    )
-    add_variable_info(combined_variable)
-
-    if "derive" in combined_variable and combined_variable["derive"]:
-        # 需要的变量，来自 ESMValCore
-        required_variables = get_required(
-            short_name=combined_variable["short_name"],
-            project=combined_variable["project"]
-        )
-
-        # 输入变量
-        input_variables = [{
-            **combined_variable,
-            **v,
-            "variable_group": f"{combined_variable['short_name']}_derive_input_{v['short_name']}",
-            "alias": f"{combined_variable['dataset']}-{combined_variable['exp']}",
-        } for v in required_variables]
-
-        for v in input_variables:
-            add_variable_info(v, override=True)
-            task = {
-                "products": [
-                    {
-                        "variable": v,
-                        "input": {
-                            "input_data_source_file": (
-                                "{work_dir}"
-                                f"/{diagnostic_name}/fetcher/preproc"
-                                "/{alias}/{variable_group}/data_source.yml"
-                            ),
-                        },
-                        "output": {
-                            "output_directory": "{alias}/{variable_group}"
-                        },
-                        "settings": settings
-                    }
-                ],
-
-                # operations
-                "operations": before_operations,
-
-                "diagnostic": diagnostic,
-
-                "output": {
-                    "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
-                },
-
-                "step_type": "processor",
-                "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
-            }
-
-            processor_tasks.append(task)
-
-        task = {
-            "products": [
-                {
-                    "variable": combined_variable,
-                    "input": {
-                        "input_metadata_files": [
-                            (
-                                "{work_dir}"
-                                f"/{diagnostic_name}/processor/preproc"
-                                f"/{v['alias']}/{v['variable_group']}/metadata.yml"
-                            )
-                            for v in input_variables
-                        ],
-                    },
-                    "output": {
-                        "output_directory": "{alias}/{variable_group}"
-                    },
-                    "settings": settings
-                }
-            ],
-
-            # operations
-            "operations": after_operations,
-
-            "diagnostic": diagnostic,
-
-            "output": {
-                "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
-            },
-
-            "step_type": "processor",
-            "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
-        }
-
-        processor_tasks.append(task)
-    else:
-        task = {
-            "products": [
-                {
-                    "variable": combined_variable,
-                    "input": {
-                        "input_data_source_file": (
-                            "{work_dir}"
-                            f"/{diagnostic_name}/fetcher/preproc"
-                            "/{alias}/{variable_group}/data_source.yml"
-                        ),
-                    },
-                    "output": {
-                        "output_directory": "{alias}/{variable_group}"
-                    },
-                    "settings": settings
-                }
-            ],
-
-            # operations
-            "operations": operations,
-
-            "diagnostic": diagnostic,
-
-            "output": {
-                "output_directory": "{work_dir}" + f"/{diagnostic_name}/processor/preproc",
-            },
-
-            "step_type": "processor",
-            "type": "ploto_esmvaltool.processor.esmvalcore_pre_processor",
-        }
-
-        processor_tasks.append(task)
-
-    return processor_tasks
-
 
 
 def main():

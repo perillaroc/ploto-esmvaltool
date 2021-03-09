@@ -4,29 +4,27 @@ from ploto_esmvaltool.util.esmvaltool import get_derive_input_variables
 
 
 def get_product_processor_tasks(
-        diagnostic_name: str,
+        diagnostic: typing.Dict,
         variable_product: typing.Dict,
         operation_block: typing.List,
         block_index: int,
         total_blocks: int = -1,
-):
+) -> typing.List:
     variable = variable_product["variable"]
     settings = variable_product["settings"]
     processor_tasks = []
 
-    diagnostic = {
-        "diagnostic": diagnostic_name,
-    }
+    diagnostic_name = diagnostic["diagnostic"]
 
     input_section = _get_input_section(
-        diagnostic_name,
+        diagnostic,
         variable,
         block_index,
         total_blocks=total_blocks,
     )
 
     output_section =  _get_output_section(
-        diagnostic_name,
+        diagnostic,
         variable,
         block_index,
         total_blocks=total_blocks,
@@ -34,7 +32,7 @@ def get_product_processor_tasks(
 
     if operation_block[0]["type"] == "derive":
         input_section = _get_input_section_for_derive(
-            diagnostic_name,
+            diagnostic,
             variable,
             block_index,
             total_blocks=total_blocks,
@@ -61,17 +59,15 @@ def get_product_processor_tasks(
 
 
 def get_multi_model_processor_tasks(
-        diagnostic_name: str,
+        diagnostic: typing.Dict,
         variable_products: typing.List[typing.Dict],
         operation_block: typing.List,
         block_index: int,
         total_blocks: int = -1,
-):
+) -> typing.List:
     processor_tasks = []
 
-    diag = {
-        "diagnostic": diagnostic_name,
-    }
+    diagnostic_name = diagnostic["diagnostic"]
 
     for op in operation_block:
         if op["type"] == "multi_model_statistics":
@@ -84,13 +80,13 @@ def get_multi_model_processor_tasks(
         return {
             "variable": variable,
             "input": _get_input_section(
-                diagnostic_name,
+                diagnostic,
                 variable,
                 block_index,
                 total_blocks
             ),
             "output": _get_output_section(
-                diagnostic_name,
+                diagnostic,
                 variable,
                 block_index,
                 total_blocks
@@ -111,7 +107,7 @@ def get_multi_model_processor_tasks(
         # operations
         "operations": operation_block,
 
-        "diagnostic": diag,
+        "diagnostic": diagnostic,
     }
     processor_tasks.append(task)
 
@@ -119,11 +115,12 @@ def get_multi_model_processor_tasks(
 
 
 def _get_input_section(
-        diagnostic_name,
-        variable,
-        block_index,
-        total_blocks=-1,
-):
+        diagnostic: typing.Dict,
+        variable: typing.Dict,
+        block_index: int,
+        total_blocks: int=-1,
+) -> typing.Dict:
+    diagnostic_name = diagnostic["diagnostic"]
     if block_index == 0:
         return {
             "input_data_source_file":
@@ -142,14 +139,15 @@ def _get_input_section(
 
 
 def _get_input_section_for_derive(
-        diagnostic_name,
-        variable,
-        block_index,
-        total_blocks=-1,
-):
+        diagnostic: typing.Dict,
+        variable: typing.Dict,
+        block_index: int,
+        total_blocks: int=-1,
+) -> typing.Dict:
+    diagnostic_name = diagnostic["diagnostic"]
     if block_index > 0:
         return _get_input_section(
-            diagnostic_name,
+            diagnostic,
             variable,
             block_index,
             total_blocks
@@ -172,11 +170,11 @@ def _get_input_section_for_derive(
 
 
 def _get_output_section(
-        diagnostic_name,
-        variable,
-        block_index,
-        total_blocks=-1
-):
+        diagnostic: typing.Dict,
+        variable: typing.Dict,
+        block_index: int,
+        total_blocks: int=-1
+) -> typing.Dict:
     if total_blocks == -1 or block_index < block_index - 1:
         return {
             "output_directory": f"step-{block_index:02}" + "/{alias}/{variable_group}",
