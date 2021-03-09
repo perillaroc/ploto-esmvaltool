@@ -35,8 +35,8 @@ def get_fetcher_tasks(
         config,
 ):
     tasks = []
-
-    if not variable["derive"]:
+    is_derive = variable.get("derive", False)
+    if not is_derive:
         tasks.append(get_fetcher_task(
             diagnostic=diagnostic,
             variable=variable,
