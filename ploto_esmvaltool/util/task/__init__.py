@@ -9,3 +9,7 @@ from .processor import (
     get_product_processor_tasks,
     get_multi_model_processor_tasks,
 )
+
+from .util import (
+    get_combine_metadata_task
+)
