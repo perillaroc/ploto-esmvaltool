@@ -199,8 +199,12 @@ def get_multi_model_processor_tasks(
 
     for op in operation_block:
         if op["type"] == "multi_model_statistics":
+            if block_index < total_blocks - 1:
+                output_directory = f"step-{block_index:02}" + "/multi-model-{operator}/{variable_group}"
+            else:
+                output_directory = "multi-model-{operator}/{variable_group}"
             op["settings"]["output"] = {
-                "output_directory": f"step-{block_index:02}" + "/multi-model-{operator}/{variable_group}",
+                "output_directory": output_directory,
                 "output_file": "MultiModel_{operator}_{mip}_{variable_group}_{start_year}-{end_year}.nc",
             }
 

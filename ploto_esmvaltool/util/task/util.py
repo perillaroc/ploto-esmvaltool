@@ -20,19 +20,28 @@ def get_combine_metadata_tasks_for_variable(
     return processor_tasks
 
 
+def _get_metadata_file(
+        variable,
+        diagnostic,
+):
+    diagnostic_name = diagnostic["diagnostic"]
+    return "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{variable['alias']}/{variable['variable_group']}/metadata.yml"
+
+
 def get_combine_metadata_task(
         variables: typing.List,
         variable: typing.Dict,
         diagnostic: typing.Dict
 ) -> typing.Dict:
     diagnostic_name = diagnostic["diagnostic"]
+
     task = {
         "util_type": "combine_metadata",
         "products": [
             {
                 "input": {
                     "input_metadata_files": [
-                        "{work_dir}" + f"/{diagnostic_name}/processor/preproc/{d['alias']}/{d['variable_group']}/metadata.yml"
+                        _get_metadata_file(d, diagnostic=diagnostic)
                         for d in variables
                     ],
                 },
