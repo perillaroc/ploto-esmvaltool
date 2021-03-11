@@ -18,7 +18,7 @@ def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case108/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    variables = bock20_recipe.variables
+    variables = bock20_recipe.fig1.variables
 
     plot_task = generate_default_plot_task(diagnostic_name)
 

@@ -39,9 +39,9 @@ def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case108/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    exp_datasets = bock20_recipe.exp_datasets
-    variables = bock20_recipe.variables
-    variable_additional_datasets = bock20_recipe.variable_additional_datasets
+    exp_datasets = bock20_recipe.fig1.exp_datasets
+    variables = bock20_recipe.fig1.variables
+    variable_additional_datasets = bock20_recipe.fig1.variable_additional_datasets
 
     datasets = get_datasets(
         datasets=exp_datasets,
