@@ -109,6 +109,13 @@ def _get_file_path(variable, output_dir):
             output_dir,
             f"{project}_{dataset}_{mip}_{exp}_{ensemble}_{short_name}_{start_year}-{end_year}.nc"
         )
+    elif project == "obs4mips":
+        version = variable["version"]
+        level = variable["level"]
+        file_path = Path(
+            output_dir,
+            f"{project}_{dataset}_{level}_{version}_{short_name}_{start_year}-{end_year}.nc"
+        )
     elif project in ("OBS6", "obs4mips", "native6", "OBS"):
         version = variable["version"]
         mip = variable["mip"]
