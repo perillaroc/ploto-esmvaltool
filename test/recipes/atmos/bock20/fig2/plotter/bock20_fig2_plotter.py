@@ -11,14 +11,14 @@ from test.recipes.atmos.bock20 import (
     recipe as bock20_recipe,
 )
 
-diagnostic_name = "fig_1_cmip6"
+diagnostic_name = "fig_2"
 
 
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/case108/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    variables = bock20_recipe.fig1.variables
+    variables = bock20_recipe.fig2.variables
 
     plot_task = generate_default_plot_task(diagnostic_name)
 
@@ -29,8 +29,11 @@ def main():
         **plot_task,
         "config": bock20_config.plot_config,
         "input_files": [
-            f"{work_dir}/{diagnostic_name}/processor/preproc/{v['variable_group']}/{v['short_name']}_info.ncl"
-            for v in variables
+            *[
+                f"{work_dir}/{diagnostic_name}/processor/preproc/{v['variable_group']}/{v['short_name']}_info.ncl"
+                for v in variables
+            ],
+            f"{work_dir}/fig_1_cmip6/plotter/work",
         ],
         "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter"
     }

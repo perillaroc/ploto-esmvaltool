@@ -14,9 +14,10 @@ INFO_KEYS = (
 
 
 def get_datasets(
-        datasets: typing.List,
         variables: typing.List,
-        variable_additional_datasets: typing.Optional[typing.Dict] = None
+        datasets: typing.List = None,
+        variable_additional_datasets: typing.Optional[typing.Dict] = None,
+        additional_datasets: typing.Optional[typing.Dict] = None
 ) -> typing.Dict:
     """
 
@@ -69,6 +70,7 @@ def get_datasets(
                 }
             ],
         }
+    additional_datasets: typing.Dict
 
     Returns
     -------
@@ -85,17 +87,23 @@ def get_datasets(
         }
     """
     ds = {}
+    if datasets is None:
+        datasets = []
     if variable_additional_datasets is None:
         variable_additional_datasets = []
+    if additional_datasets is None:
+        additional_datasets = []
+
     for variable in variables:
         group_variables = []
         if variable["variable_group"] in variable_additional_datasets:
-            additional_datasets = variable_additional_datasets[variable["variable_group"]]
+            v_additional_datasets = variable_additional_datasets[variable["variable_group"]]
         else:
-            additional_datasets = []
+            v_additional_datasets = []
         recipe_dataset_index = 0
         for d in [
             *datasets,
+            *v_additional_datasets,
             *additional_datasets
         ]:
             v = generate_variable(
