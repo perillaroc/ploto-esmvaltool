@@ -1,5 +1,8 @@
-from . import fig1
-from . import fig2
+from . import (
+    fig1,
+    fig2,
+    fig3,
+)
 
 
 processor_settings = {

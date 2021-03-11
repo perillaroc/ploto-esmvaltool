@@ -56,7 +56,8 @@ def generate_clim_ref_operation_blocks(settings) -> typing.List:
 def generate_default_plot_task(name=None) -> typing.Dict:
     mapper = {
         "fig_1_cmip6": generate_fig_1_cmip6_plot,
-        "fig_2": generate_fig_2_plot
+        "fig_2": generate_fig_2_plot,
+        "fig_3": generate_fig_3_plot
     }
     return mapper[name]()
 
@@ -138,6 +139,30 @@ def generate_fig_2_plot() -> typing.Dict:
                 "stat_shading": True,
                 "ref_shading": False,
                 "ref_stderr": True,
+            }
+        },
+    }
+
+
+def generate_fig_3_plot() -> typing.Dict:
+    return {
+        "diagnostic": {
+            "recipe": "recipe_bock20.yml",
+            "name": "fig_3"
+        },
+
+        "input_files": [
+        ],
+
+        "diagnostic_script": {
+            "path": {
+                "group": "base",
+                "script": "bock20jgr/model_bias.ncl",
+            },
+            "settings": {
+                "script": "model_bias",
+                "projection": "Robinson",
+                "timemean": "annualclim"
             }
         },
     }
