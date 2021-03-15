@@ -20,16 +20,27 @@ def main():
 
     variables = strato_recipe.variables
 
-    plot_task = generate_default_plot_task(
-        diagnostic_name,
-        script_name="autoassess_strato_test_1",
-        control_model="CAS-ESM2-0",
-        exp_model="FGOALS-g3",
-        obs_models=["ERA-Interim"],
-        additional_metrics=["ERA-Interim"],
-    )
+    plot_tasks = [
+        generate_default_plot_task(
+            diagnostic_name,
+            script_name="autoassess_strato_test_1",
+            control_model="CAS-ESM2-0",
+            exp_model="FGOALS-g3",
+            obs_models=["ERA-Interim"],
+            additional_metrics=["ERA-Interim"],
+        ),
+        generate_default_plot_task(
+            diagnostic_name,
+            script_name="autoassess_strato_test_2",
+            control_model="CAS-ESM2-0",
+            exp_model="BCC-CSM2-MR",
+            obs_models=["ERA-Interim"],
+            additional_metrics=["ERA-Interim"],
+        )
+    ]
 
-    task = {
+    tasks = [
+        {
         "step_type": "plotter",
         "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
 
@@ -39,18 +50,21 @@ def main():
             f"{work_dir}/{diagnostic_name}/processor/preproc/{v['variable_group']}/metadata.yml"
             for v in variables
         ],
-        "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter"
-    }
+        # "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter"
+        }
+        for plot_task in plot_tasks
+        ]
 
     config = strato_config.config
 
     os.chdir(work_dir)
 
-    run_plotter(
-        task=task,
-        work_dir=work_dir,
-        config=config,
-    )
+    for task in tasks:
+        run_plotter(
+            task=task,
+            work_dir=work_dir,
+            config=config,
+        )
 
 
 if __name__ == "__main__":
