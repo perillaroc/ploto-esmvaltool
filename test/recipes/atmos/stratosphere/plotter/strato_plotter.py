@@ -21,39 +21,45 @@ def main():
     variables = strato_recipe.variables
 
     plot_tasks = [
-        generate_default_plot_task(
-            diagnostic_name,
-            script_name="autoassess_strato_test_1",
-            control_model="CAS-ESM2-0",
-            exp_model="FGOALS-g3",
-            obs_models=["ERA-Interim"],
-            additional_metrics=["ERA-Interim"],
-        ),
-        generate_default_plot_task(
-            diagnostic_name,
-            script_name="autoassess_strato_test_2",
-            control_model="CAS-ESM2-0",
-            exp_model="BCC-CSM2-MR",
-            obs_models=["ERA-Interim"],
-            additional_metrics=["ERA-Interim"],
-        )
+        {
+            **generate_default_plot_task(
+                diagnostic_name,
+                script_name="autoassess_strato_test_1",
+                control_model="CAS-ESM2-0",
+                exp_model="FGOALS-g3",
+                obs_models=["ERA-Interim"],
+                additional_metrics=["ERA-Interim"],
+            ),
+            "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter/autoassess_strato_test_1",
+        },
+        {
+            **generate_default_plot_task(
+                diagnostic_name,
+                script_name="autoassess_strato_test_2",
+                control_model="CAS-ESM2-0",
+                exp_model="BCC-CSM2-MR",
+                obs_models=["ERA-Interim"],
+                additional_metrics=["ERA-Interim"],
+            ),
+            "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter/autoassess_strato_test_2",
+        }
     ]
 
     tasks = [
         {
-        "step_type": "plotter",
-        "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
+            "step_type": "plotter",
+            "type": "ploto_esmvaltool.plotter.esmvaltool_diag_plotter",
 
-        **plot_task,
-        "config": strato_config.plot_config,
-        "input_files": [
-            f"{work_dir}/{diagnostic_name}/processor/preproc/{v['variable_group']}/metadata.yml"
-            for v in variables
-        ],
-        # "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter"
+            **plot_task,
+            "config": strato_config.plot_config,
+            "input_files": [
+                f"{work_dir}/{diagnostic_name}/processor/preproc/{v['variable_group']}/metadata.yml"
+                for v in variables
+            ],
+            # "step_work_dir": "{work_dir}" + f"/{diagnostic_name}/plotter"
         }
         for plot_task in plot_tasks
-        ]
+    ]
 
     config = strato_config.config
 

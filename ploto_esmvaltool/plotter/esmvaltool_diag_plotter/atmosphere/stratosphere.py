@@ -85,6 +85,5 @@ def generate_aa_strato_plot(
                 "start": "1997/12/01",
                 "end": "2002/12/01",
             }
-        },
-        "step_work_dir": "{work_dir}" + f"/aa_strato/plotter/{script_name}"
+        }
     }
