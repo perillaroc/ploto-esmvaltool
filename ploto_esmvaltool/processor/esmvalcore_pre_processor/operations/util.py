@@ -3,7 +3,9 @@ import warnings
 
 from esmvalcore.preprocessor import (
     DEFAULT_ORDER,
-    MULTI_MODEL_FUNCTIONS
+    MULTI_MODEL_FUNCTIONS,
+    INITIAL_STEPS,
+    FINAL_STEPS
 )
 
 
@@ -117,7 +119,8 @@ def get_operations(settings, order=DEFAULT_ORDER):
     return operations
 
 
-def get_operation_blocks(settings, order=DEFAULT_ORDER) -> typing.List:
+def get_operation_blocks(settings) -> typing.List:
+    order = _extract_operation_order(settings)
     blocks = []
     previous_step_type = None
     for step in order[order.index("load") + 1: order.index("save")]:
@@ -137,3 +140,11 @@ def get_operation_blocks(settings, order=DEFAULT_ORDER) -> typing.List:
 
 def is_multi_model_operation(operation):
     return operation["type"] in MULTI_MODEL_FUNCTIONS
+
+
+def _extract_operation_order(settings):
+    custom_order = settings.pop('custom_order', False)
+    if not custom_order:
+        return DEFAULT_ORDER
+    order = tuple(p for p in settings if p not in INITIAL_STEPS + FINAL_STEPS)
+    return INITIAL_STEPS + order + FINAL_STEPS
