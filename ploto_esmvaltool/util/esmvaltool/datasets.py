@@ -1,6 +1,6 @@
 import typing
 
-from .variable import generate_variable
+from .variable import generate_variables
 
 
 INFO_KEYS = (
@@ -106,13 +106,14 @@ def get_datasets(
             *v_additional_datasets,
             *additional_datasets
         ]:
-            v = generate_variable(
+            vs = generate_variables(
                 variable=variable,
                 dataset=d,
             )
-            v["recipe_dataset_index"] = recipe_dataset_index
-            recipe_dataset_index += 1
-            group_variables.append(v)
+            for v in vs:
+                v["recipe_dataset_index"] = recipe_dataset_index
+                recipe_dataset_index += 1
+                group_variables.append(v)
         ds[variable["variable_group"]] = group_variables
 
     set_alias(ds)

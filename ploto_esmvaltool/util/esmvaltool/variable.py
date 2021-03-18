@@ -5,6 +5,28 @@ from esmvalcore._recipe import _add_cmor_info
 from esmvalcore.preprocessor._derive import get_required
 
 
+def generate_variables(
+        variable: typing.Dict,
+        dataset: typing.Dict,
+):
+    v = combine_variable(
+        variable=variable,
+        dataset=dataset
+    )
+    add_variable_info(v)
+    vs = []
+    if "ensemble" in v and isinstance(v["ensemble"], typing.List):
+        for ens in v["ensemble"]:
+            current_variable = {
+                **v,
+                "ensemble": ens,
+            }
+            vs.append(current_variable)
+    else:
+        vs.append(v)
+    return vs
+
+
 def generate_variable(
         variable: typing.Dict,
         dataset: typing.Dict,
@@ -75,4 +97,3 @@ def get_derive_input_variables(
     # 输入变量
     input_variables = [get_variable(v) for v in required_variables]
     return input_variables
-
