@@ -60,13 +60,15 @@ def get_processor_tasks_for_variable(
                 )
             )
 
-            processor_tasks.extend(get_processor_tasks_for_operation_block(
-                diagnostic=diagnostic,
-                variable=dataset,
-                variables=[dataset],
-                settings=after_settings,
-                config=config
-            ))
+            processor_tasks.extend(
+                get_processor_tasks_for_operation_block(
+                    diagnostic=diagnostic,
+                    variable=dataset,
+                    variables=[dataset],
+                    settings=after_settings,
+                    config=config
+                )
+            )
     else:
         processor_tasks.extend(
             get_processor_tasks_for_operation_block(
@@ -89,7 +91,8 @@ def get_processor_tasks_for_operation_block(
         config: typing.Dict,
 ):
     blocks = get_operation_blocks(
-        settings,
+        # settings,
+        copy.deepcopy(settings)
     )
 
     # get processor tasks
@@ -111,22 +114,26 @@ def get_processor_tasks_for_operation_block(
             })
 
         if is_multi_model_operation(operation_block[0]):
-            processor_tasks.extend(get_multi_model_processor_tasks(
-                diagnostic=diagnostic,
-                variable_products=variable_products,
-                operation_block=operation_block,
-                block_index=block_index,
-                total_blocks=len(blocks)
-            ))
-        else:
-            for p in variable_products:
-                processor_tasks.extend(get_product_processor_tasks(
+            processor_tasks.extend(
+                get_multi_model_processor_tasks(
                     diagnostic=diagnostic,
-                    variable_product=p,
+                    variable_products=variable_products,
                     operation_block=operation_block,
                     block_index=block_index,
                     total_blocks=len(blocks)
-                ))
+                )
+            )
+        else:
+            for p in variable_products:
+                processor_tasks.extend(
+                    get_product_processor_tasks(
+                        diagnostic=diagnostic,
+                        variable_product=p,
+                        operation_block=operation_block,
+                        block_index=block_index,
+                        total_blocks=len(blocks)
+                    )
+                )
 
     return processor_tasks
 
@@ -290,12 +297,12 @@ def _get_input_section_for_derive(
     )
 
     input_section = {
-            "input_metadata_files": [
-                "{work_dir}"
-                f"/{diagnostic_name}/processor/preproc/{v['alias']}"
-                f"/{v['variable_group']}/metadata.yml"
-                for v in input_variables
-            ]
+        "input_metadata_files": [
+            "{work_dir}"
+            f"/{diagnostic_name}/processor/preproc/{v['alias']}"
+            f"/{v['variable_group']}/metadata.yml"
+            for v in input_variables
+        ]
     }
 
     return input_section
