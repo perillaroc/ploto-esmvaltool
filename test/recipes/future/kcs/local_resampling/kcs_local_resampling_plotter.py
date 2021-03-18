@@ -11,19 +11,19 @@ from test.recipes.future.kcs import (
     recipe as kcs_recipe,
 )
 
-diagnostic_name = "global_matching"
+diagnostic_name = "local_resampling"
 
 
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/future/case301/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    variables = kcs_recipe.global_warming.variables
+    variables = kcs_recipe.local_resampling.variables
 
     plot_tasks = [
         {
             **generate_default_plot_task(
-                "global_matching"
+                diagnostic_name
             ),
             "input_files": [
                 f"{work_dir}/{diagnostic_name}/processor/preproc/{v['variable_group']}/metadata.yml"

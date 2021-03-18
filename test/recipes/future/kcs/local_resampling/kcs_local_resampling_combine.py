@@ -12,7 +12,7 @@ from test.recipes.future.kcs import (
     recipe as kcs_recipe,
 )
 
-diagnostic_name = "global_matching"
+diagnostic_name = "local_resampling"
 
 
 def get_tasks_for_variable(
@@ -39,8 +39,8 @@ def main():
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
     # recipe
-    variable_additional_datasets = kcs_recipe.global_warming.variable_additional_datasets
-    variables = kcs_recipe.global_warming.variables
+    variable_additional_datasets = kcs_recipe.local_resampling.variable_additional_datasets
+    variables = kcs_recipe.local_resampling.variables
 
     # get all datasets
     datasets = get_datasets(

@@ -3,6 +3,7 @@ import typing
 from esmvalcore.preprocessor import (
     extract_levels,
     regrid,
+    extract_point
 )
 
 from .util import _get_settings
@@ -42,3 +43,21 @@ def run_regrid(
         lon_offset=lon_offset
     )
     return cubes
+
+
+def run_extract_point(
+        cube,
+        settings: typing.Dict,
+        **kwargs,
+):
+    latitude = settings["latitude"]
+    longitude = settings["longitude"]
+    scheme = settings["scheme"]
+
+    result = extract_point(
+        cube,
+        latitude=latitude,
+        longitude=longitude,
+        scheme=scheme,
+    )
+    return result

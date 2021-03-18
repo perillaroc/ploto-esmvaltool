@@ -35,7 +35,8 @@ from .area import (
 
 from .regrid import (
     run_extract_levels,
-    run_regrid
+    run_regrid,
+    run_extract_point
 )
 
 
