@@ -4,21 +4,21 @@ from pathlib import Path
 
 from ploto_esmvaltool.plotter.esmvaltool_diag_plotter import run_plotter
 
-from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.land.landcover import generate_default_plot_task
+from ploto_esmvaltool.plotter.esmvaltool_diag_plotter.land.albedo_landcover import generate_default_plot_task
 
 from test.recipes.land.landcover import (
     config as landcover_config,
     recipe as landcover_recipe,
 )
 
-diagnostic_name = "obs"
+diagnostic_name = "cmip6"
 
 
 def main():
     work_dir = "/home/hujk/ploto/esmvaltool/cases/land/case401/ploto"
     Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-    variables = landcover_recipe.obs.variables
+    variables = landcover_recipe.cmip6.variables
 
     plot_tasks = [
         {
