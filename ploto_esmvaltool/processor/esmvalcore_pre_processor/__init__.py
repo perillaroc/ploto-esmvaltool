@@ -98,6 +98,7 @@ def run_processor(
                 isinstance(operation["settings"], typing.Dict)
                 and "output" in operation["settings"]
         ):
+            # update output section in operation settings
             operation["settings"]["output"] = update_product_output(
                 operation["settings"]["output"],
                 task_output
