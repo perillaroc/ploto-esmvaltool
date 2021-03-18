@@ -25,6 +25,7 @@ from .time import (
     run_climate_statistics,
     run_annual_statistics,
     run_anomalies,
+    run_extract_month
 )
 
 from .area import (

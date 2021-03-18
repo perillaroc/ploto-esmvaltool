@@ -6,6 +6,7 @@ from esmvalcore.preprocessor import (
     climate_statistics,
     annual_statistics,
     anomalies,
+    extract_month
 )
 
 from .util import _get_settings
@@ -78,3 +79,12 @@ def run_anomalies(
         seasons=seasons
     )
     return cubes
+
+def run_extract_month(
+        cube: iris.cube.Cube,
+        settings: typing.Dict,
+        **kwargs
+):
+    month = settings["month"]
+    result = extract_month(cube, month=month)
+    return result
